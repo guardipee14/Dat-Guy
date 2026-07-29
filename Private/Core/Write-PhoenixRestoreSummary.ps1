@@ -107,7 +107,8 @@ function Write-PhoenixRestoreSummary {
             Where-Object {
                 $_.Code -in @(
                     'PHX_RESTORE_SKIPPED',
-                    'PHX_RESTORE_PROVIDER_FILTERED'
+                    'PHX_RESTORE_PROVIDER_FILTERED',
+                    'PHX_RESTORE_NOT_RESTORABLE'
                 )
             }
     ).Count

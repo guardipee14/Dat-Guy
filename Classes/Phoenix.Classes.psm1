@@ -1399,6 +1399,19 @@ hidden [string[]] ParseWingetTableRow(
 
         [int]$exitCode = $LASTEXITCODE
 
+        if ($exitCode -eq -1978335135) {
+
+            $Package.Installed = $true
+
+            $result = [Result]::Success()
+            $result.Code = 'PHX_ALREADY_INSTALLED'
+            $result.Message = (
+                "'$($Package.Id)' is already installed."
+            )
+
+            return $result
+        }
+
         if ($exitCode -ne 0) {
 
             return $this.NewFailure(
@@ -1409,11 +1422,11 @@ hidden [string[]] ParseWingetTableRow(
 
         $Package.Installed = $true
 
-        $result = [Result]::Success(
-            "Installed $($Package.Id) silently."
-        )
-
+        $result = [Result]::Success()
         $result.Code = 'PHX_INSTALLED'
+        $result.Message = (
+            "Installed '$($Package.Id)' silently."
+        )
 
         return $result
     }
@@ -1425,7 +1438,6 @@ hidden [string[]] ParseWingetTableRow(
         )
     }
 }
-
 #endregion 20-Providers\WinGetProvider\Methods\InstallPackageSilent.ps1
 
 #region 20-Providers\WinGetProvider\Methods\InstallProvider.ps1

@@ -428,6 +428,29 @@ function Restore-Phoenix {
                 continue
             }
 
+            [bool]$isUnrestorableWinGetRecord = (
+                $package.Provider -ieq 'WinGet' -and
+                (
+                    $package.Source -ine 'winget' -or
+                    $package.Id -match '^(?i:ARP|MSIX)\\'
+                )
+            )
+
+            if ($isUnrestorableWinGetRecord) {
+
+                [Result]$unrestorableResult =
+                    New-PhoenixRestorePackageResult `
+                        -Package $package `
+                        -Code 'PHX_RESTORE_NOT_RESTORABLE' `
+                        -Success $true `
+                        -Message (
+                            "Skipped '$($package.Id)' because the inventory record is not correlated with a restorable WinGet source package."
+                        )
+
+                $results.Add($unrestorableResult)
+                continue
+            }
+
             if ($Provider -inotcontains $package.Provider) {
 
                 [Result]$filteredResult =
@@ -546,8 +569,12 @@ function Restore-Phoenix {
                 }
 
                 [string]$restoreCode = if (
-                    $installResult.Success
+                    $installResult.Code -eq
+                    'PHX_ALREADY_INSTALLED'
                 ) {
+                    'PHX_RESTORE_ALREADY_INSTALLED'
+                }
+                elseif ($installResult.Success) {
                     'PHX_RESTORE_INSTALLED'
                 }
                 else {
