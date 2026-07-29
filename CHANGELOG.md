@@ -5,6 +5,7 @@ All notable changes to Phoenix are documented in this file.
 ## [Unreleased]
 
 ### Fixed
+- description of the change
 - make README generation idempotent
   - Prevent trailing blank lines from accumulating.
   - Avoid rewriting README.md when generated content is unchanged.

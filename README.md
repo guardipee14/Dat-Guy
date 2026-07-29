@@ -1,7 +1,7 @@
 <!-- PHOENIX:GENERATED:START -->
 # PhoenixDeploy
 
-PowerShell deployment and recovery framework for Windows package management, driver discovery, inventory, backup, and elevated update workflows.
+PowerShell deployment and recovery framework for Windows package management, driver-first backup and restore, inventory, and elevated update workflows.
 
 **Current module version:** `0.1.0`
 

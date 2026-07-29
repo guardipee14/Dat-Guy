@@ -30,7 +30,7 @@ CompanyName = 'Unknown'
 Copyright = '(c) Donaven. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell deployment and recovery framework for Windows package management, driver discovery, inventory, backup, and elevated update workflows.'
+Description = 'PowerShell deployment and recovery framework for Windows package management, driver-first backup and restore, inventory, and elevated update workflows.'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
