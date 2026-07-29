@@ -64,6 +64,52 @@ function Get-GitValue {
     return [string]$result.Output[0]
 }
 
+function Update-PhoenixGitHubDescription {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Description
+    )
+
+    $ghCommand = Get-Command gh `
+        -ErrorAction SilentlyContinue
+
+    if ($null -eq $ghCommand) {
+        Write-Warning (
+            'GitHub CLI was not found. The release was pushed, but the ' +
+            'GitHub repository description was not updated.'
+        )
+
+        return
+    }
+
+    if ($Description.Length -gt 350) {
+        $Description = $Description.Substring(0, 347) + '...'
+    }
+
+    $output = @(
+        & $ghCommand.Source `
+            repo `
+            edit `
+            --description $Description `
+            2>&1
+    )
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning (
+            'The release was pushed, but GitHub repository description ' +
+            "update failed: $($output -join [Environment]::NewLine)"
+        )
+
+        return
+    }
+
+    Write-Host 'GitHub repository description updated.' `
+        -ForegroundColor Green
+}
+
 $repositoryRoot = Get-GitValue `
     -Arguments @(
         'rev-parse',
@@ -165,6 +211,18 @@ try {
         -Value $changelogText `
         -Encoding UTF8
 
+    $readmeUpdaterPath =
+        Join-Path `
+            $repositoryRoot `
+            'Tools\Update-PhoenixReadme.ps1'
+
+    if (-not (Test-Path -LiteralPath $readmeUpdaterPath)) {
+        throw "Phoenix README updater was not found: $readmeUpdaterPath"
+    }
+
+    $readmeResult = & $readmeUpdaterPath `
+        -RepositoryRoot $repositoryRoot
+
     $tokens = $null
     $parseErrors = $null
 
@@ -192,7 +250,8 @@ try {
         -Arguments @(
             'add',
             'Phoenix.psd1',
-            'CHANGELOG.md'
+            'CHANGELOG.md',
+            'README.md'
         ) |
         Out-Null
 
@@ -246,6 +305,9 @@ try {
 
         Write-Host 'Release commit and tag pushed successfully.' `
             -ForegroundColor Green
+
+        Update-PhoenixGitHubDescription `
+            -Description ([string]$readmeResult.Description)
     }
 }
 finally {

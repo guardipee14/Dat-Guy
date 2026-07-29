@@ -4,7 +4,17 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- automate Phoenix capability and repository documentation
+  - Generate the README capability and command sections.
+  - Document current Phoenix limitations.
+  - Refresh repository documentation during commits.
+
 ### Added
+- Automate README capability documentation and GitHub repository description updates during commits.
+  - Generate the exported-command table and current capability list from the Phoenix project.
+  - Preserve content outside the managed README section.
+  - Refresh the GitHub description through GitHub CLI after successful pushes.
 - add Phoenix deployment module and elevated update workflow
   - Add WinGet and Chocolatey package management.
   - Add elevated install, remove, repair, and update operations.

@@ -1,0 +1,519 @@
+[CmdletBinding()]
+param(
+    [Parameter()]
+    [string]$RepositoryRoot,
+
+    [Parameter()]
+    [ValidateNotNullOrEmpty()]
+    [string]$ProjectDescription,
+
+    [Parameter()]
+    [switch]$UpdateManifestDescription
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = 'Stop'
+
+function Invoke-GitRead {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string[]]$Arguments
+    )
+
+    $output = @(
+        & git @Arguments 2>$null
+    )
+
+    if ($LASTEXITCODE -ne 0 -or $output.Count -eq 0) {
+        return $null
+    }
+
+    return [string]$output[0]
+}
+
+function Get-PhoenixSourceText {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    if (-not (Test-Path -LiteralPath $Path)) {
+        return ''
+    }
+
+    return [string](
+        Get-Content `
+            -LiteralPath $Path `
+            -Raw
+    )
+}
+
+function Set-PhoenixManifestDescription {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$ManifestPath,
+
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Description
+    )
+
+    $manifestText = Get-Content `
+        -LiteralPath $ManifestPath `
+        -Raw
+
+    if ($manifestText -notmatch "(?m)^Description\s*=\s*'[^']*'") {
+        throw 'Description was not found in Phoenix.psd1.'
+    }
+
+    $escapedDescription =
+        $Description.Replace("'", "''")
+
+    $manifestText = [regex]::Replace(
+        $manifestText,
+        "(?m)^Description\s*=\s*'[^']*'",
+        "Description = '$escapedDescription'",
+        1
+    )
+
+    Set-Content `
+        -LiteralPath $ManifestPath `
+        -Value $manifestText `
+        -Encoding UTF8
+}
+
+function Get-PhoenixRepositoryUrl {
+
+    [CmdletBinding()]
+    param()
+
+    $origin = Invoke-GitRead `
+        -Arguments @(
+            'remote',
+            'get-url',
+            'origin'
+        )
+
+    if ([string]::IsNullOrWhiteSpace($origin)) {
+        return $null
+    }
+
+    $origin = $origin.Trim()
+
+    if ($origin -match '^git@github\.com:(.+?)(?:\.git)?$') {
+        return "https://github.com/$($Matches[1])"
+    }
+
+    if ($origin -match '^https://github\.com/(.+?)(?:\.git)?$') {
+        return "https://github.com/$($Matches[1])"
+    }
+
+    return $origin.TrimEnd('/')
+}
+
+if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
+
+    $RepositoryRoot = Invoke-GitRead `
+        -Arguments @(
+            'rev-parse',
+            '--show-toplevel'
+        )
+}
+
+if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) {
+    throw 'Run this script from inside the Phoenix Git repository or provide -RepositoryRoot.'
+}
+
+$RepositoryRoot = $RepositoryRoot.Trim()
+$manifestPath = Join-Path $RepositoryRoot 'Phoenix.psd1'
+$readmePath = Join-Path $RepositoryRoot 'README.md'
+
+if (-not (Test-Path -LiteralPath $manifestPath)) {
+    throw "Phoenix manifest was not found: $manifestPath"
+}
+
+$manifest = Import-PowerShellDataFile `
+    -LiteralPath $manifestPath
+
+$defaultDescription = (
+    'PowerShell deployment and recovery framework for Windows package ' +
+    'management, driver discovery, inventory, backup, and elevated update workflows.'
+)
+
+if ([string]::IsNullOrWhiteSpace($ProjectDescription)) {
+    $ProjectDescription = [string]$manifest.Description
+}
+
+if (
+    [string]::IsNullOrWhiteSpace($ProjectDescription) -or
+    $ProjectDescription -eq 'Phoenix Deploy Framework'
+) {
+    $ProjectDescription = $defaultDescription
+    $UpdateManifestDescription = $true
+}
+
+if ($UpdateManifestDescription) {
+
+    Set-PhoenixManifestDescription `
+        -ManifestPath $manifestPath `
+        -Description $ProjectDescription
+
+    $manifest = Import-PowerShellDataFile `
+        -LiteralPath $manifestPath
+}
+
+[string]$version = [string]$manifest.ModuleVersion
+[string[]]$commands = @($manifest.FunctionsToExport)
+[string]$repositoryUrl = Get-PhoenixRepositoryUrl
+
+$commandDescriptions = @{
+    'Backup-Phoenix' = 'Export system inventory, installed drivers, packages, and provider state to a JSON manifest.'
+    'Get-PhoenixContext' = 'Return the active Phoenix runtime context.'
+    'Get-PhoenixPackages' = 'Enumerate installed packages reported by active providers.'
+    'Get-PhoenixProviders' = 'List active Phoenix package providers.'
+    'Install-PhoenixPackage' = 'Install a package through WinGet or Chocolatey with elevation and install-mode handling.'
+    'Remove-PhoenixPackage' = 'Uninstall a package through WinGet or Chocolatey with elevation support.'
+    'Repair-PhoenixPackage' = 'Repair a supported package using silent or interactive provider behavior.'
+    'Restore-Phoenix' = 'Reserved public restore command; full restore orchestration is not implemented yet.'
+    'Start-Phoenix' = 'Initialize configuration, logging, providers, scheduling, and missing-provider checks.'
+    'Update-Phoenix' = 'Run the elevated driver-first bulk update workflow and return structured results.'
+    'Update-PhoenixPackage' = 'Update one package and safely classify installer-technology migrations.'
+}
+
+$commandStatus = @{
+    'Restore-Phoenix' = 'Planned'
+}
+
+$capabilities =
+    [System.Collections.Generic.List[string]]::new()
+
+$startPath = Join-Path $RepositoryRoot 'Public\Start-Phoenix.ps1'
+$updatePath = Join-Path $RepositoryRoot 'Public\Update-Phoenix.ps1'
+$driverPath = Join-Path $RepositoryRoot 'Private\Drivers\Update-PhoenixDriver.ps1'
+$elevationPath = Join-Path $RepositoryRoot 'Private\Core\Request-PhoenixElevation.ps1'
+$providersPath = Join-Path $RepositoryRoot 'Private\Core\Initialize-PhoenixProviders.ps1'
+$migrationPath = Join-Path $RepositoryRoot 'Private\Packages\Invoke-PhoenixPackageMigration.ps1'
+$backupPath = Join-Path $RepositoryRoot 'Public\Backup-Phoenix.ps1'
+$restorePath = Join-Path $RepositoryRoot 'Public\Restore-Phoenix.ps1'
+$loggingPath = Join-Path $RepositoryRoot 'Private\Logging\Write-PhoenixLog.ps1'
+$inventoryPath = Join-Path $RepositoryRoot 'Private\Inventory'
+
+$providersText = Get-PhoenixSourceText -Path $providersPath
+$updateText = Get-PhoenixSourceText -Path $updatePath
+$driverText = Get-PhoenixSourceText -Path $driverPath
+$elevationText = Get-PhoenixSourceText -Path $elevationPath
+$migrationText = Get-PhoenixSourceText -Path $migrationPath
+
+if (
+    $providersText -match 'WinGetProvider' -and
+    $providersText -match 'ChocolateyProvider'
+) {
+    $capabilities.Add(
+        'Detect and initialize WinGet and Chocolatey package providers, including installation checks for missing providers.'
+    )
+}
+
+if (
+    $commands -contains 'Install-PhoenixPackage' -and
+    $commands -contains 'Remove-PhoenixPackage' -and
+    $commands -contains 'Repair-PhoenixPackage' -and
+    $commands -contains 'Update-PhoenixPackage'
+) {
+    $capabilities.Add(
+        'Install, remove, repair, and update individual packages through a consistent public command layer.'
+    )
+}
+
+if (
+    $updateText -match 'SkipDrivers' -and
+    $updateText -match 'SkipPackages' -and
+    $updateText -match 'Write-Progress'
+) {
+    $capabilities.Add(
+        'Run bulk updates with drivers first, package progress reporting, elapsed time, and separate completion summaries.'
+    )
+}
+
+if (
+    $elevationText -match 'WaitForCompletion' -and
+    $elevationText -match 'Export-Clixml' -and
+    $elevationText -match 'Import-Clixml'
+) {
+    $capabilities.Add(
+        'Request UAC once, run privileged work in an elevated process, and return structured results to the original window.'
+    )
+}
+
+if (
+    $driverText -match '/scan-devices' -and
+    $driverText -match 'Get-PhoenixDriver'
+) {
+    $capabilities.Add(
+        'Scan Windows for hardware changes and refresh the installed-driver inventory with visible progress and result codes.'
+    )
+}
+
+if (
+    (Test-Path -LiteralPath $migrationPath) -and
+    $migrationText -match 'PHX_UPDATE_MIGRATION_PROTECTED'
+) {
+    $capabilities.Add(
+        'Handle installer-technology changes with interactive approval, unattended policy switches, and protected-package safeguards.'
+    )
+}
+
+if (
+    (Test-Path -LiteralPath $backupPath) -and
+    $commands -contains 'Backup-Phoenix'
+) {
+    $capabilities.Add(
+        'Create a JSON backup manifest containing Phoenix metadata, inventory, drivers, packages, and providers.'
+    )
+}
+
+if (Test-Path -LiteralPath $inventoryPath) {
+    $capabilities.Add(
+        'Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.'
+    )
+}
+
+if (Test-Path -LiteralPath $loggingPath) {
+    $capabilities.Add(
+        'Write Phoenix operational logs with structured severity levels.'
+    )
+}
+
+$limitations =
+    [System.Collections.Generic.List[string]]::new()
+
+$limitations.Add(
+    'Phoenix is currently Windows-only and is under active development.'
+)
+
+if ($driverText -match '/scan-devices') {
+    $limitations.Add(
+        'The driver stage currently scans for hardware changes and refreshes installed-driver inventory; vendor-specific driver downloading and installation are not implemented yet.'
+    )
+}
+
+$restoreText = Get-PhoenixSourceText -Path $restorePath
+
+if (
+    $commands -contains 'Restore-Phoenix' -and
+    $restoreText -match 'Restoring computer' -and
+    $restoreText -notmatch 'Get-Content|ConvertFrom-Json|Install-PhoenixPackage'
+) {
+    $limitations.Add(
+        'Restore-Phoenix is currently a placeholder; complete manifest-driven restoration is still planned.'
+    )
+}
+
+if ($migrationText -match 'ForceProtectedMigration') {
+    $limitations.Add(
+        'Protected packages such as Microsoft Edge are not removed unless -ForceProtectedMigration is explicitly supplied.'
+    )
+}
+
+$readmeLines =
+    [System.Collections.Generic.List[string]]::new()
+
+$readmeLines.Add('# PhoenixDeploy')
+$readmeLines.Add('')
+$readmeLines.Add($ProjectDescription)
+$readmeLines.Add('')
+$readmeLines.Add(('**Current module version:** `{0}`' -f $version))
+
+if (-not [string]::IsNullOrWhiteSpace($repositoryUrl)) {
+    $readmeLines.Add('')
+    $readmeLines.Add(('**Repository:** [{0}]({0})' -f $repositoryUrl))
+}
+
+$readmeLines.Add('')
+$readmeLines.Add('## What Phoenix can currently do')
+$readmeLines.Add('')
+
+foreach ($capability in $capabilities) {
+    $readmeLines.Add("- $capability")
+}
+
+$readmeLines.Add('')
+$readmeLines.Add('## Available commands')
+$readmeLines.Add('')
+$readmeLines.Add('| Command | Status | Purpose |')
+$readmeLines.Add('|---|---|---|')
+
+foreach ($command in $commands) {
+
+    $status = 'Available'
+
+    if ($commandStatus.ContainsKey($command)) {
+        $status = [string]$commandStatus[$command]
+    }
+
+    $purpose = 'Exported Phoenix command.'
+
+    if ($commandDescriptions.ContainsKey($command)) {
+        $purpose = [string]$commandDescriptions[$command]
+    }
+
+    $readmeLines.Add(
+        ('| `{0}` | {1} | {2} |' -f
+            $command,
+            $status,
+            $purpose
+        )
+    )
+}
+
+$readmeLines.Add('')
+$readmeLines.Add('## Quick start')
+$readmeLines.Add('')
+$readmeLines.Add('```powershell')
+$readmeLines.Add('Set-Location C:\Dev\PhoenixDeploy')
+$readmeLines.Add('Import-Module .\Phoenix.psd1 -Force')
+$readmeLines.Add('Start-Phoenix')
+$readmeLines.Add('```')
+$readmeLines.Add('')
+$readmeLines.Add('Phoenix initializes its runtime context, logging, WinGet provider, Chocolatey provider, and missing-provider checks.')
+$readmeLines.Add('')
+$readmeLines.Add('## Common examples')
+$readmeLines.Add('')
+$readmeLines.Add('```powershell')
+$readmeLines.Add('# Inspect active providers and installed packages')
+$readmeLines.Add('Get-PhoenixProviders')
+$readmeLines.Add('Get-PhoenixPackages')
+$readmeLines.Add('')
+$readmeLines.Add('# Install one package')
+$readmeLines.Add("Install-PhoenixPackage -Id '7zip.7zip' -Provider WinGet -Confirm:`$false")
+$readmeLines.Add('')
+$readmeLines.Add('# Run drivers first, then package updates')
+$readmeLines.Add('Update-Phoenix -Provider WinGet -Confirm:$false')
+$readmeLines.Add('')
+$readmeLines.Add('# Permit eligible non-protected migrations in unattended mode')
+$readmeLines.Add('Update-Phoenix -Provider WinGet -AllowMigration -Unattended -Confirm:$false')
+$readmeLines.Add('')
+$readmeLines.Add('# Export a recovery manifest')
+$readmeLines.Add("Backup-Phoenix -OutputPath '.\PhoenixManifest\PhoenixBackup.json'")
+$readmeLines.Add('```')
+$readmeLines.Add('')
+$readmeLines.Add('## Supported package providers')
+$readmeLines.Add('')
+$readmeLines.Add('- WinGet')
+$readmeLines.Add('- Chocolatey')
+$readmeLines.Add('')
+$readmeLines.Add('## Current limitations')
+$readmeLines.Add('')
+
+foreach ($limitation in $limitations) {
+    $readmeLines.Add("- $limitation")
+}
+
+$readmeLines.Add('')
+$readmeLines.Add('## Project layout')
+$readmeLines.Add('')
+$readmeLines.Add('```text')
+$readmeLines.Add('PhoenixDeploy/')
+$readmeLines.Add('|-- Classes/       PowerShell classes and generated class module')
+$readmeLines.Add('|-- Config/        Phoenix configuration files')
+$readmeLines.Add('|-- Private/       Internal core, logging, provider, driver, inventory, and package functions')
+$readmeLines.Add('|-- Public/        Exported Phoenix commands')
+$readmeLines.Add('|-- Tools/         Git, changelog, README, and release automation')
+$readmeLines.Add('|-- Phoenix.psd1   Module manifest')
+$readmeLines.Add('`-- Phoenix.psm1   Module loader and exports')
+$readmeLines.Add('```')
+$readmeLines.Add('')
+$readmeLines.Add('## Git and documentation workflow')
+$readmeLines.Add('')
+$readmeLines.Add('The save helper refreshes this generated README section, updates `CHANGELOG.md`, validates Phoenix, creates a Git commit, and can push it to GitHub.')
+$readmeLines.Add('')
+$readmeLines.Add('```powershell')
+$readmeLines.Add('.\Tools\Save-PhoenixChange.ps1 `')
+$readmeLines.Add('    -Type feat `')
+$readmeLines.Add('    -Scope update `')
+$readmeLines.Add('    -Summary ''Describe the completed change.'' `')
+$readmeLines.Add('    -Push')
+$readmeLines.Add('```')
+$readmeLines.Add('')
+$readmeLines.Add('To change the project and GitHub description during a commit:')
+$readmeLines.Add('')
+$readmeLines.Add('```powershell')
+$readmeLines.Add('.\Tools\Save-PhoenixChange.ps1 `')
+$readmeLines.Add('    -Type docs `')
+$readmeLines.Add('    -Scope readme `')
+$readmeLines.Add('    -Summary ''Refresh project documentation.'' `')
+$readmeLines.Add('    -ProjectDescription ''A new concise project description.'' `')
+$readmeLines.Add('    -Push')
+$readmeLines.Add('```')
+
+$startMarker = '<!-- PHOENIX:GENERATED:START -->'
+$endMarker = '<!-- PHOENIX:GENERATED:END -->'
+$managedText = @(
+    $startMarker
+    $readmeLines
+    $endMarker
+) -join [Environment]::NewLine
+
+$existingReadme = ''
+
+if (Test-Path -LiteralPath $readmePath) {
+    $existingReadme = Get-Content `
+        -LiteralPath $readmePath `
+        -Raw
+}
+
+$startIndex = $existingReadme.IndexOf(
+    $startMarker,
+    [System.StringComparison]::Ordinal
+)
+
+$endIndex = $existingReadme.IndexOf(
+    $endMarker,
+    [System.StringComparison]::Ordinal
+)
+
+if ($startIndex -ge 0 -and $endIndex -gt $startIndex) {
+
+    $before = $existingReadme.Substring(0, $startIndex)
+    $afterIndex = $endIndex + $endMarker.Length
+    $after = $existingReadme.Substring($afterIndex)
+    $updatedReadme = $before + $managedText + $after
+}
+elseif (
+    [string]::IsNullOrWhiteSpace($existingReadme) -or
+    $existingReadme.Trim() -eq '# Dat-Guy'
+) {
+    $updatedReadme = $managedText
+}
+else {
+    $updatedReadme = (
+        $existingReadme.TrimEnd() +
+        [Environment]::NewLine +
+        [Environment]::NewLine +
+        $managedText +
+        [Environment]::NewLine
+    )
+}
+
+Set-Content `
+    -LiteralPath $readmePath `
+    -Value $updatedReadme `
+    -Encoding UTF8
+
+Write-Host 'README.md capability and command documentation updated.' `
+    -ForegroundColor Green
+
+return [pscustomobject]@{
+    Description   = $ProjectDescription
+    ModuleVersion = $version
+    ReadmePath    = $readmePath
+    RepositoryUrl = $repositoryUrl
+    Commands      = $commands
+    Capabilities  = @($capabilities)
+    Limitations   = @($limitations)
+}

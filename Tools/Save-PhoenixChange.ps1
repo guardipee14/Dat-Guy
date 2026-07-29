@@ -25,6 +25,16 @@ param(
     [string[]]$Details = @(),
 
     [Parameter()]
+    [ValidateNotNullOrEmpty()]
+    [string]$ProjectDescription,
+
+    [Parameter()]
+    [switch]$SkipReadmeUpdate,
+
+    [Parameter()]
+    [switch]$SkipGitHubDescription,
+
+    [Parameter()]
     [switch]$Push,
 
     [Parameter()]
@@ -574,6 +584,106 @@ function Test-ChangedPowerShellFiles {
         -RepositoryRoot $RepositoryRoot
 }
 
+function Get-PhoenixManifestDescription {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepositoryRoot
+    )
+
+    $manifestPath =
+        Join-Path $RepositoryRoot 'Phoenix.psd1'
+
+    if (-not (Test-Path -LiteralPath $manifestPath)) {
+        throw "Phoenix manifest was not found: $manifestPath"
+    }
+
+    $manifest = Import-PowerShellDataFile `
+        -LiteralPath $manifestPath
+
+    return [string]$manifest.Description
+}
+
+function Invoke-PhoenixReadmeUpdate {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RepositoryRoot,
+
+        [Parameter()]
+        [string]$Description
+    )
+
+    $updaterPath =
+        Join-Path `
+            $RepositoryRoot `
+            'Tools\Update-PhoenixReadme.ps1'
+
+    if (-not (Test-Path -LiteralPath $updaterPath)) {
+        throw "Phoenix README updater was not found: $updaterPath"
+    }
+
+    $parameters = @{
+        RepositoryRoot = $RepositoryRoot
+    }
+
+    if (-not [string]::IsNullOrWhiteSpace($Description)) {
+        $parameters.ProjectDescription = $Description
+        $parameters.UpdateManifestDescription = $true
+    }
+
+    return & $updaterPath @parameters
+}
+
+function Update-PhoenixGitHubDescription {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Description
+    )
+
+    $ghCommand = Get-Command gh `
+        -ErrorAction SilentlyContinue
+
+    if ($null -eq $ghCommand) {
+        Write-Warning (
+            'GitHub CLI was not found. The commit was pushed, but the ' +
+            'GitHub repository description was not updated. Install gh ' +
+            'and run gh auth login to enable this step.'
+        )
+
+        return
+    }
+
+    if ($Description.Length -gt 350) {
+        $Description = $Description.Substring(0, 347) + '...'
+    }
+
+    $output = @(
+        & $ghCommand.Source `
+            repo `
+            edit `
+            --description $Description `
+            2>&1
+    )
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warning (
+            'The Git commit was pushed, but GitHub repository description ' +
+            "update failed: $($output -join [Environment]::NewLine)"
+        )
+
+        return
+    }
+
+    Write-Host 'GitHub repository description updated.' `
+        -ForegroundColor Green
+}
+
 $gitCommand = Get-Command git `
     -ErrorAction SilentlyContinue
 
@@ -625,6 +735,23 @@ Run these commands once, using your own information:
 
     Initialize-PhoenixGitIgnore `
         -RepositoryRoot $repositoryRoot
+
+    [string]$resolvedProjectDescription = $null
+
+    if (-not $SkipReadmeUpdate) {
+
+        $readmeResult = Invoke-PhoenixReadmeUpdate `
+            -RepositoryRoot $repositoryRoot `
+            -Description $ProjectDescription
+
+        $resolvedProjectDescription =
+            [string]$readmeResult.Description
+    }
+    else {
+        $resolvedProjectDescription =
+            Get-PhoenixManifestDescription `
+                -RepositoryRoot $repositoryRoot
+    }
 
     $categoryMap = @{
         feat     = 'Added'
@@ -773,6 +900,12 @@ Run these commands once, using your own information:
 
         Write-Host 'The commit was pushed successfully.' `
             -ForegroundColor Green
+
+        if (-not $SkipGitHubDescription) {
+
+            Update-PhoenixGitHubDescription `
+                -Description $resolvedProjectDescription
+        }
     }
 }
 finally {
