@@ -5,6 +5,11 @@ All notable changes to Phoenix are documented in this file.
 ## [Unreleased]
 
 ### Fixed
+- separate inventory from restorable packages
+  - Preserve the complete detected software inventory under Inventory.Software.
+  - Emit only restorable WinGet and Chocolatey records under Packages.
+  - Use one shared eligibility rule for backup and restore.
+  - Correct installed-package key formatting during elevated restore.
 - description of the change
 - make README generation idempotent
   - Prevent trailing blank lines from accumulating.

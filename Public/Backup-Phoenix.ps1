@@ -141,20 +141,35 @@ function Backup-Phoenix {
                 }
         )
 
-        $packageRecords = @(
+        [Package[]]$uniquePackages = @(
             $packages |
-                Sort-Object Provider, Id -Unique |
-                ForEach-Object {
-                    [ordered]@{
-                        Name          = $_.Name
-                        Id            = $_.Id
-                        Version       = $_.Version
-                        Provider      = $_.Provider
-                        InstallerType = $_.InstallerType
-                        Source        = $_.Source
-                        Architecture  = $_.Architecture
-                    }
-                }
+                Sort-Object Provider, Id -Unique
+        )
+
+        [scriptblock]$convertPackageRecord = {
+            [ordered]@{
+                Name          = $_.Name
+                Id            = $_.Id
+                Version       = $_.Version
+                Provider      = $_.Provider
+                InstallerType = $_.InstallerType
+                Source        = $_.Source
+                Architecture  = $_.Architecture
+            }
+        }
+
+        $softwareRecords = @(
+            $uniquePackages |
+                ForEach-Object $convertPackageRecord
+        )
+
+        $packageRecords = @(
+            $uniquePackages |
+                Where-Object {
+                    Test-PhoenixRestorePackage `
+                        -InputObject $_
+                } |
+                ForEach-Object $convertPackageRecord
         )
 
         $driverRecords = @(
@@ -229,14 +244,16 @@ function Backup-Phoenix {
                 OperatingSystem = [Environment]::OSVersion.VersionString
             }
             Options       = [ordered]@{
-                DriversIncluded  = -not [bool]$SkipDrivers
-                PackagesIncluded = -not [bool]$SkipPackages
+                DriversIncluded           = -not [bool]$SkipDrivers
+                PackagesIncluded          = -not [bool]$SkipPackages
+                SoftwareInventoryIncluded = -not [bool]$SkipPackages
             }
             Inventory     = [ordered]@{
                 Hardware        = $hardwareInventory
                 Network         = $networkInventory
                 OperatingSystem = $operatingSystem
                 PowerShell      = $PSVersionTable
+                Software        = $softwareRecords
             }
             Drivers       = $driverRecords
             Packages      = $packageRecords
@@ -258,6 +275,7 @@ function Backup-Phoenix {
             Stage         = 'Backup'
             Path          = $resolvedOutputPath
             SchemaVersion = '2.0'
+            SoftwareCount = $softwareRecords.Count
             PackageCount  = $packageRecords.Count
             DriverCount   = $driverRecords.Count
             ProviderCount = $providerRecords.Count

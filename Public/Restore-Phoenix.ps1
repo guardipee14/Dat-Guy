@@ -333,9 +333,11 @@ function Restore-Phoenix {
                     }
 
                     [void]$installedPackageKeys.Add(
-                        '{0}|{1}' -f
-                        $resolvedProvider.Name,
-                        $installedPackage.Id
+                        (
+                            '{0}|{1}' -f
+                            $resolvedProvider.Name,
+                            $installedPackage.Id
+                        )
                     )
                 }
             }
@@ -428,15 +430,11 @@ function Restore-Phoenix {
                 continue
             }
 
-            [bool]$isUnrestorableWinGetRecord = (
-                $package.Provider -ieq 'WinGet' -and
-                (
-                    $package.Source -ine 'winget' -or
-                    $package.Id -match '^(?i:ARP|MSIX)\\'
-                )
-            )
+            [bool]$isRestorablePackage =
+                Test-PhoenixRestorePackage `
+                    -InputObject $package
 
-            if ($isUnrestorableWinGetRecord) {
+            if (-not $isRestorablePackage) {
 
                 [Result]$unrestorableResult =
                     New-PhoenixRestorePackageResult `
