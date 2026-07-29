@@ -1,0 +1,21 @@
+Cache/
+
+# Phoenix runtime and generated local data
+/Logs/
+/Cache/
+/Archive/
+/Build/MigrationBackups/
+/-ErrorAction
+ElevationProbe.*
+*.log
+*.clixml
+*.tmp
+*.bak
+*.zip
+*-output.txt
+# Editor and build metadata
+/.vs/
+/.vscode/
+/bin/
+/obj/
+*.user

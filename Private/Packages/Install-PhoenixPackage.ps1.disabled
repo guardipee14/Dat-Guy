@@ -1,0 +1,32 @@
+function Install-PhoenixPackage {
+
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param(
+        [Parameter(Mandatory)]
+        [string]$Id
+    )
+
+    if ($PSCmdlet.ShouldProcess($Id, "Install package")) {
+
+        if ($script:PhoenixContext.Providers.Winget) {
+
+            winget install --id $Id --accept-package-agreements --accept-source-agreements
+            return
+        }
+
+        if ($script:PhoenixContext.Providers.Chocolatey) {
+
+            choco install $Id -y
+            return
+        }
+
+        if ($script:PhoenixContext.Providers.Scoop) {
+
+            scoop install $Id
+            return
+        }
+
+        throw "No package provider available."
+
+    }
+}

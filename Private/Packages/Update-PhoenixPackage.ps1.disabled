@@ -1,0 +1,17 @@
+function Update-PhoenixPackage {
+
+    [CmdletBinding()]
+    param()
+
+    if ($script:PhoenixContext.Providers.Winget) {
+        winget upgrade --all
+    }
+
+    if ($script:PhoenixContext.Providers.Chocolatey) {
+        choco upgrade all -y
+    }
+
+    if ($script:PhoenixContext.Providers.Scoop) {
+        scoop update *
+    }
+}

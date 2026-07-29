@@ -1,0 +1,10 @@
+{
+  "Version": "0.1.0",
+  "MaxParallelJobs": 4,
+  "AutoReboot": true,
+  "PreferredPackageManager": "Auto",
+  "OfflineMode": false,
+  "LogLevel": "Info",
+  "CachePath": "Cache",
+  "DriverPath": "Drivers"
+}

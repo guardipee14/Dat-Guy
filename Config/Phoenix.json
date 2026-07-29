@@ -1,0 +1,6 @@
+{
+  "LogLevel": "INFO",
+  "Provider": "WinGet",
+  "OfflineMode": false,
+  "TestValue": "Phoenix"
+}
