@@ -113,6 +113,3 @@ To change the project and GitHub description during a commit:
     -Push
 ```
 <!-- PHOENIX:GENERATED:END -->
-
-
-

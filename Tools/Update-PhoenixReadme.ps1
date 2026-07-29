@@ -75,17 +75,23 @@ function Set-PhoenixManifestDescription {
     $escapedDescription =
         $Description.Replace("'", "''")
 
-    $manifestText = [regex]::Replace(
+    $updatedManifestText = [regex]::Replace(
         $manifestText,
         "(?m)^Description\s*=\s*'[^']*'",
         "Description = '$escapedDescription'",
         1
     )
 
-    Set-Content `
-        -LiteralPath $ManifestPath `
-        -Value $manifestText `
-        -Encoding UTF8
+    if ($updatedManifestText -ceq $manifestText) {
+        return
+    }
+
+    [System.IO.File]::WriteAllText(
+        $ManifestPath,
+        $updatedManifestText,
+        [System.Text.UTF8Encoding]::new($false)
+    )
+
 }
 
 function Get-PhoenixRepositoryUrl {
@@ -453,18 +459,20 @@ $readmeLines.Add('```')
 
 $startMarker = '<!-- PHOENIX:GENERATED:START -->'
 $endMarker = '<!-- PHOENIX:GENERATED:END -->'
+$newLine = [Environment]::NewLine
+
 $managedText = @(
     $startMarker
     $readmeLines
     $endMarker
-) -join [Environment]::NewLine
+) -join $newLine
 
 $existingReadme = ''
 
 if (Test-Path -LiteralPath $readmePath) {
-    $existingReadme = Get-Content `
-        -LiteralPath $readmePath `
-        -Raw
+    $existingReadme = [System.IO.File]::ReadAllText(
+        $readmePath
+    )
 }
 
 $startIndex = $existingReadme.IndexOf(
@@ -479,10 +487,32 @@ $endIndex = $existingReadme.IndexOf(
 
 if ($startIndex -ge 0 -and $endIndex -gt $startIndex) {
 
-    $before = $existingReadme.Substring(0, $startIndex)
+    $before = $existingReadme.Substring(
+        0,
+        $startIndex
+    ).TrimEnd("`r", "`n")
+
     $afterIndex = $endIndex + $endMarker.Length
-    $after = $existingReadme.Substring($afterIndex)
-    $updatedReadme = $before + $managedText + $after
+
+    $after = $existingReadme.Substring(
+        $afterIndex
+    ).TrimStart("`r", "`n")
+
+    $readmeSections =
+        [System.Collections.Generic.List[string]]::new()
+
+    if (-not [string]::IsNullOrWhiteSpace($before)) {
+        $readmeSections.Add($before)
+    }
+
+    $readmeSections.Add($managedText)
+
+    if (-not [string]::IsNullOrWhiteSpace($after)) {
+        $readmeSections.Add($after)
+    }
+
+    $updatedReadme =
+        $readmeSections -join ($newLine + $newLine)
 }
 elseif (
     [string]::IsNullOrWhiteSpace($existingReadme) -or
@@ -492,23 +522,45 @@ elseif (
 }
 else {
     $updatedReadme = (
-        $existingReadme.TrimEnd() +
-        [Environment]::NewLine +
-        [Environment]::NewLine +
-        $managedText +
-        [Environment]::NewLine
+        $existingReadme.TrimEnd("`r", "`n") +
+        $newLine +
+        $newLine +
+        $managedText
     )
 }
 
-Set-Content `
-    -LiteralPath $readmePath `
-    -Value $updatedReadme `
-    -Encoding UTF8
+# Keep exactly one final newline. Set-Content appends another newline on each
+# run, which previously made README generation non-idempotent.
+$updatedReadme =
+    $updatedReadme.TrimEnd("`r", "`n") + $newLine
 
-Write-Host 'README.md capability and command documentation updated.' `
-    -ForegroundColor Green
+$normalizedExisting =
+    $existingReadme.Replace("`r`n", "`n").Replace("`r", "`n")
+
+$normalizedUpdated =
+    $updatedReadme.Replace("`r`n", "`n").Replace("`r", "`n")
+
+[bool]$readmeChanged =
+    $normalizedExisting -cne $normalizedUpdated
+
+if ($readmeChanged) {
+
+    [System.IO.File]::WriteAllText(
+        $readmePath,
+        $updatedReadme,
+        [System.Text.UTF8Encoding]::new($false)
+    )
+
+    Write-Host 'README.md capability and command documentation updated.' `
+        -ForegroundColor Green
+}
+else {
+    Write-Host 'README.md is already current.' `
+        -ForegroundColor DarkGray
+}
 
 return [pscustomobject]@{
+    Changed       = $readmeChanged
     Description   = $ProjectDescription
     ModuleVersion = $version
     ReadmePath    = $readmePath
