@@ -1,0 +1,45 @@
+{
+  "base": "https://github.com/guardipee14/Dat-Guy main",
+  "files": [
+    {
+      "path": "PATCH-README.md",
+      "size": 1543,
+      "sha256": "2379e97ff8c1ca3aeae359ca24fea4b0e3f79cda61d70478e8c6836c81c370d3"
+    },
+    {
+      "path": "Private/Drivers/Invoke-PhoenixWindowsUpdateDriver.ps1",
+      "size": 20646,
+      "sha256": "29e9ea74e7622c1c1c1136b954ce0a455fa4a8854f82abe90fb83f7ab1a1ab4b"
+    },
+    {
+      "path": "Private/Drivers/Update-PhoenixDriver.ps1",
+      "size": 11884,
+      "sha256": "cf91a9aa54bb7e5eb5671377a0075a4fce5ba45bd38ac026171869380e8bbe92"
+    },
+    {
+      "path": "Private_Drivers_Update-PhoenixDriver.ps1.diff",
+      "size": 12375,
+      "sha256": "6066590939e7b4f27e125e1a976742a6cca06fcff8d4011988d86552f8bd91c1"
+    },
+    {
+      "path": "Public/Update-Phoenix.ps1",
+      "size": 21109,
+      "sha256": "a48bd3bb45c7e0e63c13dc61e1eca579aa61bf48f74260d10da0ca23be0db888"
+    },
+    {
+      "path": "Public_Update-Phoenix.ps1.diff",
+      "size": 3118,
+      "sha256": "cc6f2ff4b68f4bf1b6a5300b05c74eabe65ff9c386db1c020f323817c885ef8d"
+    },
+    {
+      "path": "Tools/Update-PhoenixReadme.ps1",
+      "size": 18135,
+      "sha256": "53c4d2d6953485a9c0a290458601cf486054ed578b79fd1924bd2ddd6f52c974"
+    },
+    {
+      "path": "Tools_Update-PhoenixReadme.ps1.diff",
+      "size": 3858,
+      "sha256": "5e2339a06604b5f99a1684e6491b7998588d8b88ad8cb364501944f0c1573a01"
+    }
+  ]
+}

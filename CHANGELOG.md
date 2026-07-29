@@ -17,6 +17,12 @@ All notable changes to Phoenix are documented in this file.
   - Refresh repository documentation during commits.
 
 ### Added
+- install applicable drivers through Windows Update
+  - Search Windows Update for applicable driver updates.
+  - Support scan-only and unattended driver workflows.
+  - Download and install drivers before package updates.
+  - Return structured driver, reboot, and failure results.
+  - Refresh installed-driver inventory after each search.
 - Automate README capability documentation and GitHub repository description updates during commits.
   - Generate the exported-command table and current capability list from the Phoenix project.
   - Preserve content outside the managed README section.

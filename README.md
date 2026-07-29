@@ -14,6 +14,7 @@ PowerShell deployment and recovery framework for Windows package management, dri
 - Run bulk updates with drivers first, package progress reporting, elapsed time, and separate completion summaries.
 - Request UAC once, run privileged work in an elevated process, and return structured results to the original window.
 - Scan Windows for hardware changes and refresh the installed-driver inventory with visible progress and result codes.
+- Search, download, and install applicable driver updates through Windows Update before package updates, with scan-only and reboot reporting.
 - Handle installer-technology changes with interactive approval, unattended policy switches, and protected-package safeguards.
 - Create a JSON backup manifest containing Phoenix metadata, inventory, drivers, packages, and providers.
 - Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.
@@ -31,7 +32,7 @@ PowerShell deployment and recovery framework for Windows package management, dri
 | `Repair-PhoenixPackage` | Available | Repair a supported package using silent or interactive provider behavior. |
 | `Restore-Phoenix` | Planned | Reserved public restore command; full restore orchestration is not implemented yet. |
 | `Start-Phoenix` | Available | Initialize configuration, logging, providers, scheduling, and missing-provider checks. |
-| `Update-Phoenix` | Available | Run the elevated driver-first bulk update workflow and return structured results. |
+| `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |
 
@@ -55,8 +56,11 @@ Get-PhoenixPackages
 # Install one package
 Install-PhoenixPackage -Id '7zip.7zip' -Provider WinGet -Confirm:$false
 
-# Run drivers first, then package updates
+# Install applicable Windows Update drivers first, then update packages
 Update-Phoenix -Provider WinGet -Confirm:$false
+
+# Discover driver updates without installing them
+Update-Phoenix -ScanDriversOnly -SkipPackages -Confirm:$false
 
 # Permit eligible non-protected migrations in unattended mode
 Update-Phoenix -Provider WinGet -AllowMigration -Unattended -Confirm:$false
@@ -73,7 +77,7 @@ Backup-Phoenix -OutputPath '.\PhoenixManifest\PhoenixBackup.json'
 ## Current limitations
 
 - Phoenix is currently Windows-only and is under active development.
-- The driver stage currently scans for hardware changes and refreshes installed-driver inventory; vendor-specific driver downloading and installation are not implemented yet.
+- Driver installation currently uses Windows Update Agent; OEM-specific update tools, vendor catalogs, and offline driver packs are not implemented yet.
 - Restore-Phoenix is currently a placeholder; complete manifest-driven restoration is still planned.
 - Protected packages such as Microsoft Edge are not removed unless -ForceProtectedMigration is explicitly supplied.
 

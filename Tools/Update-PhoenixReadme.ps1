@@ -188,7 +188,7 @@ $commandDescriptions = @{
     'Repair-PhoenixPackage' = 'Repair a supported package using silent or interactive provider behavior.'
     'Restore-Phoenix' = 'Reserved public restore command; full restore orchestration is not implemented yet.'
     'Start-Phoenix' = 'Initialize configuration, logging, providers, scheduling, and missing-provider checks.'
-    'Update-Phoenix' = 'Run the elevated driver-first bulk update workflow and return structured results.'
+    'Update-Phoenix' = 'Install applicable Windows Update drivers first, then update packages, and return structured results.'
     'Update-PhoenixPackage' = 'Update one package and safely classify installer-technology migrations.'
 }
 
@@ -202,6 +202,7 @@ $capabilities =
 $startPath = Join-Path $RepositoryRoot 'Public\Start-Phoenix.ps1'
 $updatePath = Join-Path $RepositoryRoot 'Public\Update-Phoenix.ps1'
 $driverPath = Join-Path $RepositoryRoot 'Private\Drivers\Update-PhoenixDriver.ps1'
+$windowsUpdateDriverPath = Join-Path $RepositoryRoot 'Private\Drivers\Invoke-PhoenixWindowsUpdateDriver.ps1'
 $elevationPath = Join-Path $RepositoryRoot 'Private\Core\Request-PhoenixElevation.ps1'
 $providersPath = Join-Path $RepositoryRoot 'Private\Core\Initialize-PhoenixProviders.ps1'
 $migrationPath = Join-Path $RepositoryRoot 'Private\Packages\Invoke-PhoenixPackageMigration.ps1'
@@ -213,6 +214,7 @@ $inventoryPath = Join-Path $RepositoryRoot 'Private\Inventory'
 $providersText = Get-PhoenixSourceText -Path $providersPath
 $updateText = Get-PhoenixSourceText -Path $updatePath
 $driverText = Get-PhoenixSourceText -Path $driverPath
+$windowsUpdateDriverText = Get-PhoenixSourceText -Path $windowsUpdateDriverPath
 $elevationText = Get-PhoenixSourceText -Path $elevationPath
 $migrationText = Get-PhoenixSourceText -Path $migrationPath
 
@@ -266,6 +268,16 @@ if (
 }
 
 if (
+    $windowsUpdateDriverText -match 'Microsoft.Update.Session' -and
+    $windowsUpdateDriverText -match 'CreateUpdateDownloader' -and
+    $windowsUpdateDriverText -match 'CreateUpdateInstaller'
+) {
+    $capabilities.Add(
+        'Search, download, and install applicable driver updates through Windows Update before package updates, with scan-only and reboot reporting.'
+    )
+}
+
+if (
     (Test-Path -LiteralPath $migrationPath) -and
     $migrationText -match 'PHX_UPDATE_MIGRATION_PROTECTED'
 ) {
@@ -302,7 +314,15 @@ $limitations.Add(
     'Phoenix is currently Windows-only and is under active development.'
 )
 
-if ($driverText -match '/scan-devices') {
+if (
+    $windowsUpdateDriverText -match 'Microsoft.Update.Session' -and
+    $windowsUpdateDriverText -match 'CreateUpdateInstaller'
+) {
+    $limitations.Add(
+        'Driver installation currently uses Windows Update Agent; OEM-specific update tools, vendor catalogs, and offline driver packs are not implemented yet.'
+    )
+}
+elseif ($driverText -match '/scan-devices') {
     $limitations.Add(
         'The driver stage currently scans for hardware changes and refreshes installed-driver inventory; vendor-specific driver downloading and installation are not implemented yet.'
     )
@@ -398,8 +418,11 @@ $readmeLines.Add('')
 $readmeLines.Add('# Install one package')
 $readmeLines.Add("Install-PhoenixPackage -Id '7zip.7zip' -Provider WinGet -Confirm:`$false")
 $readmeLines.Add('')
-$readmeLines.Add('# Run drivers first, then package updates')
+$readmeLines.Add('# Install applicable Windows Update drivers first, then update packages')
 $readmeLines.Add('Update-Phoenix -Provider WinGet -Confirm:$false')
+$readmeLines.Add('')
+$readmeLines.Add('# Discover driver updates without installing them')
+$readmeLines.Add('Update-Phoenix -ScanDriversOnly -SkipPackages -Confirm:$false')
 $readmeLines.Add('')
 $readmeLines.Add('# Permit eligible non-protected migrations in unattended mode')
 $readmeLines.Add('Update-Phoenix -Provider WinGet -AllowMigration -Unattended -Confirm:$false')

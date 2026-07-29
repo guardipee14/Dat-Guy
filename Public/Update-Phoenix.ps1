@@ -22,6 +22,9 @@ function Update-Phoenix {
         [switch]$SkipDrivers,
 
         [Parameter()]
+        [switch]$ScanDriversOnly,
+
+        [Parameter()]
         [switch]$SkipPackages,
 
         [Parameter()]
@@ -85,6 +88,7 @@ function Update-Phoenix {
         [hashtable]$elevationParameters = @{
             Provider                  = @($Provider)
             SkipDrivers               = [bool]$SkipDrivers
+            ScanDriversOnly           = [bool]$ScanDriversOnly
             SkipPackages              = [bool]$SkipPackages
             PreserveDownloads         = [bool]$PreserveDownloads
             AllowMigration            = [bool]$AllowMigration
@@ -200,27 +204,77 @@ if ($driverResults.Count -gt 0) {
     Write-Host '----------------------'
 
     Write-Host (
-        'Result           : {0}' -f
+        'Result            : {0}' -f
         $completedDriverResult.Code
     )
 
     Write-Host (
-        'Drivers detected : {0}' -f
+        'Mode              : {0}' -f
+        $completedDriverResult.Data.Mode
+    )
+
+    Write-Host (
+        'Updates available : {0}' -f
+        $completedDriverResult.Data.AvailableCount
+    )
+
+    Write-Host (
+        'Updates selected  : {0}' -f
+        $completedDriverResult.Data.SelectedCount
+    )
+
+    Write-Host (
+        'Already cached    : {0}' -f
+        $completedDriverResult.Data.CachedCount
+    )
+
+    Write-Host (
+        'Downloaded        : {0}' -f
+        $completedDriverResult.Data.DownloadedCount
+    )
+
+    Write-Host (
+        'Installed         : {0}' -f
+        $completedDriverResult.Data.InstalledCount
+    )
+
+    Write-Host (
+        'Partial           : {0}' -f
+        $completedDriverResult.Data.PartialCount
+    )
+
+    Write-Host (
+        'Skipped           : {0}' -f
+        $completedDriverResult.Data.SkippedCount
+    )
+
+    Write-Host (
+        'Failed            : {0}' -f
+        $completedDriverResult.Data.FailedCount
+    )
+
+    Write-Host (
+        'Reboot required   : {0}' -f
+        $completedDriverResult.Data.RebootRequired
+    )
+
+    Write-Host (
+        'Drivers detected  : {0}' -f
         $completedDriverResult.Data.DriverCount
     )
 
     Write-Host (
-        'Present drivers  : {0}' -f
+        'Present drivers   : {0}' -f
         $completedDriverResult.Data.PresentCount
     )
 
     Write-Host (
-        'Scan exit code   : {0}' -f
+        'Scan exit code    : {0}' -f
         $completedDriverResult.Data.ExitCode
     )
 
     Write-Host (
-        'Elapsed time     : {0}' -f
+        'Elapsed time      : {0}' -f
         $driverElapsed.ToString(
             'hh\:mm\:ss'
         )
@@ -343,10 +397,12 @@ if (-not $SkipDrivers) {
 
     Write-PhoenixLog `
         -Level Info `
-        -Message 'Scanning drivers before package updates.'
+        -Message 'Running Windows Update driver workflow before package updates.'
 
     [Result]$driverResult =
-        Update-PhoenixDriver
+        Update-PhoenixDriver `
+            -ScanOnly:$ScanDriversOnly `
+            -Unattended:$Unattended
 
     if ($null -ne $driverResult) {
         $results.Add($driverResult)
