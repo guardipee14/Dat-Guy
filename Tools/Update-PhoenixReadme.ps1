@@ -179,22 +179,20 @@ if ($UpdateManifestDescription) {
 [string]$repositoryUrl = Get-PhoenixRepositoryUrl
 
 $commandDescriptions = @{
-    'Backup-Phoenix' = 'Export system inventory, installed drivers, packages, and provider state to a JSON manifest.'
+    'Backup-Phoenix' = 'Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata.'
     'Get-PhoenixContext' = 'Return the active Phoenix runtime context.'
     'Get-PhoenixPackages' = 'Enumerate installed packages reported by active providers.'
     'Get-PhoenixProviders' = 'List active Phoenix package providers.'
     'Install-PhoenixPackage' = 'Install a package through WinGet or Chocolatey with elevation and install-mode handling.'
     'Remove-PhoenixPackage' = 'Uninstall a package through WinGet or Chocolatey with elevation support.'
     'Repair-PhoenixPackage' = 'Repair a supported package using silent or interactive provider behavior.'
-    'Restore-Phoenix' = 'Reserved public restore command; full restore orchestration is not implemented yet.'
+    'Restore-Phoenix' = 'Restore drivers first and reinstall missing WinGet or Chocolatey packages from a Phoenix manifest.'
     'Start-Phoenix' = 'Initialize configuration, logging, providers, scheduling, and missing-provider checks.'
     'Update-Phoenix' = 'Install applicable Windows Update drivers first, then update packages, and return structured results.'
     'Update-PhoenixPackage' = 'Update one package and safely classify installer-technology migrations.'
 }
 
-$commandStatus = @{
-    'Restore-Phoenix' = 'Planned'
-}
+$commandStatus = @{}
 
 $capabilities =
     [System.Collections.Generic.List[string]]::new()
@@ -217,6 +215,7 @@ $driverText = Get-PhoenixSourceText -Path $driverPath
 $windowsUpdateDriverText = Get-PhoenixSourceText -Path $windowsUpdateDriverPath
 $elevationText = Get-PhoenixSourceText -Path $elevationPath
 $migrationText = Get-PhoenixSourceText -Path $migrationPath
+$restoreText = Get-PhoenixSourceText -Path $restorePath
 
 if (
     $providersText -match 'WinGetProvider' -and
@@ -291,7 +290,18 @@ if (
     $commands -contains 'Backup-Phoenix'
 ) {
     $capabilities.Add(
-        'Create a JSON backup manifest containing Phoenix metadata, inventory, drivers, packages, and providers.'
+        'Create a versioned JSON restore manifest containing Phoenix metadata, hardware and network inventory, drivers, packages, and provider capabilities.'
+    )
+}
+
+if (
+    $commands -contains 'Restore-Phoenix' -and
+    $restoreText -match 'Read-PhoenixManifest' -and
+    $restoreText -match 'Install-PhoenixPackage' -and
+    $restoreText -match 'Update-PhoenixDriver'
+) {
+    $capabilities.Add(
+        'Restore drivers first and reinstall missing WinGet or Chocolatey packages from a versioned Phoenix manifest, with preview, provider filtering, progress, and structured results.'
     )
 }
 
@@ -328,15 +338,21 @@ elseif ($driverText -match '/scan-devices') {
     )
 }
 
-$restoreText = Get-PhoenixSourceText -Path $restorePath
+if (
+    $commands -contains 'Restore-Phoenix' -and
+    $restoreText -match 'Read-PhoenixManifest'
+) {
+    $limitations.Add(
+        'Manifest restore reinstalls supported packages and Windows Update drivers; it does not yet restore application data, user profiles, Windows settings, or offline driver packages.'
+    )
+}
 
 if (
     $commands -contains 'Restore-Phoenix' -and
-    $restoreText -match 'Restoring computer' -and
-    $restoreText -notmatch 'Get-Content|ConvertFrom-Json|Install-PhoenixPackage'
+    $restoreText -match 'Install-PhoenixPackage'
 ) {
     $limitations.Add(
-        'Restore-Phoenix is currently a placeholder; complete manifest-driven restoration is still planned.'
+        'Package manifests record installed versions for reference, but restore currently installs the provider-current version instead of pinning an exact historical version.'
     )
 }
 
@@ -429,6 +445,12 @@ $readmeLines.Add('Update-Phoenix -Provider WinGet -AllowMigration -Unattended -C
 $readmeLines.Add('')
 $readmeLines.Add('# Export a recovery manifest')
 $readmeLines.Add("Backup-Phoenix -OutputPath '.\PhoenixManifest\PhoenixBackup.json'")
+$readmeLines.Add('')
+$readmeLines.Add('# Preview a restore without changing the computer')
+$readmeLines.Add("Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -WhatIf")
+$readmeLines.Add('')
+$readmeLines.Add('# Restore drivers first and reinstall missing packages')
+$readmeLines.Add("Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended -Confirm:`$false")
 $readmeLines.Add('```')
 $readmeLines.Add('')
 $readmeLines.Add('## Supported package providers')

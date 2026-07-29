@@ -17,6 +17,11 @@ All notable changes to Phoenix are documented in this file.
   - Refresh repository documentation during commits.
 
 ### Added
+- restore drivers and packages from a Phoenix manifest
+  - Create a versioned and restorable backup manifest.
+  - Restore Windows Update drivers before packages.
+  - Reinstall missing WinGet and Chocolatey packages.
+  - Add preview, provider filtering, progress, and structured restore summaries.
 - install applicable drivers through Windows Update
   - Search Windows Update for applicable driver updates.
   - Support scan-only and unattended driver workflows.

@@ -1,45 +1,61 @@
 {
-  "base": "https://github.com/guardipee14/Dat-Guy main",
+  "name": "Phoenix manifest restore patch",
+  "created": "2026-07-29",
   "files": [
     {
       "path": "PATCH-README.md",
-      "size": 1543,
-      "sha256": "2379e97ff8c1ca3aeae359ca24fea4b0e3f79cda61d70478e8c6836c81c370d3"
+      "bytes": 4809,
+      "sha256": "66fade9acb03a04ac0b87824a376e0461836540f525eee278db78efcb12d1e98"
     },
     {
-      "path": "Private/Drivers/Invoke-PhoenixWindowsUpdateDriver.ps1",
-      "size": 20646,
-      "sha256": "29e9ea74e7622c1c1c1136b954ce0a455fa4a8854f82abe90fb83f7ab1a1ab4b"
+      "path": "Private/Core/Get-PhoenixPropertyValue.ps1",
+      "bytes": 555,
+      "sha256": "08f1fb6612060e2550630e009251441f13c462e86ae1eced2d933d58b16cad72"
     },
     {
-      "path": "Private/Drivers/Update-PhoenixDriver.ps1",
-      "size": 11884,
-      "sha256": "cf91a9aa54bb7e5eb5671377a0075a4fce5ba45bd38ac026171869380e8bbe92"
+      "path": "Private/Core/Read-PhoenixManifest.ps1",
+      "bytes": 3518,
+      "sha256": "28e6a40a8661355e49e19e418f2390d416da4e3c4baf8a562d2c05a1c834f8ef"
     },
     {
-      "path": "Private_Drivers_Update-PhoenixDriver.ps1.diff",
-      "size": 12375,
-      "sha256": "6066590939e7b4f27e125e1a976742a6cca06fcff8d4011988d86552f8bd91c1"
+      "path": "Private/Core/Request-PhoenixElevation.ps1",
+      "bytes": 9193,
+      "sha256": "f3ae25b2a281f0d6f97ee73cbf21604508b9cfcb8c7a5871980ef90788de5d69"
     },
     {
-      "path": "Public/Update-Phoenix.ps1",
-      "size": 21109,
-      "sha256": "a48bd3bb45c7e0e63c13dc61e1eca579aa61bf48f74260d10da0ca23be0db888"
+      "path": "Private/Core/Write-PhoenixRestoreSummary.ps1",
+      "bytes": 3578,
+      "sha256": "918d502d35349cd6958781e866eb6d33ad379dfbe6a3817b85c86b46cea440b3"
     },
     {
-      "path": "Public_Update-Phoenix.ps1.diff",
-      "size": 3118,
-      "sha256": "cc6f2ff4b68f4bf1b6a5300b05c74eabe65ff9c386db1c020f323817c885ef8d"
+      "path": "Private/Packages/ConvertTo-PhoenixRestorePackage.ps1",
+      "bytes": 2711,
+      "sha256": "0bd82ef80e9ec812cacef8761081de62e3549a1fc8991bed921f413d668ff620"
+    },
+    {
+      "path": "Private/Packages/New-PhoenixRestorePackageResult.ps1",
+      "bytes": 1269,
+      "sha256": "cc31b539b1e30bbb939ba06ab915b71e244b167e01bed9eb7c527495bfdf3362"
+    },
+    {
+      "path": "Public/Backup-Phoenix.ps1",
+      "bytes": 8659,
+      "sha256": "c7008f7d238c5b9c088cd92778457424254f8c923389a385ec9b1f7337739999"
+    },
+    {
+      "path": "Public/Restore-Phoenix.ps1",
+      "bytes": 17768,
+      "sha256": "bfff454704dc6017baf40e59d9379ffec4b480a7a28923c26d39af29ba136cb2"
+    },
+    {
+      "path": "README.md",
+      "bytes": 6103,
+      "sha256": "e11fa8c250c4771518931df38335dceae05ad99aea1b6bffd301de504c6a8e3d"
     },
     {
       "path": "Tools/Update-PhoenixReadme.ps1",
-      "size": 18135,
-      "sha256": "53c4d2d6953485a9c0a290458601cf486054ed578b79fd1924bd2ddd6f52c974"
-    },
-    {
-      "path": "Tools_Update-PhoenixReadme.ps1.diff",
-      "size": 3858,
-      "sha256": "5e2339a06604b5f99a1684e6491b7998588d8b88ad8cb364501944f0c1573a01"
+      "bytes": 19318,
+      "sha256": "4a0259fc384afda3d3c3ecc612ed2d2cffebc3fa99e5b8d4422e5f29021d290f"
     }
   ]
 }

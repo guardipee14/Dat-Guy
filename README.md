@@ -16,7 +16,8 @@ PowerShell deployment and recovery framework for Windows package management, dri
 - Scan Windows for hardware changes and refresh the installed-driver inventory with visible progress and result codes.
 - Search, download, and install applicable driver updates through Windows Update before package updates, with scan-only and reboot reporting.
 - Handle installer-technology changes with interactive approval, unattended policy switches, and protected-package safeguards.
-- Create a JSON backup manifest containing Phoenix metadata, inventory, drivers, packages, and providers.
+- Create a versioned JSON restore manifest containing Phoenix metadata, hardware and network inventory, drivers, packages, and provider capabilities.
+- Restore drivers first and reinstall missing WinGet or Chocolatey packages from a versioned Phoenix manifest, with preview, provider filtering, progress, and structured results.
 - Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.
 - Write Phoenix operational logs with structured severity levels.
 
@@ -24,13 +25,13 @@ PowerShell deployment and recovery framework for Windows package management, dri
 
 | Command | Status | Purpose |
 |---|---|---|
-| `Backup-Phoenix` | Available | Export system inventory, installed drivers, packages, and provider state to a JSON manifest. |
+| `Backup-Phoenix` | Available | Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata. |
 | `Get-PhoenixContext` | Available | Return the active Phoenix runtime context. |
 | `Get-PhoenixPackages` | Available | Enumerate installed packages reported by active providers. |
 | `Get-PhoenixProviders` | Available | List active Phoenix package providers. |
 | `Install-PhoenixPackage` | Available | Install a package through WinGet or Chocolatey with elevation and install-mode handling. |
 | `Repair-PhoenixPackage` | Available | Repair a supported package using silent or interactive provider behavior. |
-| `Restore-Phoenix` | Planned | Reserved public restore command; full restore orchestration is not implemented yet. |
+| `Restore-Phoenix` | Available | Restore drivers first and reinstall missing WinGet or Chocolatey packages from a Phoenix manifest. |
 | `Start-Phoenix` | Available | Initialize configuration, logging, providers, scheduling, and missing-provider checks. |
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
@@ -67,6 +68,12 @@ Update-Phoenix -Provider WinGet -AllowMigration -Unattended -Confirm:$false
 
 # Export a recovery manifest
 Backup-Phoenix -OutputPath '.\PhoenixManifest\PhoenixBackup.json'
+
+# Preview a restore without changing the computer
+Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -WhatIf
+
+# Restore drivers first and reinstall missing packages
+Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended -Confirm:$false
 ```
 
 ## Supported package providers
@@ -78,7 +85,8 @@ Backup-Phoenix -OutputPath '.\PhoenixManifest\PhoenixBackup.json'
 
 - Phoenix is currently Windows-only and is under active development.
 - Driver installation currently uses Windows Update Agent; OEM-specific update tools, vendor catalogs, and offline driver packs are not implemented yet.
-- Restore-Phoenix is currently a placeholder; complete manifest-driven restoration is still planned.
+- Manifest restore reinstalls supported packages and Windows Update drivers; it does not yet restore application data, user profiles, Windows settings, or offline driver packages.
+- Package manifests record installed versions for reference, but restore currently installs the provider-current version instead of pinning an exact historical version.
 - Protected packages such as Microsoft Edge are not removed unless -ForceProtectedMigration is explicitly supplied.
 
 ## Project layout

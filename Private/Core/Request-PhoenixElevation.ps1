@@ -16,7 +16,8 @@ function Request-PhoenixElevation {
             'Remove-PhoenixPackage',
             'Repair-PhoenixPackage',
             'Update-PhoenixPackage',
-            'Update-Phoenix'
+            'Update-Phoenix',
+            'Restore-Phoenix'
         )]
         [string]$CommandName,
 
