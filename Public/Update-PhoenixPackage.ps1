@@ -39,7 +39,16 @@ function Update-PhoenixPackage {
         [string]$Provider,
 
         [Parameter()]
-        [switch]$PreserveDownloads
+        [switch]$PreserveDownloads,
+
+        [Parameter()]
+        [switch]$AllowMigration,
+
+        [Parameter()]
+        [switch]$ForceProtectedMigration,
+
+        [Parameter()]
+        [switch]$Unattended
     )
 
     process {
@@ -198,8 +207,11 @@ if (
     [hashtable]$elevationParameters = @{
         Id                = $resolvedPackage.Id
         Provider          = $resolvedProvider.Name
-        PreserveDownloads = [bool]$resolvedPackage.PreserveDownloads
-        Confirm           = $false
+        PreserveDownloads       = [bool]$resolvedPackage.PreserveDownloads
+        AllowMigration          = [bool]$AllowMigration
+        ForceProtectedMigration = [bool]$ForceProtectedMigration
+        Unattended              = [bool]$Unattended
+        Confirm                 = $false
     }
 
     [bool]$elevationStarted =
@@ -248,6 +260,19 @@ try {
         )
 
         $result.Code = 'PHX_UPDATE_NO_RESULT'
+    }
+
+    if (
+        $result.Code -eq
+            'PHX_UPDATE_MIGRATION_REQUIRED'
+    ) {
+
+        return Invoke-PhoenixPackageMigration `
+            -Provider $resolvedProvider `
+            -Package $resolvedPackage `
+            -AllowMigration:$AllowMigration `
+            -ForceProtectedMigration:$ForceProtectedMigration `
+            -Unattended:$Unattended
     }
 
     return $result

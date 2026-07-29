@@ -25,7 +25,16 @@ function Update-Phoenix {
         [switch]$SkipPackages,
 
         [Parameter()]
-        [switch]$PreserveDownloads
+        [switch]$PreserveDownloads,
+
+        [Parameter()]
+        [switch]$AllowMigration,
+
+        [Parameter()]
+        [switch]$ForceProtectedMigration,
+
+        [Parameter()]
+        [switch]$Unattended
     )
 
     $context = $null
@@ -74,11 +83,14 @@ function Update-Phoenix {
     ) {
 
         [hashtable]$elevationParameters = @{
-            Provider          = @($Provider)
-            SkipDrivers       = [bool]$SkipDrivers
-            SkipPackages      = [bool]$SkipPackages
-            PreserveDownloads = [bool]$PreserveDownloads
-            Confirm           = $false
+            Provider                  = @($Provider)
+            SkipDrivers               = [bool]$SkipDrivers
+            SkipPackages              = [bool]$SkipPackages
+            PreserveDownloads         = [bool]$PreserveDownloads
+            AllowMigration            = [bool]$AllowMigration
+            ForceProtectedMigration   = [bool]$ForceProtectedMigration
+            Unattended                = [bool]$Unattended
+            Confirm                   = $false
         }
 
         [datetime]$elevationStartedAt = Get-Date
@@ -218,8 +230,11 @@ if ($driverResults.Count -gt 0) {
 if ($packageResults.Count -gt 0) {
 
     [int]$updatedCount = 0
+    [int]$migratedCount = 0
     [int]$alreadyCurrentCount = 0
-    [int]$migrationCount = 0
+    [int]$migrationRequiredCount = 0
+    [int]$migrationProtectedCount = 0
+    [int]$migrationSkippedCount = 0
     [int]$failedCount = 0
 
     foreach ($packageResult in $packageResults) {
@@ -234,12 +249,24 @@ if ($packageResults.Count -gt 0) {
                 $updatedCount++
             }
 
+            'PHX_UPDATED_MIGRATED' {
+                $migratedCount++
+            }
+
             'PHX_ALREADY_CURRENT' {
                 $alreadyCurrentCount++
             }
 
             'PHX_UPDATE_MIGRATION_REQUIRED' {
-                $migrationCount++
+                $migrationRequiredCount++
+            }
+
+            'PHX_UPDATE_MIGRATION_PROTECTED' {
+                $migrationProtectedCount++
+            }
+
+            'PHX_UPDATE_MIGRATION_SKIPPED' {
+                $migrationSkippedCount++
             }
 
             default {
@@ -268,13 +295,28 @@ if ($packageResults.Count -gt 0) {
     )
 
     Write-Host (
+        'Migrated         : {0}' -f
+        $migratedCount
+    )
+
+    Write-Host (
         'Already current  : {0}' -f
         $alreadyCurrentCount
     )
 
     Write-Host (
         'Need migration   : {0}' -f
-        $migrationCount
+        $migrationRequiredCount
+    )
+
+    Write-Host (
+        'Protected        : {0}' -f
+        $migrationProtectedCount
+    )
+
+    Write-Host (
+        'Migration skipped: {0}' -f
+        $migrationSkippedCount
     )
 
     Write-Host (
@@ -468,8 +510,11 @@ if (-not $SkipDrivers) {
                 ) -ForegroundColor Cyan
 
                 [hashtable]$updateParameters = @{
-                    Package = $package
-                    Confirm = $false
+                    Package                   = $package
+                    AllowMigration            = [bool]$AllowMigration
+                    ForceProtectedMigration   = [bool]$ForceProtectedMigration
+                    Unattended                = [bool]$Unattended
+                    Confirm                   = $false
                 }
 
                 if ($PreserveDownloads) {
@@ -581,12 +626,31 @@ if (-not $SkipDrivers) {
             $results.ToArray()
         )
 
+        $completedPackageResults = @(
+            $completedResults |
+                Where-Object {
+
+                    $stageProperty = $null
+
+                    if ($null -ne $_.Data) {
+                        $stageProperty =
+                            $_.Data.PSObject.Properties['Stage']
+                    }
+
+                    $null -eq $stageProperty -or
+                    [string]$stageProperty.Value -ne 'Driver'
+                }
+        )
+
         [int]$updatedCount = 0
+        [int]$migratedCount = 0
         [int]$alreadyCurrentCount = 0
-        [int]$migrationCount = 0
+        [int]$migrationRequiredCount = 0
+        [int]$migrationProtectedCount = 0
+        [int]$migrationSkippedCount = 0
         [int]$failedCount = 0
 
-        foreach ($completedResult in $completedResults) {
+        foreach ($completedResult in $completedPackageResults) {
 
             switch ($completedResult.Code) {
 
@@ -598,12 +662,24 @@ if (-not $SkipDrivers) {
                     $updatedCount++
                 }
 
+                'PHX_UPDATED_MIGRATED' {
+                    $migratedCount++
+                }
+
                 'PHX_ALREADY_CURRENT' {
                     $alreadyCurrentCount++
                 }
 
                 'PHX_UPDATE_MIGRATION_REQUIRED' {
-                    $migrationCount++
+                    $migrationRequiredCount++
+                }
+
+                'PHX_UPDATE_MIGRATION_PROTECTED' {
+                    $migrationProtectedCount++
+                }
+
+                'PHX_UPDATE_MIGRATION_SKIPPED' {
+                    $migrationSkippedCount++
                 }
 
                 default {
@@ -617,7 +693,7 @@ if (-not $SkipDrivers) {
 
         [int]$noResultCount = [Math]::Max(
             0,
-            $packageCount - $completedResults.Count
+            $packageCount - $completedPackageResults.Count
         )
 
         Write-Host ''
@@ -637,13 +713,28 @@ if (-not $SkipDrivers) {
         )
 
         Write-Host (
+            'Migrated         : {0}' -f
+            $migratedCount
+        )
+
+        Write-Host (
             'Already current  : {0}' -f
             $alreadyCurrentCount
         )
 
         Write-Host (
             'Need migration   : {0}' -f
-            $migrationCount
+            $migrationRequiredCount
+        )
+
+        Write-Host (
+            'Protected        : {0}' -f
+            $migrationProtectedCount
+        )
+
+        Write-Host (
+            'Migration skipped: {0}' -f
+            $migrationSkippedCount
         )
 
         Write-Host (
