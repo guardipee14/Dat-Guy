@@ -127,7 +127,7 @@ Describe 'Phoenix release packaging' -Tag @(
             )
 
         $moduleManifest.ModuleVersion.ToString() |
-            Should-Be '0.1.2'
+            Should-Be '0.1.3'
 
         [string]$developmentHistory =
             Get-Content `

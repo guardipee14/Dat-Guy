@@ -3583,6 +3583,13 @@ class PhoenixContext {
     [string]$Version
     [string]$SessionID
     [datetime]$StartTime
+    [datetime]$InitializedAtUtc
+
+    [string]$LifecycleState
+    [string]$InitializationError
+    [bool]$IsInitialized
+    [bool]$IsResumed
+    [int]$Generation
 
     [string]$ProjectRoot
     [string]$CacheRoot
@@ -3597,17 +3604,29 @@ class PhoenixContext {
     [PhoenixLogger]$Logger
     [PhoenixBuild]$Build
     [PhoenixInventory]$Inventory
+    [object]$Scheduler
 
     [System.Collections.Generic.List[PhoenixProvider]]$Providers
+    [System.Collections.Generic.List[string]]$InitializationWarnings
 
     PhoenixContext([string]$ProjectRoot) {
 
-        $this.Version      = '0.1.0'
-        $this.SessionID    = [guid]::NewGuid().ToString()
-        $this.StartTime    = Get-Date
-        $this.ProjectRoot  = $ProjectRoot
+        $this.Version = '0.1.3'
+        $this.SessionID = [guid]::NewGuid().ToString()
+        $this.StartTime = Get-Date
+        $this.InitializedAtUtc = [datetime]::MinValue
+        $this.LifecycleState = 'Created'
+        $this.InitializationError = ''
+        $this.IsInitialized = $false
+        $this.IsResumed = $false
+        $this.Generation = 0
+
+        $this.ProjectRoot = [IO.Path]::GetFullPath(
+            $ProjectRoot
+        )
+
         $this.CacheRoot = Join-Path `
-        $this.ProjectRoot `
+            $this.ProjectRoot `
             'Cache'
 
         $this.WorkingRoot = Join-Path `
@@ -3617,13 +3636,14 @@ class PhoenixContext {
         if (-not (Test-Path -LiteralPath $this.WorkingRoot)) {
 
             New-Item `
-            -ItemType Directory `
-            -Path $this.WorkingRoot `
-            -Force |
-            Out-Null
-}
+                -ItemType Directory `
+                -Path $this.WorkingRoot `
+                -Force |
+                Out-Null
+        }
+
         $this.ComputerName = $env:COMPUTERNAME
-        $this.UserName     = $env:USERNAME
+        $this.UserName = $env:USERNAME
 
         $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
 
@@ -3643,12 +3663,16 @@ class PhoenixContext {
         }
 
         $this.Configuration = [PhoenixConfiguration]::new($ProjectRoot)
-        $this.Logger        = [PhoenixLogger]::new($ProjectRoot)
-        $this.Build         = [PhoenixBuild]::new()
-        $this.Inventory     = [PhoenixInventory]::new()
+        $this.Logger = [PhoenixLogger]::new($ProjectRoot)
+        $this.Build = [PhoenixBuild]::new()
+        $this.Inventory = [PhoenixInventory]::new()
+        $this.Scheduler = $null
 
         $this.Providers =
             [System.Collections.Generic.List[PhoenixProvider]]::new()
+
+        $this.InitializationWarnings =
+            [System.Collections.Generic.List[string]]::new()
     }
 }
 #endregion 10-Core\PhoenixContext.ps1

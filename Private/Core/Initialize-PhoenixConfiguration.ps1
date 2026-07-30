@@ -1,32 +1,18 @@
-function Initialize-PhoenixLogging {
+function Initialize-PhoenixConfiguration {
 
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNull()]
+        [PhoenixContext]$Context
+    )
 
-    $Today = Get-Date
-
-    $Folder = Join-Path `
-        $script:PhoenixContext.ProjectRoot `
-        ("Logs\{0}\{1}\{2}" -f `
-            $Today.Year,
-            $Today.ToString("MM"),
-            $Today.ToString("dd"))
-
-    if (!(Test-Path $Folder))
-    {
-        New-Item `
-            -ItemType Directory `
-            -Path $Folder `
-            -Force | Out-Null
+    if ($null -eq $Context.Configuration) {
+        $Context.Configuration =
+            [PhoenixConfiguration]::new(
+                $Context.ProjectRoot
+            )
     }
 
-    $LogName = "Phoenix-{0}.log" -f `
-        $Today.ToString("HHmmss")
-
-    $script:PhoenixContext.LogPath = $Folder
-
-    $script:PhoenixContext.LogFile = Join-Path `
-        $Folder `
-        $LogName
-
+    $Context.Configuration.Load()
 }

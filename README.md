@@ -1,9 +1,9 @@
 <!-- PHOENIX:GENERATED:START -->
 # PhoenixDeploy
 
-PowerShell deployment and recovery framework for Windows package management, driver-first backup and restore, inventory, and elevated update workflows.
+PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.2`
+**Current module version:** `0.1.3`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -30,16 +30,20 @@ PowerShell deployment and recovery framework for Windows package management, dri
 | Command | Status | Purpose |
 |---|---|---|
 | `Backup-Phoenix` | Available | Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata. |
-| `Get-PhoenixContext` | Available | Return the active Phoenix runtime context. |
+| `Get-PhoenixContext` | Available | Return the active Phoenix runtime context and optionally require a ready lifecycle. |
 | `Get-PhoenixPackages` | Available | Enumerate installed packages reported by active providers. |
 | `Get-PhoenixProviders` | Available | List active Phoenix package providers. |
 | `Install-PhoenixPackage` | Available | Install a package through WinGet or Chocolatey with elevation and install-mode handling. |
 | `Repair-PhoenixPackage` | Available | Repair a supported package using silent or interactive provider behavior. |
 | `Restore-Phoenix` | Available | Restore drivers first and reinstall missing WinGet or Chocolatey packages from a Phoenix manifest. |
-| `Start-Phoenix` | Available | Initialize configuration, logging, providers, scheduling, and missing-provider checks. |
+| `Start-Phoenix` | Available | Create or reuse a ready Phoenix context; use -Force for a new lifecycle generation. |
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |
+| `Open-Phoenix` | Available | Exported Phoenix command. |
+| `Get-PhoenixTheme` | Available | Exported Phoenix command. |
+| `Install-PhoenixTheme` | Available | Exported Phoenix command. |
+| `Export-PhoenixTheme` | Available | Exported Phoenix command. |
 
 ## Quick start
 

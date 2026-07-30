@@ -3,6 +3,10 @@ using module '.\Classes\Phoenix.Classes.psm1'
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
+$script:PhoenixContext = $null
+$script:PhoenixContextGeneration = 0
+$script:PhoenixLastInitializationError = ''
+
 $Folders = @(
     'Private\Config'
     'Private\Core'

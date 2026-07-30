@@ -95,20 +95,9 @@ function Open-Phoenix {
         $resolvedMode = 'Console'
     }
 
-    $context = $null
-
-    try {
-        $context =
-            Get-PhoenixContext `
-                -ErrorAction Stop
-    }
-    catch {
-        $context = $null
-    }
-
-    if ($null -eq $context) {
-        Start-Phoenix
-    }
+    $null =
+        Resolve-PhoenixContext `
+            -ErrorAction Stop
 
     Write-PhoenixLog `
         -Level Info `

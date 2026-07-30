@@ -18,14 +18,17 @@ function Write-PhoenixLog {
         [string]$Message
     )
 
+    $context =
+        Get-PhoenixContext
+
     if (
-        $null -eq $script:PhoenixContext -or
-        $null -eq $script:PhoenixContext.Logger
+        $null -eq $context -or
+        $null -eq $context.Logger
     ) {
         throw 'Phoenix logging has not been initialized.'
     }
 
-    $script:PhoenixContext.Logger.Write(
+    $context.Logger.Write(
         $Level,
         $Message
     )

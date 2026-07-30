@@ -34,7 +34,7 @@ releases after v0.1.1. Each release must pass its backend, Control Center,
 automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 - [x] `v0.1.2` — Publish the v0.2.0 roadmap and incremental release workflow
-- [ ] `v0.1.3` — Reliable Phoenix context initialization and lifecycle
+- [x] `v0.1.3` — Reliable Phoenix context initialization and lifecycle
 - [ ] `v0.1.4` — Automatic directory, configuration, and runtime recovery
 - [ ] `v0.1.5` — Control Center exception isolation and desktop recovery
 - [ ] `v0.1.6` — Shared background-job contract
@@ -69,12 +69,12 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 1. Runtime stability
 
-- [ ] Make Phoenix context initialization idempotent and recoverable.
+- [x] Make Phoenix context initialization idempotent and recoverable.
 - [ ] Automatically create required configuration, theme, cache, checkpoint,
       and working directories.
 - [ ] Prevent a failed component from closing the desktop interface.
 - [ ] Add UI-safe exception boundaries with structured Phoenix results.
-- [ ] Prevent duplicate state during repeated starts, refreshes, and provider
+- [x] Prevent duplicate state during repeated starts, refreshes, and provider
       initialization.
 - [ ] Validate administrator and standard-user behavior.
 - [ ] Add regression tests for initialization, recovery, missing directories,

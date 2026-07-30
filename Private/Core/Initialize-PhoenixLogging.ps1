@@ -1,19 +1,19 @@
 function Initialize-PhoenixLogging {
 
     [CmdletBinding()]
-    param()
-
-    if ($null -eq $script:PhoenixContext) {
-        throw 'Phoenix context has not been initialized.'
-    }
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNull()]
+        [PhoenixContext]$Context
+    )
 
     [string]$minimumLevel = 'Info'
     [int]$maximumLogFiles = 20
 
-    if ($null -ne $script:PhoenixContext.Configuration) {
+    if ($null -ne $Context.Configuration) {
 
         $configuredLevel =
-            $script:PhoenixContext.Configuration.Get(
+            $Context.Configuration.Get(
                 'LogLevel'
             )
 
@@ -27,7 +27,7 @@ function Initialize-PhoenixLogging {
         }
 
         $configuredMaximum =
-            $script:PhoenixContext.Configuration.Get(
+            $Context.Configuration.Get(
                 'MaximumLogFiles'
             )
 
@@ -45,15 +45,15 @@ function Initialize-PhoenixLogging {
         }
     }
 
-    if ($null -eq $script:PhoenixContext.Logger) {
+    if ($null -eq $Context.Logger) {
 
-        $script:PhoenixContext.Logger =
+        $Context.Logger =
             [PhoenixLogger]::new(
-                $script:PhoenixContext.ProjectRoot
+                $Context.ProjectRoot
             )
     }
 
-    $script:PhoenixContext.Logger.Configure(
+    $Context.Logger.Configure(
         $minimumLevel,
         $maximumLogFiles
     )

@@ -10,7 +10,7 @@ Run the normal validation pipeline and create a versioned archive:
 ```powershell
 $releaseResult =
     .\Build\New-PhoenixRelease.ps1 `
-        -Version '0.1.2'
+        -Version '0.1.3'
 
 $releaseResult | Format-List
 ```
@@ -25,7 +25,7 @@ Use `-AllowDirty` only while testing uncommitted release changes:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.2' `
+    -Version '0.1.3' `
     -AllowDirty
 ```
 
@@ -96,11 +96,11 @@ After committing and pushing a clean working tree:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.2' `
+    -Version '0.1.3' `
     -PublishGitHub
 ```
 
-This creates the `v0.1.2` GitHub release and uploads both the ZIP and checksum.
+This creates the `v0.1.3` GitHub release and uploads both the ZIP and checksum.
 Use `-Prerelease` when the GitHub release should be marked as a prerelease.
 
 ## License

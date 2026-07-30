@@ -52,28 +52,22 @@ function Repair-PhoenixPackage {
         ## Ensure Phoenix is initialized
         ##########################################################
 
-        $context = Get-PhoenixContext
+        try {
+            $context =
+                Resolve-PhoenixContext `
+                    -ErrorAction Stop
+        }
+        catch {
 
-        if ($null -eq $context) {
+            [Result]$initializationResult =
+                [Result]::Failure(
+                    "Phoenix initialization failed: $($_.Exception.Message)"
+                )
 
-            try {
+            $initializationResult.Code =
+                'PHX_INITIALIZATION_FAILED'
 
-                Start-Phoenix
-
-                $context = Get-PhoenixContext
-            }
-            catch {
-
-                [Result]$initializationResult =
-                    [Result]::Failure(
-                        "Phoenix initialization failed: $($_.Exception.Message)"
-                    )
-
-                $initializationResult.Code =
-                    'PHX_INITIALIZATION_FAILED'
-
-                return $initializationResult
-            }
+            return $initializationResult
         }
 
         if ($null -eq $context) {

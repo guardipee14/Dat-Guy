@@ -3,7 +3,10 @@ function Get-PhoenixPackages {
     [CmdletBinding()]
     param()
 
-    foreach ($provider in (Get-PhoenixContext).Providers) {
+    $context =
+        Resolve-PhoenixContext
+
+    foreach ($provider in $context.Providers) {
 
         if ($provider.PSObject.Methods.Name -contains 'GetInstalledPackages') {
 

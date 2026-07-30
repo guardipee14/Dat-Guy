@@ -4,26 +4,28 @@ function Get-PhoenixControlCenterInventory {
     [OutputType([pscustomobject])]
     param()
 
-    $context = $null
-
-    try {
-        $context =
-            Get-PhoenixContext `
-                -ErrorAction Stop
-    }
-    catch {
-        $context = $null
-    }
-
-    if ($null -eq $context) {
-        Start-Phoenix
-        $context =
-            Get-PhoenixContext `
-                -ErrorAction Stop
-    }
+    $context =
+        Resolve-PhoenixContext `
+            -ErrorAction Stop
 
     $warnings =
         [System.Collections.Generic.List[string]]::new()
+
+    foreach (
+        $initializationWarning in @(
+            $context.InitializationWarnings
+        )
+    ) {
+        if (
+            -not [string]::IsNullOrWhiteSpace(
+                [string]$initializationWarning
+            )
+        ) {
+            $warnings.Add(
+                [string]$initializationWarning
+            )
+        }
+    }
 
     $hardware = [ordered]@{}
     $network = [ordered]@{}
@@ -310,9 +312,22 @@ function Get-PhoenixControlCenterInventory {
         Administrator = [bool]$context.IsAdministrator
     }
 
+    $lifecycle = [pscustomobject]@{
+        State            = [string]$context.LifecycleState
+        SessionId        = [string]$context.SessionID
+        Generation       = [int]$context.Generation
+        StartedAtUtc     = $context.StartTime.ToUniversalTime()
+        InitializedAtUtc = $context.InitializedAtUtc
+        IsResumed        = [bool]$context.IsResumed
+        WarningCount     = @(
+            $context.InitializationWarnings
+        ).Count
+    }
+
     return [pscustomobject]@{
         CollectedAtUtc  = (Get-Date).ToUniversalTime()
         Context         = $context
+        Lifecycle       = $lifecycle
         Summary         = $summary
         Hardware        = $hardware
         Network         = $network

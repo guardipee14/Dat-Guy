@@ -19,7 +19,7 @@ function Search-PhoenixControlCenterPackage {
     )
 
     $context =
-        Get-PhoenixContext `
+        Resolve-PhoenixContext `
             -ErrorAction Stop
 
     $results = @(

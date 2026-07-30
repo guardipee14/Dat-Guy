@@ -3,13 +3,24 @@ function Get-PhoenixConfiguration {
     [CmdletBinding()]
     param()
 
-    $configPath = Join-Path $script:PhoenixContext.ProjectRoot 'Config\Phoenix.json'
+    $context =
+        Resolve-PhoenixContext
+
+    $configPath =
+        Join-Path `
+            $context.ProjectRoot `
+            'Config\Phoenix.json'
 
     if (-not (Test-Path $configPath)) {
-        return [PhoenixConfiguration]::new($script:PhoenixContext.ProjectRoot)
+        return [PhoenixConfiguration]::new(
+            $context.ProjectRoot
+        )
     }
 
-    $config = [PhoenixConfiguration]::new($script:PhoenixContext.ProjectRoot)
+    $config =
+        [PhoenixConfiguration]::new(
+            $context.ProjectRoot
+        )
 
     $jsonObject = Get-Content $configPath -Raw |
     ConvertFrom-Json

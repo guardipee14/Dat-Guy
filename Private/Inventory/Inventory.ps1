@@ -3,6 +3,9 @@ function Get-PhoenixInventory {
     [CmdletBinding()]
     param()
 
+    $context =
+        Resolve-PhoenixContext
+
     Write-PhoenixLog -Level Info -Message "Collecting inventory."
 
     $inventory = [PhoenixInventory]::new()
@@ -40,7 +43,7 @@ function Get-PhoenixInventory {
     # Providers
     #
 
-    $inventory.Providers = $script:PhoenixContext.Providers
+    $inventory.Providers = $context.Providers
 
     #
     # Drivers

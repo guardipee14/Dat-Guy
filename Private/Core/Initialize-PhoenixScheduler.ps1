@@ -1,13 +1,24 @@
 function Initialize-PhoenixScheduler {
 
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [PhoenixContext]$Context
+    )
 
     Write-PhoenixLog `
         -Level Info `
         -Message "Scheduler initialized."
 
-    $script:PhoenixContext.Scheduler = [ordered]@{
+    $contextToInitialize = $Context
+
+    if ($null -eq $contextToInitialize) {
+        $contextToInitialize =
+            Resolve-PhoenixContext
+    }
+
+    $contextToInitialize.Scheduler = [ordered]@{
         Enabled = $true
         Tasks   = @()
     }

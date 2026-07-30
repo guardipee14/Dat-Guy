@@ -4,6 +4,32 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- make context initialization reliable
+  - Initialize module-scoped context state safely under StrictMode.
+  - Publish context state only after configuration, providers, and logging are ready.
+  - Restore the previous ready context when forced initialization fails.
+  - Reuse active sessions during repeated starts and support explicit generations with Start-Phoenix -Force.
+  - Route backup, restore, provider, package, search, and Control Center operations through shared context recovery.
+  - Display lifecycle state, generation, and session information in the Control Center.
+  - Add focused lifecycle and UI regression coverage with 58 passing tests.
+  - Advance the module version and roadmap milestone to Phoenix v0.1.3.
+
+## [0.1.3] - 2026-07-30
+
+### Fixed
+- make Phoenix context initialization reliable and recoverable
+  - Initialize module-scoped context state safely under StrictMode.
+  - Build configuration, providers, and logging before publishing a context.
+  - Restore the previous ready context when forced initialization fails.
+  - Reuse one ready session during repeated starts and refreshes.
+  - Add `Start-Phoenix -Force` for an explicit new context generation.
+  - Record ready, failed, resumed, generation, and initialization metadata.
+  - Route context consumers through one recovery helper.
+  - Display lifecycle state, generation, and session information in the
+    Control Center inventory tile.
+  - Add focused lifecycle and Control Center regression coverage.
+
 ## [0.1.2] - 2026-07-30
 
 ### Changed

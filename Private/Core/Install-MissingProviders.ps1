@@ -1,12 +1,20 @@
 function Install-MissingProviders {
 
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter()]
+        [AllowNull()]
+        [PhoenixContext]$Context
+    )
 
     Write-Host '>>> Install-MissingProviders executed <<<' -ForegroundColor DarkGray
     Write-Host ''
 
-    $context = Get-PhoenixContext
+    $context = $Context
+
+    if ($null -eq $context) {
+        $context = Get-PhoenixContext
+    }
 
     if ($null -eq $context) {
 
@@ -27,11 +35,17 @@ function Install-MissingProviders {
 
             $provider.Available = $false
 
-            Write-Warning (
+            [string]$availabilityWarning = (
                 "Availability check failed for {0}: {1}" -f
                 $provider.Name,
                 $_.Exception.Message
             )
+
+            $context.InitializationWarnings.Add(
+                $availabilityWarning
+            )
+
+            Write-Warning $availabilityWarning
         }
 
         if ($provider.Available) {
@@ -67,7 +81,18 @@ function Install-MissingProviders {
                 return
             }
 
-            Write-Host '  ✗ Installation could not be elevated.' -ForegroundColor Red
+            [string]$elevationWarning = (
+                'Installation could not be elevated for {0}.' -f
+                $provider.Name
+            )
+
+            $context.InitializationWarnings.Add(
+                $elevationWarning
+            )
+
+            Write-Host (
+                "  ✗ $elevationWarning"
+            ) -ForegroundColor Red
             Write-Host ''
 
             continue
@@ -85,11 +110,17 @@ function Install-MissingProviders {
 
             $provider.Available = $false
 
-            Write-Warning (
+            [string]$installationWarning = (
                 "Installation failed for {0}: {1}" -f
                 $provider.Name,
                 $_.Exception.Message
             )
+
+            $context.InitializationWarnings.Add(
+                $installationWarning
+            )
+
+            Write-Warning $installationWarning
         }
 
         if ($provider.Available) {

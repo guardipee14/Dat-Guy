@@ -53,31 +53,20 @@ function Update-PhoenixPackage {
 
     process {
 
-        $context = $null
-
         try {
-            $context = Get-PhoenixContext -ErrorAction Stop
+            $context =
+                Resolve-PhoenixContext `
+                    -ErrorAction Stop
         }
         catch {
-            $context = $null
-        }
 
-        if ($null -eq $context) {
+            [Result]$result = [Result]::Failure(
+                "Phoenix initialization failed: $($_.Exception.Message)"
+            )
 
-            try {
-                Start-Phoenix
-                $context = Get-PhoenixContext -ErrorAction Stop
-            }
-            catch {
+            $result.Code = 'PHX_INITIALIZATION_FAILED'
 
-                [Result]$result = [Result]::Failure(
-                    "Phoenix initialization failed: $($_.Exception.Message)"
-                )
-
-                $result.Code = 'PHX_INITIALIZATION_FAILED'
-
-                return $result
-            }
+            return $result
         }
 
         if ($null -eq $context) {

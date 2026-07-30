@@ -1,8 +1,13 @@
 function Initialize-PhoenixProviders {
 
-    $ctx = Get-PhoenixContext
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [ValidateNotNull()]
+        [PhoenixContext]$Context
+    )
 
-    $ctx.Providers.Clear()
+    $Context.Providers.Clear()
 
     foreach ($provider in @(
         [WinGetProvider]::new()
@@ -11,7 +16,7 @@ function Initialize-PhoenixProviders {
 
         Write-Host "Adding $($provider.GetType().Name)..."
 
-        $ctx.Providers.Add($provider)
+        $Context.Providers.Add($provider)
 
     }
 

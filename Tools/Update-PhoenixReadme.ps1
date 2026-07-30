@@ -180,14 +180,14 @@ if ($UpdateManifestDescription) {
 
 $commandDescriptions = @{
     'Backup-Phoenix' = 'Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata.'
-    'Get-PhoenixContext' = 'Return the active Phoenix runtime context.'
+    'Get-PhoenixContext' = 'Return the active Phoenix runtime context and optionally require a ready lifecycle.'
     'Get-PhoenixPackages' = 'Enumerate installed packages reported by active providers.'
     'Get-PhoenixProviders' = 'List active Phoenix package providers.'
     'Install-PhoenixPackage' = 'Install a package through WinGet or Chocolatey with elevation and install-mode handling.'
     'Remove-PhoenixPackage' = 'Uninstall a package through WinGet or Chocolatey with elevation support.'
     'Repair-PhoenixPackage' = 'Repair a supported package using silent or interactive provider behavior.'
     'Restore-Phoenix' = 'Restore drivers first and reinstall missing WinGet or Chocolatey packages from a Phoenix manifest.'
-    'Start-Phoenix' = 'Initialize configuration, logging, providers, scheduling, and missing-provider checks.'
+    'Start-Phoenix' = 'Create or reuse a ready Phoenix context; use -Force for a new lifecycle generation.'
     'Update-Phoenix' = 'Install applicable Windows Update drivers first, then update packages, and return structured results.'
     'Update-PhoenixPackage' = 'Update one package and safely classify installer-technology migrations.'
 }

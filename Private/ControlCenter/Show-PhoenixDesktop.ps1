@@ -1270,6 +1270,9 @@ function Show-PhoenixDesktop {
 
                 $inventoryControls.InventorySummaryText.Text = (
                     @(
+                        "Phoenix state      : $($inventoryState.Inventory.Lifecycle.State)"
+                        "Context generation : $($inventoryState.Inventory.Lifecycle.Generation)"
+                        "Session            : $($inventoryState.Inventory.Lifecycle.SessionId.Substring(0, 8))"
                         "Applications       : $(@($inventoryState.Inventory.Applications).Count)"
                         "Actionable apps    : $actionableCount"
                         "Installed drivers  : $(@($inventoryState.Inventory.Drivers).Count)"

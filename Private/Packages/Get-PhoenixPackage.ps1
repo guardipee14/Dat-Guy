@@ -6,9 +6,10 @@ function Get-PhoenixPackage {
         [string]$Name
     )
 
-    $providers = Get-PhoenixProviders
+    $context =
+        Resolve-PhoenixContext
 
-    foreach ($provider in (Get-PhoenixContext).Providers) {
+    foreach ($provider in $context.Providers) {
 
         Write-Host "Querying $($provider.Name)..."
 

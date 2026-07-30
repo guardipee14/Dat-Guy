@@ -3,5 +3,8 @@ function Get-PhoenixProviders {
     [CmdletBinding()]
     param()
 
-    (Get-PhoenixContext).Providers
+    $context =
+        Resolve-PhoenixContext
+
+    $context.Providers
 }
