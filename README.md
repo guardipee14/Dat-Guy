@@ -1,13 +1,15 @@
 <!-- PHOENIX:GENERATED:START -->
 # PhoenixDeploy
 
-PowerShell deployment and recovery framework for Windows package management, driver-first backup and restore, inventory, and elevated update workflows.
+PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
 **Current module version:** `0.1.1`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
 **Development history:** [Phoenix v0.1.1](Docs/Phoenix-v0.1.1-Development-History.md)
+
+**Roadmap:** [Phoenix v0.2.0 roadmap](ROADMAP.md)
 
 ## What Phoenix can currently do
 
@@ -38,6 +40,10 @@ PowerShell deployment and recovery framework for Windows package management, dri
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |
+| `Open-Phoenix` | Available | Exported Phoenix command. |
+| `Get-PhoenixTheme` | Available | Exported Phoenix command. |
+| `Install-PhoenixTheme` | Available | Exported Phoenix command. |
+| `Export-PhoenixTheme` | Available | Exported Phoenix command. |
 
 ## Quick start
 

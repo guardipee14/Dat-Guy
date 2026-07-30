@@ -1,0 +1,288 @@
+# Phoenix roadmap
+
+This roadmap tracks the work planned for Phoenix v0.2.0.
+
+Phoenix is a PowerShell deployment and recovery framework for Windows
+application management, driver management, inventory, backup and restore,
+elevated updates, and a customizable desktop Control Center.
+
+## Status
+
+- `[x]` Completed and merged
+- `[ ]` Planned or in progress
+
+Roadmap items may be refined as implementation and Windows VM testing reveal
+new requirements. An item is checked only after its backend behavior, Control
+Center integration, automated tests, and documentation are complete.
+
+## Released
+
+- [x] Phoenix v0.1.0 — First public release
+- [x] Phoenix v0.1.1 — Double-click Windows installer hotfix
+
+## Phoenix v0.2.0
+
+### Release objective
+
+Deliver a stable, non-blocking Control Center with complete provider
+integration and a planned, resumable, verified restore workflow.
+
+### 1. Runtime stability
+
+- [ ] Make Phoenix context initialization idempotent and recoverable.
+- [ ] Automatically create required configuration, theme, cache, checkpoint,
+      and working directories.
+- [ ] Prevent a failed component from closing the desktop interface.
+- [ ] Add UI-safe exception boundaries with structured Phoenix results.
+- [ ] Prevent duplicate state during repeated starts, refreshes, and provider
+      initialization.
+- [ ] Validate administrator and standard-user behavior.
+- [ ] Add regression tests for initialization, recovery, missing directories,
+      and repeated startup.
+
+### 2. Background job system
+
+- [ ] Define a common Phoenix background-job contract.
+- [ ] Move inventory collection off the WPF interface thread.
+- [ ] Move provider initialization and searches off the WPF interface thread.
+- [ ] Move application operations off the WPF interface thread.
+- [ ] Move driver and OEM operations off the WPF interface thread.
+- [ ] Move restore planning, execution, and verification off the WPF interface
+      thread.
+- [ ] Add queued, running, completed, cancelled, and failed states.
+- [ ] Add cancellation, retry, timeout, and concurrency controls.
+- [ ] Serialize drivers, reboots, protected packages, and conflicting
+      installers when required.
+- [ ] Return structured progress and results to the Control Center.
+- [ ] Prove through regression tests that long operations do not freeze the UI.
+
+### 3. Activity Center
+
+- [ ] Display queued and running jobs.
+- [ ] Display completed, cancelled, and failed jobs.
+- [ ] Show target, action, provider, start time, and elapsed time.
+- [ ] Show determinate or indeterminate progress.
+- [ ] Show warnings, errors, exit codes, and Phoenix result codes.
+- [ ] Show restart requirements.
+- [ ] Add cancel, retry, and clear-completed controls.
+- [ ] Preserve running work when the user changes tabs.
+- [ ] Add Activity Center UI-binding and lifecycle tests.
+
+### 4. Provider completion
+
+#### Common provider behavior
+
+- [ ] Define a shared provider capability and availability contract.
+- [ ] Normalize search, inventory, install, update, repair, remove, export, and
+      restore results.
+- [ ] Disable unsupported UI actions instead of presenting nonfunctional
+      controls.
+- [ ] Normalize privilege, reboot, timeout, cancellation, and exit-code
+      reporting.
+- [ ] Add provider health and capability information to the Control Center.
+- [ ] Test every provider with mocked external commands or services.
+
+#### WinGet
+
+- [ ] Strengthen search and installed-package correlation.
+- [ ] Strengthen install, update, repair, and uninstall handling.
+- [ ] Normalize metadata, release details, reboot results, and error codes.
+- [ ] Verify all supported WinGet actions from the Applications tab.
+
+#### Chocolatey
+
+- [ ] Align Chocolatey operations with the common provider contract.
+- [ ] Normalize search, inventory, install, update, repair, and uninstall
+      results.
+- [ ] Verify all supported Chocolatey actions from the Applications tab.
+
+#### Scoop
+
+- [ ] Implement availability and installation checks.
+- [ ] Implement search and installed-package inventory.
+- [ ] Implement install, update, and uninstall.
+- [ ] Implement export and restore support.
+- [ ] Add Scoop selection, status, and results to the Applications tab.
+
+#### MSI
+
+- [ ] Detect MSI product codes and installed versions.
+- [ ] Implement silent and interactive installation.
+- [ ] Implement repair and uninstall.
+- [ ] Normalize MSI success, failure, and reboot exit codes.
+- [ ] Add MSI package definitions and results to the Applications tab.
+
+#### EXE
+
+- [ ] Define declarative EXE installer metadata.
+- [ ] Implement silent and interactive installation.
+- [ ] Detect installed versions and registered uninstall commands.
+- [ ] Implement repair and uninstall when supported.
+- [ ] Normalize vendor exit codes and restart requirements.
+- [ ] Add EXE package definitions and results to the Applications tab.
+
+#### GitHub Releases
+
+- [ ] Implement repository and release discovery.
+- [ ] Select assets by Windows architecture and package definition.
+- [ ] Compare installed and available versions.
+- [ ] Verify downloaded asset hashes when publishers provide them.
+- [ ] Install supported release assets through the appropriate package engine.
+- [ ] Display release notes and links in the Applications tab.
+
+#### PowerShell Gallery
+
+- [ ] Implement module and script search.
+- [ ] Implement installed-item inventory and version comparison.
+- [ ] Implement install, update, and removal.
+- [ ] Implement export and restore support.
+- [ ] Add PowerShell Gallery actions and results to the Applications tab.
+
+#### NuGet
+
+- [ ] Support configured NuGet feeds.
+- [ ] Implement package search and version resolution.
+- [ ] Implement download, install, update, and removal where applicable.
+- [ ] Implement export and restore support.
+- [ ] Add NuGet source and result information to the Applications tab.
+
+#### DISM
+
+- [ ] Detect applicable online Windows capabilities, features, and packages.
+- [ ] Implement supported enable, install, disable, and removal operations.
+- [ ] Report restart requirements and DISM result codes.
+- [ ] Add capability-aware DISM actions to the Applications tab.
+- [ ] Keep offline Windows-image servicing outside the v0.2.0 scope.
+
+#### WSUS
+
+- [ ] Detect configured Windows Update and WSUS policy.
+- [ ] Discover applicable updates from the managed update source.
+- [ ] Implement download and installation through the managed source.
+- [ ] Report approval, applicability, failure, and reboot status.
+- [ ] Display WSUS source and operation details in the Control Center.
+
+#### Phoenix orchestration provider
+
+- [ ] Coordinate provider selection and fallback.
+- [ ] Apply eligibility, elevation, and safety policies consistently.
+- [ ] Expose provider alternatives during restore planning.
+- [ ] Return one normalized result model to the CLI and Control Center.
+
+### 5. OEM driver support
+
+- [ ] Define a common OEM driver-adapter contract.
+- [ ] Detect manufacturer and applicable hardware before enabling an adapter.
+- [ ] Add Dell integration.
+- [ ] Add HP integration.
+- [ ] Add Lenovo integration.
+- [ ] Add Intel integration.
+- [ ] Add AMD integration.
+- [ ] Add NVIDIA integration.
+- [ ] Require approval before installing an OEM utility.
+- [ ] Use Windows Update when no applicable OEM source is available.
+- [ ] Show installed and available driver versions.
+- [ ] Show driver source, release information, support links, and restart
+      requirements.
+- [ ] Route every OEM scan and operation through the background job system.
+- [ ] Verify OEM information and actions in the Drivers and Activity tabs.
+- [ ] Add mocked adapter tests and real Windows VM validation.
+
+### 6. Restore planning
+
+- [ ] Build a restore plan before making system changes.
+- [ ] Classify every driver and application action.
+- [ ] Show installed, requested, and available versions.
+- [ ] Show the selected provider and provider alternatives.
+- [ ] Show privilege, dependency, safety, and restart information.
+- [ ] Allow individual and grouped selection.
+- [ ] Allow filtering by provider, record type, and planned action.
+- [ ] Allow eligible application records to change providers.
+- [ ] Save and reload restore plans.
+- [ ] Support `-WhatIf`, interactive, and unattended execution.
+- [ ] Add a Restore Plan view to the Control Center.
+
+### 7. Restore checkpoints and resume
+
+- [ ] Define a versioned checkpoint schema.
+- [ ] Assign restore-session and operation identifiers.
+- [ ] Save progress after every meaningful restore action.
+- [ ] Record completed, pending, skipped, failed, and retryable records.
+- [ ] Record manifest identity, computer identity, timestamps, and reboot state.
+- [ ] Resume without repeating successful work.
+- [ ] Detect incompatible or stale checkpoints safely.
+- [ ] Display checkpoint and resume status in the Control Center.
+- [ ] Add interruption, failure, retry, and resume regression tests.
+
+### 8. Restore verification
+
+- [ ] Rescan applications and drivers after restoration.
+- [ ] Classify records as verified, version mismatch, already satisfied,
+      skipped, restart pending, missing, failed, no longer applicable, or
+      unable to verify.
+- [ ] Show verification results in the Control Center.
+- [ ] Return structured verification results to PowerShell.
+- [ ] Include provider, version, and failure details.
+- [ ] Add complete, partial, failed, and restart-pending verification tests.
+
+### 9. Control Center integration
+
+- [ ] Add provider columns and filters to the Applications tab.
+- [ ] Allow searches against one provider or all providers.
+- [ ] Show installed and available application versions.
+- [ ] Show update availability, metadata, release notes, and support links.
+- [ ] Show provider alternatives and capability-aware action buttons.
+- [ ] Show provider and OEM sources in the Drivers tab.
+- [ ] Show installed and available driver versions.
+- [ ] Show planned action and verification status.
+- [ ] Connect application, driver, provider, activity, checkpoint, and
+      verification data to live background jobs.
+- [ ] Test every statically referenced control and data binding.
+- [ ] Perform manual end-to-end testing in Windows virtual machines.
+
+### 10. Build, testing, and release gate
+
+- [ ] Keep `Build.ps1` as the required validation gate.
+- [ ] Add unit tests for every completed provider.
+- [ ] Add mocked provider and OEM integration tests.
+- [ ] Add background-job cancellation, timeout, and retry tests.
+- [ ] Add restore planning, checkpoint, resume, and verification tests.
+- [ ] Add Control Center lifecycle and binding tests.
+- [ ] Complete administrator and standard-user VM testing.
+- [ ] Update user, troubleshooting, provider, and developer documentation.
+- [ ] Create the complete Phoenix v0.2.0 development-history document.
+- [ ] Produce and independently verify the v0.2.0 release archive.
+
+## Definition of done for v0.2.0
+
+- [ ] The Control Center remains responsive during every long-running action.
+- [ ] Every included provider reports availability and capabilities accurately.
+- [ ] Every supported provider action is available and tested through the UI.
+- [ ] Unsupported provider actions are visibly disabled.
+- [ ] OEM driver information and operations appear in the Drivers and Activity
+      tabs.
+- [ ] Restore plans can be reviewed before execution.
+- [ ] Interrupted restores can resume from checkpoints.
+- [ ] Completed restores produce verification results.
+- [ ] Automated tests pass with zero failures.
+- [ ] PSScriptAnalyzer reports zero blocking findings.
+- [ ] Installation, upgrade, launch, and complete removal pass Windows VM
+      testing.
+- [ ] The repository, release archive, checksum, tag, and GitHub release are
+      verified.
+
+## Planned after v0.2.0
+
+The following remain part of Phoenix's longer-term direction but are not
+required for v0.2.0:
+
+- [ ] Offline application and driver recovery bundles
+- [ ] Bootable Phoenix USB creation
+- [ ] WinPE integration
+- [ ] Windows image deployment
+- [ ] Unattended Windows installation
+- [ ] Pre-OS driver injection
+- [ ] Disk partitioning and formatting
+- [ ] Windows answer-file generation
+- [ ] Full bare-metal new-PC deployment
+

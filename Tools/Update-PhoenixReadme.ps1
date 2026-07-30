@@ -395,6 +395,18 @@ if (Test-Path -LiteralPath $developmentHistoryPath) {
     )
 }
 
+$roadmapPath =
+    Join-Path `
+        $RepositoryRoot `
+        'ROADMAP.md'
+
+if (Test-Path -LiteralPath $roadmapPath) {
+    $readmeLines.Add('')
+    $readmeLines.Add(
+        '**Roadmap:** [Phoenix v0.2.0 roadmap](ROADMAP.md)'
+    )
+}
+
 $readmeLines.Add('')
 $readmeLines.Add('## What Phoenix can currently do')
 $readmeLines.Add('')

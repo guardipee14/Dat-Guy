@@ -4,6 +4,16 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- publish the Phoenix v0.2.0 roadmap
+  - Add a public checkbox-based roadmap for Phoenix v0.2.0.
+  - Track runtime stability, background jobs, and Activity Center work.
+  - Track completion and UI integration for every planned provider.
+  - Track OEM driver support for Dell, HP, Lenovo, Intel, AMD, and NVIDIA.
+  - Track restore planning, checkpoints, resume, and verification.
+  - Define the automated testing and Windows VM release requirements.
+  - Preserve the roadmap link through generated README updates.
+
 ## [0.1.1] - 2026-07-30
 
 ### Fixed
