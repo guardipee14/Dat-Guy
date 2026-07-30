@@ -1,0 +1,78 @@
+{
+  "SchemaVersion": "2.0",
+  "ThemeId": "phoenix-dark",
+  "Appearance": {
+    "Background": "#0B1220",
+    "Surface": "#111B2E",
+    "SurfaceAlt": "#18243A",
+    "Card": "#142035",
+    "Border": "#2A3A55",
+    "Text": "#F5F7FB",
+    "MutedText": "#9FB0C9",
+    "Accent": "#2F80ED",
+    "AccentHover": "#4C95F5",
+    "Success": "#22A06B",
+    "Warning": "#D99A2B",
+    "Danger": "#D64545",
+    "FontFamily": "Segoe UI",
+    "FontSize": 13.0,
+    "CornerRadius": 10.0,
+    "Spacing": 12.0,
+    "NavigationWidth": 220.0,
+    "BackgroundImage": "",
+    "BrandImage": "",
+    "FontFile": ""
+  },
+  "Window": {
+    "Width": 1320.0,
+    "Height": 860.0,
+    "Maximized": true
+  },
+  "Dashboard": {
+    "CanvasWidth": 1160.0,
+    "CanvasHeight": 720.0,
+    "SnapSize": 10.0,
+    "Tiles": [
+      {
+        "Id": "System",
+        "X": 0.0,
+        "Y": 0.0,
+        "Width": 550.0,
+        "Height": 260.0,
+        "Visible": true
+      },
+      {
+        "Id": "Inventory",
+        "X": 570.0,
+        "Y": 0.0,
+        "Width": 280.0,
+        "Height": 260.0,
+        "Visible": true
+      },
+      {
+        "Id": "QuickActions",
+        "X": 870.0,
+        "Y": 0.0,
+        "Width": 290.0,
+        "Height": 260.0,
+        "Visible": true
+      },
+      {
+        "Id": "Providers",
+        "X": 0.0,
+        "Y": 280.0,
+        "Width": 760.0,
+        "Height": 410.0,
+        "Visible": true
+      },
+      {
+        "Id": "Warnings",
+        "X": 780.0,
+        "Y": 280.0,
+        "Width": 380.0,
+        "Height": 410.0,
+        "Visible": true
+      }
+    ]
+  }
+}

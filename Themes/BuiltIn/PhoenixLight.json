@@ -1,0 +1,28 @@
+{
+  "SchemaVersion": "1.0",
+  "Id": "phoenix-light",
+  "Name": "Phoenix Light",
+  "Version": "1.0.0",
+  "Author": "Phoenix",
+  "Description": "A soft light theme with Phoenix blue accents.",
+  "Appearance": {
+    "Background": "#EEF3F9",
+    "Surface": "#F8FAFD",
+    "SurfaceAlt": "#E7EEF7",
+    "Card": "#FFFFFF",
+    "Border": "#C7D4E5",
+    "Text": "#172033",
+    "MutedText": "#53647A",
+    "Accent": "#2563EB",
+    "AccentHover": "#3B76EF",
+    "Success": "#16815B",
+    "Warning": "#A96800",
+    "Danger": "#C93636",
+    "FontFamily": "Segoe UI",
+    "FontSize": 13.0,
+    "CornerRadius": 12.0,
+    "Spacing": 12.0,
+    "NavigationWidth": 220.0
+  },
+  "Assets": {}
+}

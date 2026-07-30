@@ -30,7 +30,7 @@ CompanyName = 'Unknown'
 Copyright = '(c) Donaven. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell deployment and recovery framework for Windows package management, driver-first backup and restore, inventory, and elevated update workflows.'
+Description = 'PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -81,6 +81,10 @@ FunctionsToExport = @(
     'Update-Phoenix'
     'Remove-PhoenixPackage'
     'Update-PhoenixPackage'
+    'Open-Phoenix'
+    'Get-PhoenixTheme'
+    'Install-PhoenixTheme'
+    'Export-PhoenixTheme'
 )
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.

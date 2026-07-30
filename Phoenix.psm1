@@ -7,6 +7,7 @@ $Folders = @(
     'Private\Config'
     'Private\Core'
     'Private\Logging'
+    'Private\ControlCenter'
     'Private\Providers'
     'Private\Drivers'
     'Private\Inventory'
@@ -46,4 +47,8 @@ Export-ModuleMember -Function @(
     'Update-Phoenix'
     'Remove-PhoenixPackage'
     'Update-PhoenixPackage'
+    'Open-Phoenix'
+    'Get-PhoenixTheme'
+    'Install-PhoenixTheme'
+    'Export-PhoenixTheme'
 )

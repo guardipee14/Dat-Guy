@@ -1,0 +1,28 @@
+{
+  "SchemaVersion": "1.0",
+  "Id": "windows-11",
+  "Name": "Windows 11",
+  "Version": "1.0.0",
+  "Author": "Phoenix",
+  "Description": "A bright Windows 11-inspired neutral theme.",
+  "Appearance": {
+    "Background": "#F3F3F3",
+    "Surface": "#FFFFFF",
+    "SurfaceAlt": "#F7F7F7",
+    "Card": "#FFFFFF",
+    "Border": "#D1D1D1",
+    "Text": "#1A1A1A",
+    "MutedText": "#5D5D5D",
+    "Accent": "#0067C0",
+    "AccentHover": "#1976C9",
+    "Success": "#0F7B0F",
+    "Warning": "#9D5D00",
+    "Danger": "#C42B1C",
+    "FontFamily": "Segoe UI Variable Text",
+    "FontSize": 13.0,
+    "CornerRadius": 8.0,
+    "Spacing": 12.0,
+    "NavigationWidth": 220.0
+  },
+  "Assets": {}
+}

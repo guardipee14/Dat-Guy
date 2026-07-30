@@ -1,0 +1,28 @@
+{
+  "SchemaVersion": "1.0",
+  "Id": "phoenix-high-contrast",
+  "Name": "High Contrast",
+  "Version": "1.0.0",
+  "Author": "Phoenix",
+  "Description": "Strong contrast and large targets for accessibility.",
+  "Appearance": {
+    "Background": "#000000",
+    "Surface": "#080808",
+    "SurfaceAlt": "#171717",
+    "Card": "#0B0B0B",
+    "Border": "#FFFFFF",
+    "Text": "#FFFFFF",
+    "MutedText": "#E5E5E5",
+    "Accent": "#00A4EF",
+    "AccentHover": "#3FC3FF",
+    "Success": "#00E676",
+    "Warning": "#FFD600",
+    "Danger": "#FF5252",
+    "FontFamily": "Segoe UI",
+    "FontSize": 14.0,
+    "CornerRadius": 4.0,
+    "Spacing": 14.0,
+    "NavigationWidth": 230.0
+  },
+  "Assets": {}
+}

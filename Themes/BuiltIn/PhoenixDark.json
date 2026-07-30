@@ -1,0 +1,28 @@
+{
+  "SchemaVersion": "1.0",
+  "Id": "phoenix-dark",
+  "Name": "Phoenix Dark",
+  "Version": "1.0.0",
+  "Author": "Phoenix",
+  "Description": "The balanced low-glare Phoenix default.",
+  "Appearance": {
+    "Background": "#0B1220",
+    "Surface": "#111B2E",
+    "SurfaceAlt": "#18243A",
+    "Card": "#142035",
+    "Border": "#2A3A55",
+    "Text": "#F5F7FB",
+    "MutedText": "#9FB0C9",
+    "Accent": "#2F80ED",
+    "AccentHover": "#4C95F5",
+    "Success": "#22A06B",
+    "Warning": "#D99A2B",
+    "Danger": "#D64545",
+    "FontFamily": "Segoe UI",
+    "FontSize": 13.0,
+    "CornerRadius": 10.0,
+    "Spacing": 12.0,
+    "NavigationWidth": 220.0
+  },
+  "Assets": {}
+}

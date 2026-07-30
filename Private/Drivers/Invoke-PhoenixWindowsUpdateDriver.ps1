@@ -52,6 +52,9 @@ function Invoke-PhoenixWindowsUpdateDriver {
         [switch]$Unattended,
 
         [Parameter()]
+        [string[]]$UpdateId = @(),
+
+        [Parameter()]
         [ValidateRange(1, 1000)]
         [int]$ProgressId = 2,
 
@@ -204,8 +207,18 @@ function Invoke-PhoenixWindowsUpdateDriver {
             [string]$driverClass = ''
             [string]$driverManufacturer = ''
             [string]$driverModel = ''
+            [string]$driverVersion = ''
+            [string]$driverVersionDate = ''
             [bool]$requiresUserInput = $false
             [bool]$canRequireSource = $false
+            [string]$description = ''
+            [string]$releaseNotes = ''
+            [string]$supportUrl = ''
+            [string[]]$moreInfoUrls = @()
+            [string[]]$kbArticleIds = @()
+            [string]$publishedAtUtc = ''
+            [long]$minimumDownloadSize = 0
+            [long]$maximumDownloadSize = 0
 
             try {
                 $updateId =
@@ -243,6 +256,23 @@ function Invoke-PhoenixWindowsUpdateDriver {
             }
 
             try {
+                $driverVersion =
+                    [string]$update.DriverVersion
+            }
+            catch {
+                $driverVersion = ''
+            }
+
+            try {
+                $driverVersionDate = (
+                    [datetime]$update.DriverVerDate
+                ).ToUniversalTime().ToString('o')
+            }
+            catch {
+                $driverVersionDate = ''
+            }
+
+            try {
                 $requiresUserInput =
                     [bool]$update.InstallationBehavior.CanRequestUserInput
             }
@@ -258,6 +288,89 @@ function Invoke-PhoenixWindowsUpdateDriver {
                 $canRequireSource = $false
             }
 
+            try {
+                $description =
+                    [string]$update.Description
+            }
+            catch {
+                $description = ''
+            }
+
+            try {
+                $releaseNotes =
+                    [string]$update.ReleaseNotes
+            }
+            catch {
+                $releaseNotes = ''
+            }
+
+            try {
+                $supportUrl =
+                    [string]$update.SupportUrl
+            }
+            catch {
+                $supportUrl = ''
+            }
+
+            try {
+                $moreInfoUrls = @(
+                    for (
+                        [int]$urlIndex = 0;
+                        $urlIndex -lt $update.MoreInfoUrls.Count;
+                        $urlIndex++
+                    ) {
+                        [string]$update.MoreInfoUrls.Item(
+                            $urlIndex
+                        )
+                    }
+                )
+            }
+            catch {
+                $moreInfoUrls = @()
+            }
+
+            try {
+                $kbArticleIds = @(
+                    for (
+                        [int]$kbIndex = 0;
+                        $kbIndex -lt $update.KBArticleIDs.Count;
+                        $kbIndex++
+                    ) {
+                        [string]$update.KBArticleIDs.Item(
+                            $kbIndex
+                        )
+                    }
+                )
+            }
+            catch {
+                $kbArticleIds = @()
+            }
+
+            try {
+                $publishedAtUtc = (
+                    [datetime]$update.LastDeploymentChangeTime
+                ).ToUniversalTime().ToString('o')
+            }
+            catch {
+                $publishedAtUtc = ''
+            }
+
+            try {
+                $minimumDownloadSize =
+                    [long]$update.MinDownloadSize
+            }
+            catch {
+                $minimumDownloadSize = 0
+            }
+
+            try {
+                $maximumDownloadSize =
+                    [long]$update.MaxDownloadSize
+            }
+            catch {
+                $maximumDownloadSize = 0
+            }
+
             $detail = [pscustomobject]@{
                 Title               = [string]$update.Title
                 UpdateId            = $updateId
@@ -265,9 +378,36 @@ function Invoke-PhoenixWindowsUpdateDriver {
                 DriverClass         = $driverClass
                 DriverManufacturer  = $driverManufacturer
                 DriverModel         = $driverModel
+                DriverVersion       = $driverVersion
+                DriverVersionDate   = $driverVersionDate
                 WasCached           = [bool]$update.IsDownloaded
                 RequiresUserInput   = $requiresUserInput
                 CanRequireSource    = $canRequireSource
+                Description         = $description
+                ReleaseNotes        = $releaseNotes
+                SupportUrl          = $supportUrl
+                MoreInfoUrls        = @($moreInfoUrls)
+                KBArticleIds        = @($kbArticleIds)
+                PublishedAtUtc      = $publishedAtUtc
+                MinimumDownloadSize = $minimumDownloadSize
+                MaximumDownloadSize = $maximumDownloadSize
+                MetadataStatus      = if (
+                    -not [string]::IsNullOrWhiteSpace(
+                        $releaseNotes
+                    ) -or
+                    -not [string]::IsNullOrWhiteSpace(
+                        $description
+                    ) -or
+                    -not [string]::IsNullOrWhiteSpace(
+                        $supportUrl
+                    ) -or
+                    $moreInfoUrls.Count -gt 0
+                ) {
+                    'Publisher metadata available'
+                }
+                else {
+                    'Not provided by publisher'
+                }
                 Status              = 'Available'
                 DownloadResultCode  = $null
                 DownloadResult      = $null
@@ -288,6 +428,14 @@ function Invoke-PhoenixWindowsUpdateDriver {
             if ($ScanOnly) {
                 $selectedUpdates.Add($update)
                 $selectedDetails.Add($detail)
+                continue
+            }
+
+            if (
+                $UpdateId.Count -gt 0 -and
+                $updateId -notin $UpdateId
+            ) {
+                $detail.Status = 'NotSelected'
                 continue
             }
 

@@ -7,7 +7,10 @@ function Update-PhoenixDriver {
         [switch]$ScanOnly,
 
         [Parameter()]
-        [switch]$Unattended
+        [switch]$Unattended,
+
+        [Parameter()]
+        [string[]]$UpdateId = @()
     )
 
     [datetime]$startedAt = Get-Date
@@ -129,6 +132,7 @@ function Update-PhoenixDriver {
             Invoke-PhoenixWindowsUpdateDriver `
                 -ScanOnly:$ScanOnly `
                 -Unattended:$Unattended `
+                -UpdateId $UpdateId `
                 -ProgressId 2 `
                 -ProgressActivity $progressActivity
 

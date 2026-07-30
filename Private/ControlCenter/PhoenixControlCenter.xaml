@@ -1,0 +1,1181 @@
+<Window
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
+    Title="Phoenix Control Center"
+    Width="1320"
+    Height="860"
+    MinWidth="1100"
+    MinHeight="720"
+    WindowStartupLocation="CenterScreen"
+    Background="{DynamicResource PhoenixBackgroundBrush}"
+    Foreground="{DynamicResource PhoenixTextBrush}"
+    FontFamily="Segoe UI"
+    FontSize="13">
+
+    <Window.Resources>
+        <SolidColorBrush x:Key="PhoenixBackgroundBrush" Color="#0B1220" />
+        <SolidColorBrush x:Key="PhoenixSurfaceBrush" Color="#111B2E" />
+        <SolidColorBrush x:Key="PhoenixSurfaceAltBrush" Color="#18243A" />
+        <SolidColorBrush x:Key="PhoenixCardBrush" Color="#142035" />
+        <SolidColorBrush x:Key="PhoenixBorderBrush" Color="#2A3A55" />
+        <SolidColorBrush x:Key="PhoenixTextBrush" Color="#F5F7FB" />
+        <SolidColorBrush x:Key="PhoenixMutedBrush" Color="#9FB0C9" />
+        <SolidColorBrush x:Key="PhoenixAccentBrush" Color="#2F80ED" />
+        <SolidColorBrush x:Key="PhoenixAccentHoverBrush" Color="#4C95F5" />
+        <SolidColorBrush x:Key="PhoenixSuccessBrush" Color="#22A06B" />
+        <SolidColorBrush x:Key="PhoenixWarningBrush" Color="#D99A2B" />
+        <SolidColorBrush x:Key="PhoenixDangerBrush" Color="#D64545" />
+        <CornerRadius x:Key="PhoenixCornerRadius">10</CornerRadius>
+        <Thickness x:Key="PhoenixSpacing">12</Thickness>
+
+        <Style x:Key="ModernButton" TargetType="Button">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="MinHeight" Value="36" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Background" Value="{DynamicResource PhoenixAccentBrush}" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="ButtonBorder"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource PhoenixCornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter
+                                    TargetName="ButtonBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource PhoenixAccentHoverBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter
+                                    TargetName="ButtonBorder"
+                                    Property="Opacity"
+                                    Value="0.78" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter
+                                    TargetName="ButtonBorder"
+                                    Property="Opacity"
+                                    Value="0.42" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style
+            x:Key="SecondaryButton"
+            TargetType="Button"
+            BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="{DynamicResource PhoenixSurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PhoenixBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+
+        <Style
+            x:Key="DangerButton"
+            TargetType="Button"
+            BasedOn="{StaticResource ModernButton}">
+            <Setter Property="Background" Value="{DynamicResource PhoenixDangerBrush}" />
+        </Style>
+
+        <Style x:Key="NavigationButton" TargetType="Button">
+            <Setter Property="Margin" Value="10,3" />
+            <Setter Property="Padding" Value="14,11" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixMutedBrush}" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border
+                            x:Name="NavigationBorder"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource PhoenixCornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                            <ContentPresenter
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter
+                                    TargetName="NavigationBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource PhoenixSurfaceAltBrush}" />
+                                <Setter
+                                    Property="Foreground"
+                                    Value="{DynamicResource PhoenixTextBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CardBorder" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource PhoenixCardBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PhoenixBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="{DynamicResource PhoenixCornerRadius}" />
+            <Setter Property="Padding" Value="{DynamicResource PhoenixSpacing}" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="10,7" />
+            <Setter Property="MinHeight" Value="36" />
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixTextBrush}" />
+            <Setter Property="Background" Value="{DynamicResource PhoenixSurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PhoenixBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CaretBrush" Value="{DynamicResource PhoenixTextBrush}" />
+        </Style>
+
+        <Style TargetType="ComboBox">
+            <Setter Property="Margin" Value="4" />
+            <Setter Property="Padding" Value="8,5" />
+            <Setter Property="MinHeight" Value="36" />
+            <Setter Property="Foreground" Value="#111827" />
+            <Setter Property="Background" Value="White" />
+        </Style>
+
+        <Style TargetType="CheckBox">
+            <Setter Property="Margin" Value="6" />
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixTextBrush}" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style TargetType="DataGrid">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Background" Value="{DynamicResource PhoenixCardBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixTextBrush}" />
+            <Setter Property="RowBackground" Value="{DynamicResource PhoenixCardBrush}" />
+            <Setter Property="AlternatingRowBackground" Value="{DynamicResource PhoenixSurfaceAltBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PhoenixBorderBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="GridLinesVisibility" Value="Horizontal" />
+            <Setter Property="HorizontalGridLinesBrush" Value="{DynamicResource PhoenixBorderBrush}" />
+            <Setter Property="HeadersVisibility" Value="Column" />
+            <Setter Property="CanUserAddRows" Value="False" />
+            <Setter Property="CanUserResizeColumns" Value="True" />
+            <Setter Property="CanUserSortColumns" Value="True" />
+            <Setter Property="IsReadOnly" Value="False" />
+            <Setter Property="SelectionMode" Value="Extended" />
+            <Setter Property="SelectionUnit" Value="FullRow" />
+            <Setter Property="RowHeight" Value="34" />
+            <Setter Property="ColumnHeaderHeight" Value="38" />
+        </Style>
+
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{DynamicResource PhoenixSurfaceAltBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixTextBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource PhoenixBorderBrush}" />
+            <Setter Property="BorderThickness" Value="0,0,1,1" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <Style TargetType="DataGridCell">
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixTextBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Padding" Value="8,4" />
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource PhoenixAccentBrush}" />
+                    <Setter Property="Foreground" Value="White" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="TileDragThumbStyle" TargetType="primitives:Thumb">
+            <Setter Property="Height" Value="42" />
+            <Setter Property="Cursor" Value="SizeAll" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="primitives:Thumb">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{DynamicResource PhoenixCornerRadius}">
+                            <Grid>
+                                <TextBlock
+                                    Text="{TemplateBinding Tag}"
+                                    Margin="14,0,50,0"
+                                    VerticalAlignment="Center"
+                                    FontSize="15"
+                                    FontWeight="SemiBold"
+                                    Foreground="{DynamicResource PhoenixTextBrush}" />
+                                <TextBlock
+                                    Text="&#xE700;"
+                                    Margin="0,0,14,0"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    FontFamily="Segoe MDL2 Assets"
+                                    Foreground="{DynamicResource PhoenixMutedBrush}" />
+                            </Grid>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TileResizeThumbStyle" TargetType="primitives:Thumb">
+            <Setter Property="Width" Value="24" />
+            <Setter Property="Height" Value="24" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="Cursor" Value="SizeNWSE" />
+            <Setter Property="Background" Value="{DynamicResource PhoenixAccentBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="primitives:Thumb">
+                        <Border
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6,0,6,0">
+                            <TextBlock
+                                Text="&#xE740;"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontFamily="Segoe MDL2 Assets"
+                                FontSize="11"
+                                Foreground="White" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="22" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixTextBrush}" />
+        </Style>
+
+        <Style x:Key="SectionSubtitle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="0,4,0,0" />
+            <Setter Property="Foreground" Value="{DynamicResource PhoenixMutedBrush}" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="42" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="NavigationColumn" Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Image
+                x:Name="ThemeBackgroundImage"
+                Grid.ColumnSpan="2"
+                Stretch="UniformToFill"
+                Opacity="0.14"
+                IsHitTestVisible="False"
+                Visibility="Collapsed" />
+
+            <Border
+                Grid.Column="0"
+                Background="{DynamicResource PhoenixSurfaceBrush}"
+                BorderBrush="{DynamicResource PhoenixBorderBrush}"
+                BorderThickness="0,0,1,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Margin="20,22,20,18">
+                        <StackPanel Orientation="Horizontal">
+                            <Border
+                                Width="38"
+                                Height="38"
+                                CornerRadius="10"
+                                Background="{DynamicResource PhoenixAccentBrush}">
+                                <Grid>
+                                    <Image
+                                        x:Name="BrandLogoImage"
+                                        Margin="5"
+                                        Stretch="Uniform"
+                                        Visibility="Collapsed" />
+                                    <TextBlock
+                                        x:Name="BrandLetterText"
+                                    Text="P"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                        Foreground="White" />
+                                </Grid>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock
+                                    Text="Phoenix"
+                                    FontSize="20"
+                                    FontWeight="Bold" />
+                                <TextBlock
+                                    Text="Control Center"
+                                    FontSize="11"
+                                    Foreground="{DynamicResource PhoenixMutedBrush}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Row="1">
+                        <Button
+                            x:Name="OverviewNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Overview" />
+                        <Button
+                            x:Name="ApplicationsNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Applications" />
+                        <Button
+                            x:Name="DriversNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Drivers" />
+                        <Button
+                            x:Name="ActivityNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Activity" />
+                        <Separator
+                            Margin="18,12"
+                            Background="{DynamicResource PhoenixBorderBrush}" />
+                        <Button
+                            x:Name="CustomizeNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Customize" />
+                    </StackPanel>
+
+                    <Border
+                        Grid.Row="2"
+                        Margin="14"
+                        Padding="12"
+                        CornerRadius="{DynamicResource PhoenixCornerRadius}"
+                        Background="{DynamicResource PhoenixSurfaceAltBrush}">
+                        <StackPanel>
+                            <TextBlock
+                                Text="Current system"
+                                FontSize="11"
+                                Foreground="{DynamicResource PhoenixMutedBrush}" />
+                            <TextBlock
+                                x:Name="HeaderSubtitle"
+                                Margin="0,5,0,0"
+                                Text="Collecting inventory..."
+                                TextWrapping="Wrap"
+                                FontWeight="SemiBold" />
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="78" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <Border
+                    Grid.Row="0"
+                    Padding="24,14"
+                    Background="{DynamicResource PhoenixBackgroundBrush}"
+                    BorderBrush="{DynamicResource PhoenixBorderBrush}"
+                    BorderThickness="0,0,0,1">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock
+                                Text="Device management"
+                                FontSize="22"
+                                FontWeight="SemiBold" />
+                            <TextBlock
+                                Text="Inventory, recovery, applications, and drivers"
+                                Foreground="{DynamicResource PhoenixMutedBrush}" />
+                        </StackPanel>
+                        <Button
+                            Grid.Column="1"
+                            x:Name="RefreshAllButton"
+                            Style="{StaticResource ModernButton}"
+                            Content="Refresh inventory"
+                            MinWidth="150"
+                            VerticalAlignment="Center" />
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="1" Margin="24,20,24,20">
+                    <Grid x:Name="OverviewPage">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid Grid.Row="0" Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock
+                                    Style="{StaticResource SectionTitle}"
+                                    Text="Overview" />
+                                <TextBlock
+                                    Style="{StaticResource SectionSubtitle}"
+                                    Text="A customizable dashboard for this computer." />
+                            </StackPanel>
+                            <StackPanel
+                                Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                                <Button
+                                    x:Name="EditLayoutButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Edit layout" />
+                                <Button
+                                    x:Name="SaveLayoutButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Save layout"
+                                    Visibility="Collapsed" />
+                                <Button
+                                    x:Name="ResetLayoutButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Reset"
+                                    Visibility="Collapsed" />
+                            </StackPanel>
+                        </Grid>
+
+                        <ScrollViewer
+                            Grid.Row="1"
+                            HorizontalScrollBarVisibility="Auto"
+                            VerticalScrollBarVisibility="Auto">
+                            <Canvas
+                                x:Name="DashboardCanvas"
+                                Width="1160"
+                                Height="720"
+                                Background="Transparent">
+
+                                <Border
+                                    x:Name="SystemTile"
+                                    Canvas.Left="0"
+                                    Canvas.Top="0"
+                                    Width="550"
+                                    Height="260"
+                                    Style="{StaticResource CardBorder}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="42" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <primitives:Thumb
+                                            x:Name="SystemTileDragThumb"
+                                            Grid.Row="0"
+                                            Tag="System"
+                                            Style="{StaticResource TileDragThumbStyle}" />
+                                        <TextBlock
+                                            Grid.Row="1"
+                                            x:Name="SystemSummaryText"
+                                            Margin="14,4,14,12"
+                                            FontFamily="Consolas"
+                                            TextWrapping="Wrap"
+                                            Foreground="{DynamicResource PhoenixTextBrush}" />
+                                        <primitives:Thumb
+                                            x:Name="SystemTileResizeThumb"
+                                            Grid.RowSpan="2"
+                                            Tag="System"
+                                            Style="{StaticResource TileResizeThumbStyle}"
+                                            Visibility="Collapsed" />
+                                    </Grid>
+                                </Border>
+
+                                <Border
+                                    x:Name="InventoryTile"
+                                    Canvas.Left="570"
+                                    Canvas.Top="0"
+                                    Width="280"
+                                    Height="260"
+                                    Style="{StaticResource CardBorder}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="42" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <primitives:Thumb
+                                            x:Name="InventoryTileDragThumb"
+                                            Grid.Row="0"
+                                            Tag="Inventory"
+                                            Style="{StaticResource TileDragThumbStyle}" />
+                                        <TextBlock
+                                            Grid.Row="1"
+                                            x:Name="InventorySummaryText"
+                                            Margin="14,4,14,12"
+                                            FontFamily="Consolas"
+                                            TextWrapping="Wrap"
+                                            Foreground="{DynamicResource PhoenixTextBrush}" />
+                                        <primitives:Thumb
+                                            x:Name="InventoryTileResizeThumb"
+                                            Grid.RowSpan="2"
+                                            Tag="Inventory"
+                                            Style="{StaticResource TileResizeThumbStyle}"
+                                            Visibility="Collapsed" />
+                                    </Grid>
+                                </Border>
+
+                                <Border
+                                    x:Name="QuickActionsTile"
+                                    Canvas.Left="870"
+                                    Canvas.Top="0"
+                                    Width="290"
+                                    Height="260"
+                                    Style="{StaticResource CardBorder}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="42" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <primitives:Thumb
+                                            x:Name="QuickActionsTileDragThumb"
+                                            Grid.Row="0"
+                                            Tag="Quick actions"
+                                            Style="{StaticResource TileDragThumbStyle}" />
+                                        <StackPanel Grid.Row="1" Margin="10,4,10,10">
+                                            <Button
+                                                x:Name="OpenAppsFromDashboardButton"
+                                                Style="{StaticResource ModernButton}"
+                                                Content="Manage applications" />
+                                            <Button
+                                                x:Name="OpenDriversFromDashboardButton"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Content="Manage drivers" />
+                                            <Button
+                                                x:Name="OpenCustomizeFromDashboardButton"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Content="Customize interface" />
+                                        </StackPanel>
+                                        <primitives:Thumb
+                                            x:Name="QuickActionsTileResizeThumb"
+                                            Grid.RowSpan="2"
+                                            Tag="QuickActions"
+                                            Style="{StaticResource TileResizeThumbStyle}"
+                                            Visibility="Collapsed" />
+                                    </Grid>
+                                </Border>
+
+                                <Border
+                                    x:Name="ProvidersTile"
+                                    Canvas.Left="0"
+                                    Canvas.Top="280"
+                                    Width="760"
+                                    Height="410"
+                                    Style="{StaticResource CardBorder}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="42" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <primitives:Thumb
+                                            x:Name="ProvidersTileDragThumb"
+                                            Grid.Row="0"
+                                            Tag="Providers"
+                                            Style="{StaticResource TileDragThumbStyle}" />
+                                        <DataGrid
+                                            Grid.Row="1"
+                                            x:Name="ProviderGrid"
+                                            Margin="10,4,10,10"
+                                            IsReadOnly="True"
+                                            AutoGenerateColumns="False">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                                                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="90" />
+                                                <DataGridCheckBoxColumn Header="Available" Binding="{Binding Available}" Width="75" />
+                                                <DataGridCheckBoxColumn Header="Install" Binding="{Binding Install}" Width="65" />
+                                                <DataGridCheckBoxColumn Header="Update" Binding="{Binding Update}" Width="65" />
+                                                <DataGridCheckBoxColumn Header="Repair" Binding="{Binding Repair}" Width="65" />
+                                                <DataGridTextColumn Header="Privilege" Binding="{Binding Privilege}" Width="110" />
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                        <primitives:Thumb
+                                            x:Name="ProvidersTileResizeThumb"
+                                            Grid.RowSpan="2"
+                                            Tag="Providers"
+                                            Style="{StaticResource TileResizeThumbStyle}"
+                                            Visibility="Collapsed" />
+                                    </Grid>
+                                </Border>
+
+                                <Border
+                                    x:Name="WarningsTile"
+                                    Canvas.Left="780"
+                                    Canvas.Top="280"
+                                    Width="380"
+                                    Height="410"
+                                    Style="{StaticResource CardBorder}">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="42" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+                                        <primitives:Thumb
+                                            x:Name="WarningsTileDragThumb"
+                                            Grid.Row="0"
+                                            Tag="Warnings"
+                                            Style="{StaticResource TileDragThumbStyle}" />
+                                        <TextBox
+                                            Grid.Row="1"
+                                            x:Name="InventoryWarningsText"
+                                            Margin="10,4,10,10"
+                                            IsReadOnly="True"
+                                            TextWrapping="Wrap"
+                                            VerticalScrollBarVisibility="Auto" />
+                                        <primitives:Thumb
+                                            x:Name="WarningsTileResizeThumb"
+                                            Grid.RowSpan="2"
+                                            Tag="Warnings"
+                                            Style="{StaticResource TileResizeThumbStyle}"
+                                            Visibility="Collapsed" />
+                                    </Grid>
+                                </Border>
+                            </Canvas>
+                        </ScrollViewer>
+                    </Grid>
+
+                    <Grid x:Name="ApplicationsPage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="0.95*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="0.75*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Applications" />
+                            <TextBlock
+                                Style="{StaticResource SectionSubtitle}"
+                                Text="Search, install, update, repair, and uninstall software." />
+                        </StackPanel>
+                        <Border
+                            Grid.Row="1"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,0,0,12">
+                            <WrapPanel>
+                                <Button x:Name="RefreshAppUpdatesButton" Style="{StaticResource ModernButton}" Content="Check for updates" />
+                                <Button x:Name="ViewAppUpdateDetailsButton" Style="{StaticResource SecondaryButton}" Content="Load update details" />
+                                <Button x:Name="UpdateSelectedAppsButton" Style="{StaticResource ModernButton}" Content="Update selected" />
+                                <Button x:Name="UpdateAllAppsButton" Style="{StaticResource SecondaryButton}" Content="Update all" />
+                                <Button x:Name="RepairSelectedAppsButton" Style="{StaticResource SecondaryButton}" Content="Repair selected" />
+                                <Button x:Name="RepairAllAppsButton" Style="{StaticResource SecondaryButton}" Content="Repair all" />
+                                <Button x:Name="UninstallSelectedAppsButton" Style="{StaticResource DangerButton}" Content="Uninstall selected" />
+                            </WrapPanel>
+                        </Border>
+                        <DataGrid
+                            Grid.Row="2"
+                            x:Name="ApplicationGrid"
+                            AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, Mode=TwoWay}" Width="60" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="2*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Installed" Binding="{Binding Version}" Width="110" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Available" Binding="{Binding AvailableVersion}" Width="110" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Update" Binding="{Binding UpdateStatus}" Width="125" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="110" IsReadOnly="True" />
+                                <DataGridCheckBoxColumn Header="Actionable" Binding="{Binding Actionable}" Width="85" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border
+                            Grid.Row="3"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,12,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="ApplicationDetailsText"
+                                    MinHeight="92"
+                                    MaxHeight="145"
+                                    IsReadOnly="True"
+                                    TextWrapping="Wrap"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="Select an application with an available update, then load update details." />
+                                <Button
+                                    Grid.Column="1"
+                                    x:Name="OpenApplicationReleaseUrlButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Open publisher link"
+                                    IsEnabled="False"
+                                    VerticalAlignment="Top" />
+                            </Grid>
+                        </Border>
+                        <Border
+                            Grid.Row="4"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,12,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    Grid.Column="0"
+                                    x:Name="AppSearchText"
+                                    ToolTip="Search WinGet and Chocolatey"
+                                    MinWidth="280" />
+                                <Button
+                                    Grid.Column="1"
+                                    x:Name="SearchAppsButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Search" />
+                                <Button
+                                    Grid.Column="2"
+                                    x:Name="InstallSelectedSearchButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Install selected" />
+                                <Button
+                                    Grid.Column="3"
+                                    x:Name="InstallAllSearchButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Install all results" />
+                            </Grid>
+                        </Border>
+                        <DataGrid
+                            Grid.Row="5"
+                            x:Name="SearchResultGrid"
+                            AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, Mode=TwoWay}" Width="60" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="2*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="120" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="110" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+
+                    <Grid x:Name="DriversPage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="1.15*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="0.85*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Drivers" />
+                            <TextBlock
+                                Style="{StaticResource SectionSubtitle}"
+                                Text="Inspect, update, repair, and safely uninstall third-party driver packages." />
+                        </StackPanel>
+                        <Border
+                            Grid.Row="1"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,0,0,12">
+                            <WrapPanel>
+                                <Button x:Name="RepairSelectedDriversButton" Style="{StaticResource SecondaryButton}" Content="Repair selected" />
+                                <Button x:Name="UninstallSelectedDriversButton" Style="{StaticResource DangerButton}" Content="Uninstall selected" />
+                                <Button x:Name="RepairProblemDriversButton" Style="{StaticResource DangerButton}" Content="Repair problem drivers" />
+                            </WrapPanel>
+                        </Border>
+                        <DataGrid
+                            Grid.Row="2"
+                            x:Name="DriverGrid"
+                            AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, Mode=TwoWay}" Width="60" />
+                                <DataGridTextColumn Header="Device" Binding="{Binding Name}" Width="2*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="160" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="130" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Class" Binding="{Binding Class}" Width="120" IsReadOnly="True" />
+                                <DataGridTextColumn Header="INF" Binding="{Binding InfName}" Width="100" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Problem" Binding="{Binding ProblemCode}" Width="75" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border
+                            Grid.Row="3"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,12,0,12">
+                            <WrapPanel>
+                                <Button x:Name="ScanDriverUpdatesButton" Style="{StaticResource ModernButton}" Content="Scan driver updates" />
+                                <Button x:Name="InstallSelectedDriversButton" Style="{StaticResource ModernButton}" Content="Install selected updates" />
+                                <Button x:Name="UpdateAllDriversButton" Style="{StaticResource SecondaryButton}" Content="Update all drivers" />
+                            </WrapPanel>
+                        </Border>
+                        <DataGrid
+                            Grid.Row="4"
+                            x:Name="DriverUpdateGrid"
+                            AutoGenerateColumns="False">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, Mode=TwoWay}" Width="60" />
+                                <DataGridTextColumn Header="Update" Binding="{Binding Title}" Width="2.2*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Manufacturer" Binding="{Binding DriverManufacturer}" Width="160" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Model" Binding="{Binding DriverModel}" Width="1.4*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Class" Binding="{Binding DriverClass}" Width="110" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Installed" Binding="{Binding InstalledVersion}" Width="105" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Available" Binding="{Binding AvailableVersion}" Width="105" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Published" Binding="{Binding PublishedDisplay}" Width="125" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border
+                            Grid.Row="5"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,12,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="DriverDetailsText"
+                                    MinHeight="92"
+                                    MaxHeight="145"
+                                    IsReadOnly="True"
+                                    TextWrapping="Wrap"
+                                    VerticalScrollBarVisibility="Auto"
+                                    Text="Select a Windows Update driver to see publisher details." />
+                                <Button
+                                    Grid.Column="1"
+                                    x:Name="OpenDriverReleaseUrlButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Open support link"
+                                    IsEnabled="False"
+                                    VerticalAlignment="Top" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="ActivityPage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Activity" />
+                            <TextBlock
+                                Style="{StaticResource SectionSubtitle}"
+                                Text="Phoenix operation history for this session." />
+                        </StackPanel>
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}">
+                            <TextBox
+                                x:Name="ActivityText"
+                                Margin="0"
+                                IsReadOnly="True"
+                                FontFamily="Consolas"
+                                TextWrapping="Wrap"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Auto" />
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="CustomizePage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Customize" />
+                            <TextBlock
+                                Style="{StaticResource SectionSubtitle}"
+                                Text="Change appearance and choose which dashboard tiles are visible." />
+                        </StackPanel>
+                        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1.15*" />
+                                    <ColumnDefinition Width="0.85*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border
+                                    Grid.Column="0"
+                                    Style="{StaticResource CardBorder}"
+                                    Margin="0,0,12,0">
+                                    <StackPanel>
+                                        <TextBlock
+                                            Text="Theme and appearance"
+                                            FontSize="17"
+                                            FontWeight="SemiBold"
+                                            Margin="4,2,4,12" />
+                                        <TextBlock
+                                            Text="Preset or installed theme"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}" />
+                                        <Grid Margin="4,4,4,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <ComboBox x:Name="ThemePresetCombo" DisplayMemberPath="DisplayName" />
+                                            <Button
+                                                Grid.Column="1"
+                                                x:Name="ApplyThemeButton"
+                                                Style="{StaticResource ModernButton}"
+                                                Content="Apply theme" />
+                                        </Grid>
+                                        <WrapPanel Margin="0,0,0,12">
+                                            <Button
+                                                x:Name="InstallThemeButton"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Content="Install .phxtheme" />
+                                            <Button
+                                                x:Name="OpenThemeStudioButton"
+                                                Style="{StaticResource SecondaryButton}"
+                                                Content="Open Theme Studio" />
+                                        </WrapPanel>
+
+                                        <Border
+                                            Padding="12"
+                                            Margin="4"
+                                            CornerRadius="{DynamicResource PhoenixCornerRadius}"
+                                            Background="{DynamicResource PhoenixSurfaceAltBrush}">
+                                            <StackPanel>
+                                                <TextBlock
+                                                    Text="Graphical color editor"
+                                                    FontWeight="SemiBold"
+                                                    Margin="0,0,0,8" />
+                                                <ComboBox x:Name="ColorRoleCombo">
+                                                    <ComboBoxItem Content="Background" Tag="Background" />
+                                                    <ComboBoxItem Content="Surface" Tag="Surface" />
+                                                    <ComboBoxItem Content="Card" Tag="Card" />
+                                                    <ComboBoxItem Content="Accent" Tag="Accent" />
+                                                    <ComboBoxItem Content="Primary text" Tag="Text" />
+                                                    <ComboBoxItem Content="Muted text" Tag="MutedText" />
+                                                </ComboBox>
+                                                <Grid Margin="0,10,0,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="72" />
+                                                        <ColumnDefinition Width="*" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border
+                                                        x:Name="ColorPreview"
+                                                        Height="54"
+                                                        CornerRadius="8"
+                                                        BorderBrush="{DynamicResource PhoenixBorderBrush}"
+                                                        BorderThickness="1" />
+                                                    <TextBox
+                                                        Grid.Column="1"
+                                                        x:Name="SelectedColorText"
+                                                        Margin="10,0,0,0"
+                                                        IsReadOnly="True"
+                                                        VerticalContentAlignment="Center" />
+                                                </Grid>
+                                                <TextBlock x:Name="RedValueText" Text="Red" />
+                                                <Slider x:Name="RedColorSlider" Minimum="0" Maximum="255" TickFrequency="1" />
+                                                <TextBlock x:Name="GreenValueText" Text="Green" Margin="0,6,0,0" />
+                                                <Slider x:Name="GreenColorSlider" Minimum="0" Maximum="255" TickFrequency="1" />
+                                                <TextBlock x:Name="BlueValueText" Text="Blue" Margin="0,6,0,0" />
+                                                <Slider x:Name="BlueColorSlider" Minimum="0" Maximum="255" TickFrequency="1" />
+                                            </StackPanel>
+                                        </Border>
+
+                                        <StackPanel Visibility="Collapsed">
+                                            <TextBox x:Name="BackgroundColorText" />
+                                            <TextBox x:Name="SurfaceColorText" />
+                                            <TextBox x:Name="CardColorText" />
+                                            <TextBox x:Name="AccentColorText" />
+                                            <TextBox x:Name="TextColorText" />
+                                            <TextBox x:Name="MutedColorText" />
+                                        </StackPanel>
+
+                                        <TextBlock
+                                            Text="Font family"
+                                            Margin="8,14,8,2"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}" />
+                                        <ComboBox
+                                            x:Name="FontFamilyCombo"
+                                            Margin="8,2">
+                                            <ComboBoxItem Content="Segoe UI" />
+                                            <ComboBoxItem Content="Segoe UI Variable Text" />
+                                            <ComboBoxItem Content="Arial" />
+                                            <ComboBoxItem Content="Calibri" />
+                                            <ComboBoxItem Content="Consolas" />
+                                        </ComboBox>
+
+                                        <TextBlock
+                                            Text="Font size"
+                                            Margin="8,14,8,2"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}" />
+                                        <Slider
+                                            x:Name="FontSizeSlider"
+                                            Margin="8,2"
+                                            Minimum="11"
+                                            Maximum="18"
+                                            TickFrequency="1"
+                                            IsSnapToTickEnabled="True" />
+
+                                        <TextBlock
+                                            Text="Corner radius"
+                                            Margin="8,14,8,2"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}" />
+                                        <Slider
+                                            x:Name="CornerRadiusSlider"
+                                            Margin="8,2"
+                                            Minimum="0"
+                                            Maximum="24"
+                                            TickFrequency="2"
+                                            IsSnapToTickEnabled="True" />
+
+                                        <TextBlock
+                                            Text="Interface spacing"
+                                            Margin="8,14,8,2"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}" />
+                                        <Slider
+                                            x:Name="SpacingSlider"
+                                            Margin="8,2"
+                                            Minimum="6"
+                                            Maximum="24"
+                                            TickFrequency="2"
+                                            IsSnapToTickEnabled="True" />
+
+                                        <TextBlock
+                                            Text="Navigation width"
+                                            Margin="8,14,8,2"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}" />
+                                        <Slider
+                                            x:Name="NavigationWidthSlider"
+                                            Margin="8,2"
+                                            Minimum="170"
+                                            Maximum="320"
+                                            TickFrequency="10"
+                                            IsSnapToTickEnabled="True" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border
+                                    Grid.Column="1"
+                                    Style="{StaticResource CardBorder}">
+                                    <StackPanel>
+                                        <TextBlock
+                                            Text="Dashboard tiles"
+                                            FontSize="17"
+                                            FontWeight="SemiBold"
+                                            Margin="4,2,4,8" />
+                                        <TextBlock
+                                            Margin="4,0,4,10"
+                                            TextWrapping="Wrap"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}"
+                                            Text="Use Edit layout on Overview to drag and resize tiles. Hidden tiles remain available here." />
+                                        <CheckBox x:Name="ShowSystemTileCheck" Content="System summary" />
+                                        <CheckBox x:Name="ShowInventoryTileCheck" Content="Inventory summary" />
+                                        <CheckBox x:Name="ShowQuickActionsTileCheck" Content="Quick actions" />
+                                        <CheckBox x:Name="ShowProvidersTileCheck" Content="Providers" />
+                                        <CheckBox x:Name="ShowWarningsTileCheck" Content="Warnings" />
+                                        <Separator
+                                            Margin="8,16"
+                                            Background="{DynamicResource PhoenixBorderBrush}" />
+                                        <TextBlock
+                                            Text="Layout behavior"
+                                            FontSize="15"
+                                            FontWeight="SemiBold"
+                                            Margin="4,0,4,8" />
+                                        <TextBlock
+                                            TextWrapping="Wrap"
+                                            Margin="4"
+                                            Foreground="{DynamicResource PhoenixMutedBrush}"
+                                            Text="Tiles snap to a 10-pixel grid and enforce minimum sizes so their controls remain usable. The dashboard scrolls when the layout is larger than the window." />
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </ScrollViewer>
+                        <Border
+                            Grid.Row="2"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,14,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button
+                                    x:Name="ApplyAppearanceButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Apply changes" />
+                                <Button
+                                    x:Name="SaveAppearanceButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Save customization" />
+                                <Button
+                                    x:Name="ResetAppearanceButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Reset appearance" />
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <Border
+            Grid.Row="1"
+            Background="{DynamicResource PhoenixSurfaceBrush}"
+            BorderBrush="{DynamicResource PhoenixBorderBrush}"
+            BorderThickness="0,1,0,0">
+            <Grid Margin="12,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse
+                        Width="8"
+                        Height="8"
+                        Margin="0,0,8,0"
+                        Fill="{DynamicResource PhoenixSuccessBrush}" />
+                    <TextBlock
+                        x:Name="StatusText"
+                        Text="Ready"
+                        VerticalAlignment="Center"
+                        Foreground="{DynamicResource PhoenixMutedBrush}" />
+                </StackPanel>
+                <StackPanel
+                    Grid.Column="1"
+                    x:Name="OperationPanel"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    Visibility="Collapsed">
+                    <TextBlock
+                        x:Name="OperationText"
+                        Margin="0,0,10,0"
+                        VerticalAlignment="Center"
+                        Text="Working..." />
+                    <ProgressBar
+                        x:Name="OperationProgress"
+                        Width="180"
+                        Height="12"
+                        Minimum="0"
+                        Maximum="100" />
+                    <Button
+                        x:Name="CancelOperationButton"
+                        Style="{StaticResource DangerButton}"
+                        Padding="10,3"
+                        MinHeight="28"
+                        Content="Cancel" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>

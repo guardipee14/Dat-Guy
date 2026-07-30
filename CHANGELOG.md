@@ -53,6 +53,13 @@ All notable changes to Phoenix are documented in this file.
   - Refresh repository documentation during commits.
 
 ### Added
+- add customizable desktop management interface
+  - Add automatic, desktop, and console launch modes with responsive background operations.
+  - Add application search, update metadata, install, repair, and protected uninstall workflows.
+  - Add driver update metadata, selected installation, repair, and constrained non-forced uninstall workflows.
+  - Add persistent theme presets, graphical color controls, movable and resizable dashboard tiles, and Theme Studio.
+  - Add declarative size-limited theme packages and comprehensive Control Center regression coverage.
+  - Prevent UI freezes by using atomic worker results and correctly scoped asynchronous callbacks.
 - restore drivers and packages from a Phoenix manifest
   - Create a versioned and restorable backup manifest.
   - Restore Windows Update drivers before packages.
