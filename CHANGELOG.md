@@ -4,6 +4,18 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-30
+
+### Fixed
+- add a double-clickable Windows installer launcher
+  - Launch the existing PowerShell installer through PowerShell 7.
+  - Require PowerShell 7.4 or later and show an actionable requirement message.
+  - Use a process-only execution-policy override without changing permanent policy.
+  - Keep the installer window open so success or failure remains visible.
+  - Include the launcher in every runtime release archive.
+  - Add regression coverage for launcher requirements and release packaging.
+  - Verify Explorer double-click installation, module version, Apps registration, shortcuts, and complete cleanup.
+
 ## [0.1.0] - 2026-07-30
 
 ### Release

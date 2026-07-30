@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows package management, driver-first backup and restore, inventory, and elevated update workflows.
 
-**Current module version:** `0.1.0`
+**Current module version:** `0.1.1`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Development history:** [Phoenix v0.1.0](Docs/Phoenix-v0.1.0-Development-History.md)
+**Development history:** [Phoenix v0.1.1](Docs/Phoenix-v0.1.1-Development-History.md)
 
 ## What Phoenix can currently do
 

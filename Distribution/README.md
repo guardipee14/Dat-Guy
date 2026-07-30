@@ -10,7 +10,7 @@ Run the normal validation pipeline and create a versioned archive:
 ```powershell
 $releaseResult =
     .\Build\New-PhoenixRelease.ps1 `
-        -Version '0.1.0'
+        -Version '0.1.1'
 
 $releaseResult | Format-List
 ```
@@ -18,20 +18,33 @@ $releaseResult | Format-List
 The archive and its SHA-256 checksum are written to
 `Artifacts\Releases`.
 
-The release payload includes the versioned development record at
-`Docs\Phoenix-v0.1.0-Development-History.md`.
+The release payload includes the versioned hotfix record at
+`Docs\Phoenix-v0.1.1-Development-History.md` and the complete v0.1.0
+development baseline.
 
 Use `-AllowDirty` only while testing uncommitted release changes:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.0' `
+    -Version '0.1.1' `
     -AllowDirty
 ```
 
 ## Install
 
-Extract the release archive, enter its versioned directory, and run:
+Extract the release archive, enter its versioned directory, and double-click:
+
+```text
+Install-Phoenix.cmd
+```
+
+The launcher finds PowerShell 7, verifies that version 7.4 or later is
+available, runs the PowerShell installer for the current user, displays the
+result, and waits for a key press before closing. It uses a process-only
+execution-policy override and does not change the user's permanent PowerShell
+execution policy.
+
+For scripted installation, run:
 
 ```powershell
 $installResult =
@@ -84,11 +97,11 @@ After committing and pushing a clean working tree:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.0' `
+    -Version '0.1.1' `
     -PublishGitHub
 ```
 
-This creates the `v0.1.0` GitHub release and uploads both the ZIP and checksum.
+This creates the `v0.1.1` GitHub release and uploads both the ZIP and checksum.
 Use `-Prerelease` when the GitHub release should be marked as a prerelease.
 
 ## License

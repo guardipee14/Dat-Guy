@@ -421,6 +421,7 @@ try {
 
     foreach (
         $distributionFile in @(
+            'Install-Phoenix.cmd'
             'Install-Phoenix.ps1'
             'Uninstall-Phoenix.ps1'
         )

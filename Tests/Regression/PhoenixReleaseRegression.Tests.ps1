@@ -127,24 +127,24 @@ Describe 'Phoenix release packaging' -Tag @(
             )
 
         $moduleManifest.ModuleVersion.ToString() |
-            Should-Be '0.1.0'
+            Should-Be '0.1.1'
 
         [string]$developmentHistory =
             Get-Content `
                 -LiteralPath (
                     Join-Path `
                         $projectRoot `
-                        'Docs\Phoenix-v0.1.0-Development-History.md'
+                        'Docs\Phoenix-v0.1.1-Development-History.md'
                 ) `
                 -Raw
 
         $developmentHistory.Contains(
-            '# Phoenix v0.1.0 Development History'
+            '# Phoenix v0.1.1 Development History'
         ) |
             Should-BeTrue
 
         $developmentHistory.Contains(
-            '**Release:** v0.1.0'
+            '**Release:** v0.1.1'
         ) |
             Should-BeTrue
 
@@ -217,7 +217,7 @@ Describe 'Phoenix release packaging' -Tag @(
                 -LiteralPath (
                     Join-Path `
                         $projectRoot `
-                        'Docs\Phoenix-v0.1.0-Development-History.md'
+                        'Docs\Phoenix-v0.1.1-Development-History.md'
                 )
         ).Length -gt 1000 |
             Should-BeTrue
@@ -305,6 +305,54 @@ Describe 'Phoenix release packaging' -Tag @(
             ) |
                 Should-BeTrue
         }
+    }
+
+    It 'ships a double-clickable PowerShell 7 installer launcher' {
+
+        [string]$launcherPath =
+            Join-Path `
+                $projectRoot `
+                'Distribution\Install-Phoenix.cmd'
+
+        Test-Path `
+            -LiteralPath $launcherPath `
+            -PathType Leaf |
+            Should-BeTrue
+
+        [string]$launcherSource =
+            Get-Content `
+                -LiteralPath $launcherPath `
+                -Raw
+
+        foreach (
+            $requiredText in @(
+                'pwsh.exe'
+                'PowerShell\7\pwsh.exe'
+                'Install-Phoenix.ps1'
+                '-ExecutionPolicy Bypass'
+                "[version]'7.4.0'"
+                'pause'
+            )
+        ) {
+            $launcherSource.Contains(
+                $requiredText
+            ) |
+                Should-BeTrue
+        }
+
+        [string]$builderSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Build\New-PhoenixRelease.ps1'
+                ) `
+                -Raw
+
+        $builderSource.Contains(
+            "'Install-Phoenix.cmd'"
+        ) |
+            Should-BeTrue
     }
 
     It 'preserves user data by default and supports complete removal' {
