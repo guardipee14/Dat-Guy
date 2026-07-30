@@ -16,11 +16,6 @@ function Start-Phoenix {
 
     Initialize-PhoenixLogging
 
-    $script:PhoenixContext.Logger.Write(
-        'INFO',
-        'Phoenix started.'
-    )
-
     if ($Resume) {
 
         Write-PhoenixLog `

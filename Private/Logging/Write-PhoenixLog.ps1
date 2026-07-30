@@ -2,15 +2,27 @@ function Write-PhoenixLog {
 
     [CmdletBinding()]
     param(
-        [ValidateSet('Info','Success','Warning','Error')]
+        [Parameter()]
+        [ValidateSet(
+            'Debug',
+            'Verbose',
+            'Info',
+            'Success',
+            'Warning',
+            'Error'
+        )]
         [string]$Level = 'Info',
 
         [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
         [string]$Message
     )
 
-    if (-not $script:PhoenixContext.Logger) {
-        throw "Phoenix logging has not been initialized."
+    if (
+        $null -eq $script:PhoenixContext -or
+        $null -eq $script:PhoenixContext.Logger
+    ) {
+        throw 'Phoenix logging has not been initialized.'
     }
 
     $script:PhoenixContext.Logger.Write(

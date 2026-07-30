@@ -5,6 +5,13 @@ All notable changes to Phoenix are documented in this file.
 ## [Unreleased]
 
 ### Fixed
+- filter and retain session logs
+  - Create log files lazily only when a message passes the configured level.
+  - Support Debug, Verbose, Info, Success, Warning, and Error filtering.
+  - Keep only the newest 20 timestamped Phoenix session logs by default.
+  - Preserve unrelated and non-session files in the log directory.
+  - Remove the duplicate Phoenix startup entry.
+  - Add Pester regression coverage for filtering, reuse, retention, ownership, and startup logging.
 - require a supported Pester version
   - Require Pester 6.0.0 or later instead of accepting the built-in Pester 3.4.0.
   - Select the highest installed module version that satisfies each requirement.

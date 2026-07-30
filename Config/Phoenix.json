@@ -1,5 +1,6 @@
 {
-  "LogLevel": "INFO",
+  "LogLevel": "Info",
+  "MaximumLogFiles": 20,
   "Provider": "WinGet",
   "OfflineMode": false,
   "TestValue": "Phoenix"
