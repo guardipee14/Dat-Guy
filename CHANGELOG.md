@@ -4,6 +4,8 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-30
+
 ### Changed
 - publish the Phoenix v0.2.0 roadmap
   - Add a public checkbox-based roadmap for Phoenix v0.2.0.
@@ -13,6 +15,12 @@ All notable changes to Phoenix are documented in this file.
   - Track restore planning, checkpoints, resume, and verification.
   - Define the automated testing and Windows VM release requirements.
   - Preserve the roadmap link through generated README updates.
+- establish a 33-release Phoenix v0.2.0 development train
+  - Publish 32 independently validated v0.1.x milestone releases.
+  - Complete the development cycle with Phoenix v0.2.0.
+  - Require backend, Control Center, test, documentation, checksum, tag, and
+    GitHub release verification for every milestone.
+  - Include the public roadmap in Phoenix release archives.
 
 ## [0.1.1] - 2026-07-30
 

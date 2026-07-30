@@ -127,7 +127,7 @@ Describe 'Phoenix release packaging' -Tag @(
             )
 
         $moduleManifest.ModuleVersion.ToString() |
-            Should-Be '0.1.1'
+            Should-Be '0.1.2'
 
         [string]$developmentHistory =
             Get-Content `
@@ -212,6 +212,14 @@ Describe 'Phoenix release packaging' -Tag @(
         ).Count |
             Should-Be 1
 
+        @(
+            $releaseConfiguration.RuntimePaths |
+                Where-Object {
+                    [string]$_ -eq 'ROADMAP.md'
+                }
+        ).Count |
+            Should-Be 1
+
         (
             Get-Item `
                 -LiteralPath (
@@ -221,6 +229,46 @@ Describe 'Phoenix release packaging' -Tag @(
                 )
         ).Length -gt 1000 |
             Should-BeTrue
+    }
+
+    It 'ships the complete 33-release Phoenix v0.2.0 train' {
+
+        [string]$roadmap =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'ROADMAP.md'
+                ) `
+                -Raw
+
+        [string[]]$expectedVersions = @(
+            2..33 |
+                ForEach-Object {
+                    "0.1.$_"
+                }
+
+            '0.2.0'
+        )
+
+        foreach ($expectedVersion in $expectedVersions) {
+
+            $versionPattern =
+                '(?m)^- \[[ x]\] `v{0}`' -f
+                [regex]::Escape($expectedVersion)
+
+            [regex]::IsMatch(
+                $roadmap,
+                $versionPattern
+            ) |
+                Should-BeTrue
+        }
+
+        [regex]::Matches(
+            $roadmap,
+            '(?m)^- \[[ x]\] `v(?:0\.1\.(?:[2-9]|[12]\d|3[0-3])|0\.2\.0)`'
+        ).Count |
+            Should-Be 33
     }
 
     It 'builds versioned archives checksums and optional GitHub releases' {

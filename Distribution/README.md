@@ -10,7 +10,7 @@ Run the normal validation pipeline and create a versioned archive:
 ```powershell
 $releaseResult =
     .\Build\New-PhoenixRelease.ps1 `
-        -Version '0.1.1'
+        -Version '0.1.2'
 
 $releaseResult | Format-List
 ```
@@ -18,15 +18,14 @@ $releaseResult | Format-List
 The archive and its SHA-256 checksum are written to
 `Artifacts\Releases`.
 
-The release payload includes the versioned hotfix record at
-`Docs\Phoenix-v0.1.1-Development-History.md` and the complete v0.1.0
-development baseline.
+The release payload includes the focused v0.1.1 hotfix record, the complete
+v0.1.0 development baseline, and the public Phoenix roadmap.
 
 Use `-AllowDirty` only while testing uncommitted release changes:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.1' `
+    -Version '0.1.2' `
     -AllowDirty
 ```
 
@@ -97,11 +96,11 @@ After committing and pushing a clean working tree:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.1' `
+    -Version '0.1.2' `
     -PublishGitHub
 ```
 
-This creates the `v0.1.1` GitHub release and uploads both the ZIP and checksum.
+This creates the `v0.1.2` GitHub release and uploads both the ZIP and checksum.
 Use `-Prerelease` when the GitHub release should be marked as a prerelease.
 
 ## License

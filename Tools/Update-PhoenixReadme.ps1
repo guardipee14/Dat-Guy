@@ -384,12 +384,59 @@ if (-not [string]::IsNullOrWhiteSpace($repositoryUrl)) {
         $RepositoryRoot `
         $developmentHistoryRelativePath
 
-if (Test-Path -LiteralPath $developmentHistoryPath) {
+[string]$developmentHistoryDisplayVersion =
+    $version
+
+if (-not (Test-Path -LiteralPath $developmentHistoryPath)) {
+
+    $latestDevelopmentHistory =
+        Get-ChildItem `
+            -LiteralPath (
+                Join-Path `
+                    $RepositoryRoot `
+                    'Docs'
+            ) `
+            -Filter 'Phoenix-v*-Development-History.md' `
+            -File `
+            -ErrorAction SilentlyContinue |
+            ForEach-Object {
+
+                if (
+                    $_.BaseName -match
+                        '^Phoenix-v(?<Version>\d+\.\d+\.\d+)-Development-History$'
+                ) {
+                    [pscustomobject]@{
+                        Version      = [version]$Matches.Version
+                        Display      = [string]$Matches.Version
+                        RelativePath = "Docs/$($_.Name)"
+                        FullName     = $_.FullName
+                    }
+                }
+            } |
+            Sort-Object Version -Descending |
+            Select-Object -First 1
+
+    if ($null -ne $latestDevelopmentHistory) {
+        $developmentHistoryDisplayVersion =
+            $latestDevelopmentHistory.Display
+        $developmentHistoryRelativePath =
+            $latestDevelopmentHistory.RelativePath
+        $developmentHistoryPath =
+            $latestDevelopmentHistory.FullName
+    }
+}
+
+if (
+    -not [string]::IsNullOrWhiteSpace(
+        $developmentHistoryRelativePath
+    ) -and
+    (Test-Path -LiteralPath $developmentHistoryPath)
+) {
     $readmeLines.Add('')
     $readmeLines.Add(
         (
             '**Development history:** [Phoenix v{0}]({1})' -f
-                $version,
+                $developmentHistoryDisplayVersion,
                 $developmentHistoryRelativePath
         )
     )

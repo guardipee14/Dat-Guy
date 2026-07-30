@@ -30,6 +30,7 @@
         'Phoenix-Console.cmd'
         'Phoenix-Theme-Studio.cmd'
         'README.md'
+        'ROADMAP.md'
         'CHANGELOG.md'
         'LICENSE.txt'
         'LICENSES'
