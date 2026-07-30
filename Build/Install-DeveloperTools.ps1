@@ -1,31 +1,10 @@
-function Install-PhoenixDeveloperTools {
+$taskPath =
+    Join-Path `
+        $PSScriptRoot `
+        'Tasks\Install-PhoenixDeveloperTools.ps1'
 
-    [CmdletBinding()]
-    param()
-
-    $modules = @(
-        'PSScriptAnalyzer',
-        'Pester',
-        'platyPS'
-    )
-
-    foreach ($module in $modules) {
-
-        Write-Host "Checking $module..."
-
-        if (-not (Get-Module -ListAvailable -Name $module)) {
-
-            Write-Host "Installing $module..." -ForegroundColor Yellow
-
-            Install-Module -Name $module `
-                -Scope CurrentUser `
-                -Force `
-                -AllowClobber
-
-            Write-Host "$module installed." -ForegroundColor Green
-        }
-        else {
-            Write-Host "$module already installed." -ForegroundColor Green
-        }
-    }
+if (-not (Test-Path -LiteralPath $taskPath)) {
+    throw "Phoenix developer-tools task was not found: $taskPath"
 }
+
+. $taskPath

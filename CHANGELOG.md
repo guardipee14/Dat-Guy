@@ -5,6 +5,12 @@ All notable changes to Phoenix are documented in this file.
 ## [Unreleased]
 
 ### Fixed
+- require a supported Pester version
+  - Require Pester 6.0.0 or later instead of accepting the built-in Pester 3.4.0.
+  - Select the highest installed module version that satisfies each requirement.
+  - Use one canonical developer-tools task with a compatibility loader.
+  - Support WhatIf and forced installation or updates.
+  - Verify installed modules and return version and status details.
 - separate inventory from restorable packages
   - Preserve the complete detected software inventory under Inventory.Software.
   - Emit only restorable WinGet and Chocolatey records under Packages.
