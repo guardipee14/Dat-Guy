@@ -17,6 +17,12 @@ All notable changes to Phoenix are documented in this file.
   - Report whether README documentation actually changed.
 
 ### Changed
+- automate validation and regression tests
+  - Delegate class generation to the validated composite-class builder.
+  - Validate Phoenix module imports in an isolated PowerShell process.
+  - Run Pester regression tests automatically during normal builds.
+  - Support optional coverage, skipped tests, retained generated files, and configurable test output.
+  - Report build results with test, coverage, Git, and duration metadata.
 - add Pester regression coverage
   - Add a Pester 6 runner with NUnit test reports and optional Cobertura coverage.
   - Test restore-package eligibility for WinGet, Chocolatey, ARP, MSIX, and unsupported providers.
