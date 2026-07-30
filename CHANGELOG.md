@@ -23,6 +23,12 @@ All notable changes to Phoenix are documented in this file.
   - Report whether README documentation actually changed.
 
 ### Changed
+- integrate PSScriptAnalyzer validation
+  - Run PSScriptAnalyzer automatically during normal Phoenix builds.
+  - Require PSScriptAnalyzer 1.25.0 or later.
+  - Block analyzer errors and security-rule findings while reporting existing warnings.
+  - Support strict analysis and an explicit analysis skip switch.
+  - Write complete JSON findings and include analysis metadata in build results.
 - automate validation and regression tests
   - Delegate class generation to the validated composite-class builder.
   - Validate Phoenix module imports in an isolated PowerShell process.

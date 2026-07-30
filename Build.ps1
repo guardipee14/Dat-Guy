@@ -1,6 +1,12 @@
 [CmdletBinding()]
 param(
     [Parameter()]
+    [switch]$SkipAnalysis,
+
+    [Parameter()]
+    [switch]$StrictAnalysis,
+
+    [Parameter()]
     [switch]$SkipTests,
 
     [Parameter()]
@@ -26,6 +32,10 @@ if ($SkipTests -and $CodeCoverage) {
     throw 'Code coverage cannot be enabled when tests are skipped.'
 }
 
+if ($SkipAnalysis -and $StrictAnalysis) {
+    throw 'Strict analysis cannot be enabled when analysis is skipped.'
+}
+
 $buildStartedAt = Get-Date
 $projectRoot = $PSScriptRoot
 
@@ -38,6 +48,11 @@ $testRunner =
     Join-Path `
         $projectRoot `
         'Build\Invoke-PhoenixTests.ps1'
+
+$analysisRunner =
+    Join-Path `
+        $projectRoot `
+        'Build\Invoke-PhoenixAnalysis.ps1'
 
 $moduleManifest =
     Join-Path `
@@ -61,6 +76,13 @@ if (
     -not (Test-Path -LiteralPath $testRunner)
 ) {
     throw "Phoenix test runner was not found: $testRunner"
+}
+
+if (
+    -not $SkipAnalysis -and
+    -not (Test-Path -LiteralPath $analysisRunner)
+) {
+    throw "Phoenix analysis runner was not found: $analysisRunner"
 }
 
 function Test-PhoenixModuleImport {
@@ -192,6 +214,25 @@ Test-PhoenixModuleImport `
 Write-Host 'Phoenix module import validation passed.' `
     -ForegroundColor Green
 
+$analysisResult = $null
+
+if (-not $SkipAnalysis) {
+
+    Write-Host ''
+    Write-Host 'Running Phoenix static analysis...' `
+        -ForegroundColor Cyan
+
+    $analysisResult =
+        & $analysisRunner `
+            -Strict:$StrictAnalysis
+}
+else {
+
+    Write-Host ''
+    Write-Host 'Phoenix static analysis was skipped.' `
+        -ForegroundColor DarkYellow
+}
+
 $testResult = $null
 
 if (-not $SkipTests) {
@@ -280,19 +321,37 @@ else {
     $null
 }
 
+$analysisFindingCount = if ($null -ne $analysisResult) {
+    $analysisResult.FindingCount
+}
+else {
+    0
+}
+
+$analysisBlockingCount = if ($null -ne $analysisResult) {
+    $analysisResult.BlockingFindingCount
+}
+else {
+    0
+}
+
 $summary = [pscustomobject]@{
-    Success             = $true
-    ProjectRoot         = $projectRoot
-    ClassesGenerated    = $true
-    ModuleValidated     = $true
-    TestsRun            = -not [bool]$SkipTests
-    TestCount           = $testCount
-    PassedCount         = $passedCount
-    CodeCoverageEnabled = [bool]$CodeCoverage
-    CoveragePercent     = $coveragePercent
-    GitBranch           = $gitBranch
-    GitCommit           = $gitCommit
-    DurationSeconds     = [Math]::Round(
+    Success               = $true
+    ProjectRoot           = $projectRoot
+    ClassesGenerated      = $true
+    ModuleValidated       = $true
+    AnalysisRun           = -not [bool]$SkipAnalysis
+    AnalysisStrict        = [bool]$StrictAnalysis
+    AnalysisFindingCount  = $analysisFindingCount
+    AnalysisBlockingCount = $analysisBlockingCount
+    TestsRun              = -not [bool]$SkipTests
+    TestCount             = $testCount
+    PassedCount           = $passedCount
+    CodeCoverageEnabled   = [bool]$CodeCoverage
+    CoveragePercent       = $coveragePercent
+    GitBranch             = $gitBranch
+    GitCommit             = $gitCommit
+    DurationSeconds       = [Math]::Round(
         $elapsed.TotalSeconds,
         2
     )
