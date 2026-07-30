@@ -1,0 +1,22 @@
+Phoenix Licensing Notice
+-------------------------
+
+Copyright 2026 Donaven Guardipee
+
+Phoenix is tri-licensed. You may use, reproduce, modify, and distribute
+Phoenix under the terms of any one of these licenses, at your option:
+
+1. MIT License
+2. Apache License, Version 2.0
+3. GNU General Public License, Version 3 or any later version
+
+SPDX-License-Identifier: MIT OR Apache-2.0 OR GPL-3.0-or-later
+
+The complete license texts are provided in:
+
+- LICENSES/MIT.txt
+- LICENSES/Apache-2.0.txt
+- LICENSES/GPL-3.0-or-later.txt
+
+Unless you explicitly state otherwise, contributions intentionally submitted
+for inclusion in Phoenix are offered under the same tri-license terms.

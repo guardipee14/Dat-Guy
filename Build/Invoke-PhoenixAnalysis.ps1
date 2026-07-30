@@ -73,6 +73,7 @@ $analysisFiles = @(
             'Private'
             'Public'
             'Build'
+            'Distribution'
             'Tools'
             'Tests'
         )

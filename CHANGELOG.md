@@ -4,6 +4,19 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-07-30
+
+### Release
+- Publish the first Phoenix release baseline.
+  - Package only runtime files in a versioned ZIP archive.
+  - Generate archive and per-file SHA-256 integrity metadata.
+  - Support CurrentUser and AllUsers installation, upgrades, shortcuts, and Windows installed-app registration.
+  - Preserve configuration and installed themes during upgrades and by-default uninstallation.
+  - Add optional GitHub release publication.
+  - Add the complete v0.1.0 development-history document to the release.
+  - License Phoenix under MIT OR Apache-2.0 OR GPL-3.0-or-later.
+  - Verify checksum, clean installation, upgrade preservation, default uninstall preservation, recovery reinstall, and complete removal.
+
 ### Fixed
 - filter and retain session logs
   - Create log files lazily only when a message passes the configured level.

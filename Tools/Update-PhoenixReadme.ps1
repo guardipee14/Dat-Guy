@@ -376,6 +376,25 @@ if (-not [string]::IsNullOrWhiteSpace($repositoryUrl)) {
     $readmeLines.Add(('**Repository:** [{0}]({0})' -f $repositoryUrl))
 }
 
+[string]$developmentHistoryRelativePath =
+    'Docs/Phoenix-v{0}-Development-History.md' -f $version
+
+[string]$developmentHistoryPath =
+    Join-Path `
+        $RepositoryRoot `
+        $developmentHistoryRelativePath
+
+if (Test-Path -LiteralPath $developmentHistoryPath) {
+    $readmeLines.Add('')
+    $readmeLines.Add(
+        (
+            '**Development history:** [Phoenix v{0}]({1})' -f
+                $version,
+                $developmentHistoryRelativePath
+        )
+    )
+}
+
 $readmeLines.Add('')
 $readmeLines.Add('## What Phoenix can currently do')
 $readmeLines.Add('')
@@ -470,10 +489,15 @@ $readmeLines.Add('## Project layout')
 $readmeLines.Add('')
 $readmeLines.Add('```text')
 $readmeLines.Add('PhoenixDeploy/')
+$readmeLines.Add('|-- Build/         Class, analysis, test, and release automation')
 $readmeLines.Add('|-- Classes/       PowerShell classes and generated class module')
 $readmeLines.Add('|-- Config/        Phoenix configuration files')
+$readmeLines.Add('|-- Distribution/  Installer, uninstaller, and release instructions')
+$readmeLines.Add('|-- Docs/          Versioned development history and project documentation')
 $readmeLines.Add('|-- Private/       Internal core, logging, provider, driver, inventory, and package functions')
 $readmeLines.Add('|-- Public/        Exported Phoenix commands')
+$readmeLines.Add('|-- Tests/         Pester unit and regression coverage')
+$readmeLines.Add('|-- Themes/        Built-in and installed Control Center themes')
 $readmeLines.Add('|-- Tools/         Git, changelog, README, and release automation')
 $readmeLines.Add('|-- Phoenix.psd1   Module manifest')
 $readmeLines.Add('`-- Phoenix.psm1   Module loader and exports')

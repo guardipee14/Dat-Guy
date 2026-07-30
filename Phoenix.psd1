@@ -24,10 +24,10 @@ GUID = 'bf20fb32-0a3e-4c49-8572-4fab0259f807'
 Author = 'Donaven'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+CompanyName = 'Phoenix'
 
 # Copyright statement for this module
-Copyright = '(c) Donaven. All rights reserved.'
+Copyright = 'Copyright (c) 2026 Donaven Guardipee'
 
 # Description of the functionality provided by this module
 Description = 'PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.'
@@ -108,16 +108,28 @@ AliasesToExport = @()
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
+    LicenseExpression = (
+        'MIT OR Apache-2.0 OR GPL-3.0-or-later'
+    )
+
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = @(
+            'Windows'
+            'PowerShell'
+            'Deployment'
+            'Recovery'
+            'PackageManagement'
+            'Drivers'
+            'Inventory'
+        )
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/guardipee14/Dat-Guy/blob/main/LICENSE.txt'
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/guardipee14/Dat-Guy'
 
         # A URL to an icon representing this module.
         # IconUri = ''

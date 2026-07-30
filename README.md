@@ -1,11 +1,13 @@
 <!-- PHOENIX:GENERATED:START -->
 # PhoenixDeploy
 
-PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
+PowerShell deployment and recovery framework for Windows package management, driver-first backup and restore, inventory, and elevated update workflows.
 
 **Current module version:** `0.1.0`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
+
+**Development history:** [Phoenix v0.1.0](Docs/Phoenix-v0.1.0-Development-History.md)
 
 ## What Phoenix can currently do
 
@@ -36,10 +38,6 @@ PowerShell deployment and recovery framework for Windows application and driver 
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |
-| `Open-Phoenix` | Available | Exported Phoenix command. |
-| `Get-PhoenixTheme` | Available | Exported Phoenix command. |
-| `Install-PhoenixTheme` | Available | Exported Phoenix command. |
-| `Export-PhoenixTheme` | Available | Exported Phoenix command. |
 
 ## Quick start
 
@@ -97,10 +95,15 @@ Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended
 
 ```text
 PhoenixDeploy/
+|-- Build/         Class, analysis, test, and release automation
 |-- Classes/       PowerShell classes and generated class module
 |-- Config/        Phoenix configuration files
+|-- Distribution/  Installer, uninstaller, and release instructions
+|-- Docs/          Versioned development history and project documentation
 |-- Private/       Internal core, logging, provider, driver, inventory, and package functions
 |-- Public/        Exported Phoenix commands
+|-- Tests/         Pester unit and regression coverage
+|-- Themes/        Built-in and installed Control Center themes
 |-- Tools/         Git, changelog, README, and release automation
 |-- Phoenix.psd1   Module manifest
 `-- Phoenix.psm1   Module loader and exports
