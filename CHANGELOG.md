@@ -17,6 +17,11 @@ All notable changes to Phoenix are documented in this file.
   - Report whether README documentation actually changed.
 
 ### Changed
+- add Pester regression coverage
+  - Add a Pester 6 runner with NUnit test reports and optional Cobertura coverage.
+  - Test restore-package eligibility for WinGet, Chocolatey, ARP, MSIX, and unsupported providers.
+  - Guard manifest inventory separation, installed-package key formatting, and WinGet already-installed handling.
+  - Enforce a 90 percent focused coverage baseline.
 - automate Phoenix capability and repository documentation
   - Generate the README capability and command sections.
   - Document current Phoenix limitations.
