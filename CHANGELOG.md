@@ -4,6 +4,7 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-07-31
 ## [0.1.5] - 2026-07-31
 
 ### Changed
@@ -187,3 +188,4 @@ All notable changes to Phoenix are documented in this file.
   - Skip unapproved migrations safely in unattended mode.
   - Protect Microsoft Edge and other system-managed packages unless explicitly forced.
   - Report migrated, protected, skipped, and failed migrations separately.
+
