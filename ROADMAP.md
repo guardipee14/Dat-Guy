@@ -37,7 +37,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.3` - Reliable Phoenix context initialization and lifecycle
 - [x] `v0.1.4` - Automatic directory, configuration, and runtime recovery
 - [x] `v0.1.5` - Control Center exception isolation and desktop recovery
-- [ ] `v0.1.6` - Shared background-job contract
+- [x] `v0.1.6` - Shared background-job contract
 - [ ] `v0.1.7` - Background inventory, provider initialization, and searches
 - [ ] `v0.1.8` - Background application operation queue
 - [ ] `v0.1.9` - Background driver and restore jobs with cancellation
@@ -82,19 +82,23 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 2. Background job system
 
-- [ ] Define a common Phoenix background-job contract.
+- [x] Define a common Phoenix background-job contract.
 - [ ] Move inventory collection off the WPF interface thread.
 - [ ] Move provider initialization and searches off the WPF interface thread.
 - [ ] Move application operations off the WPF interface thread.
 - [ ] Move driver and OEM operations off the WPF interface thread.
 - [ ] Move restore planning, execution, and verification off the WPF interface
       thread.
-- [ ] Add queued, running, completed, cancelled, and failed states.
-- [ ] Add cancellation, retry, timeout, and concurrency controls.
+- [x] Add created, starting, running, cancellation-requested, cancelled,
+      completed, and failed lifecycle states.
+- [ ] Add queued state and queue scheduling.
+- [x] Add cancellation and deterministic process and file cleanup.
+- [ ] Add retry, timeout, and concurrency controls.
 - [ ] Serialize drivers, reboots, protected packages, and conflicting
       installers when required.
-- [ ] Return structured progress and results to the Control Center.
-- [ ] Prove through regression tests that long operations do not freeze the UI.
+- [x] Return structured progress and results to the Control Center.
+- [x] Detect workers that exit without publishing a result.
+- [x] Prove through regression tests that long operations do not freeze the UI.
 
 ### 3. Activity Center
 
