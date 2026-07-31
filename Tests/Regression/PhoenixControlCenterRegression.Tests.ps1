@@ -218,6 +218,131 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-MatchString 'DriverUpdateGrid'
     }
 
+    It 'isolates desktop exceptions behind an in-app recovery surface' {
+
+        [string]$xamlSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\PhoenixControlCenter.xaml'
+                ) `
+                -Raw
+
+        [string]$desktopSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Show-PhoenixDesktop.ps1'
+                ) `
+                -Raw
+
+        foreach (
+            $controlName in @(
+                'RecoveryPanel'
+                'RecoveryTitleText'
+                'RecoveryMessageText'
+                'RecoveryRetryButton'
+                'RecoveryDetailsButton'
+                'RecoveryDismissButton'
+            )
+        ) {
+            $xamlSource.Contains($controlName) |
+                Should-BeTrue
+        }
+
+        $desktopSource.Contains(
+            'DispatcherUnhandledExceptionEventHandler'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'Invoke-PhoenixControlCenterBoundary'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$eventArgs.Handled = $true'
+        ) |
+            Should-BeTrue
+    }
+
+    It 'offers desktop startup retry safe-layout and console recovery' {
+
+        [string]$openSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Public\Open-Phoenix.ps1'
+                ) `
+                -Raw
+
+        [string]$recoverySource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Show-PhoenixDesktopRecovery.ps1'
+                ) `
+                -Raw
+
+        $openSource.Contains(
+            'Show-PhoenixDesktopRecovery'
+        ) |
+            Should-BeTrue
+
+        $openSource.Contains(
+            'Reset-PhoenixControlCenterUiConfiguration'
+        ) |
+            Should-BeTrue
+
+        foreach (
+            $recoveryAction in @(
+                'Retry desktop'
+                'Use safe layout'
+                'Open console'
+                'Close'
+            )
+        ) {
+            $recoverySource.Contains($recoveryAction) |
+                Should-BeTrue
+        }
+    }
+
+    It 'records structured Control Center failures with bounded history' {
+
+        [string]$boundarySource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Invoke-PhoenixControlCenterBoundary.ps1'
+                ) `
+                -Raw
+
+        $boundarySource.Contains(
+            'PHX_UI_COMPONENT_FAILED'
+        ) |
+            Should-BeTrue
+
+        $boundarySource.Contains(
+            'PHX_DESKTOP_STARTUP_FAILED'
+        ) |
+            Should-BeTrue
+
+        $boundarySource.Contains(
+            'Cache\ControlCenter\LastFailure.json'
+        ) |
+            Should-BeTrue
+
+        $boundarySource.Contains(
+            '[int]$RetentionCount = 20'
+        ) |
+            Should-BeTrue
+    }
+
     It 'provides a modern customizable shell and editable dashboard' {
 
         [string]$xamlSource =

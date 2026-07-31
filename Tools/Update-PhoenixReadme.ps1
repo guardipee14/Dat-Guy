@@ -209,6 +209,7 @@ $restorePath = Join-Path $RepositoryRoot 'Public\Restore-Phoenix.ps1'
 $loggingPath = Join-Path $RepositoryRoot 'Private\Logging\Write-PhoenixLog.ps1'
 $inventoryPath = Join-Path $RepositoryRoot 'Private\Inventory'
 $runtimeRecoveryPath = Join-Path $RepositoryRoot 'Private\Core\Initialize-PhoenixRuntimeRecovery.ps1'
+$controlCenterRecoveryPath = Join-Path $RepositoryRoot 'Private\ControlCenter\Invoke-PhoenixControlCenterBoundary.ps1'
 
 $providersText = Get-PhoenixSourceText -Path $providersPath
 $updateText = Get-PhoenixSourceText -Path $updatePath
@@ -218,6 +219,7 @@ $elevationText = Get-PhoenixSourceText -Path $elevationPath
 $migrationText = Get-PhoenixSourceText -Path $migrationPath
 $restoreText = Get-PhoenixSourceText -Path $restorePath
 $runtimeRecoveryText = Get-PhoenixSourceText -Path $runtimeRecoveryPath
+$controlCenterRecoveryText = Get-PhoenixSourceText -Path $controlCenterRecoveryPath
 
 if (
     $providersText -match 'WinGetProvider' -and
@@ -325,6 +327,15 @@ if (
 ) {
     $capabilities.Add(
         'Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.'
+    )
+}
+
+if (
+    $controlCenterRecoveryText -match 'PHX_UI_COMPONENT_FAILED' -and
+    $controlCenterRecoveryText -match 'LastFailure.json'
+) {
+    $capabilities.Add(
+        'Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.'
     )
 }
 

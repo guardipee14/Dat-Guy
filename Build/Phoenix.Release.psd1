@@ -49,6 +49,7 @@
         'Config\Phoenix.UI.json'
         'Config\Settings.json'
         'Config\Recovery'
+        'Cache\ControlCenter'
         'Cache\Recovery'
         'Checkpoints'
         'Logs'

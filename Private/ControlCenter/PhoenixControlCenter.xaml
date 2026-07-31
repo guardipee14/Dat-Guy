@@ -280,6 +280,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="42" />
         </Grid.RowDefinitions>
 
@@ -1131,6 +1132,70 @@
 
         <Border
             Grid.Row="1"
+            x:Name="RecoveryPanel"
+            Margin="14,8,14,8"
+            Padding="14"
+            CornerRadius="{DynamicResource PhoenixCornerRadius}"
+            Background="{DynamicResource PhoenixSurfaceAltBrush}"
+            BorderBrush="{DynamicResource PhoenixWarningBrush}"
+            BorderThickness="1"
+            Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Border
+                    Width="34"
+                    Height="34"
+                    Margin="0,0,12,0"
+                    CornerRadius="17"
+                    Background="{DynamicResource PhoenixWarningBrush}">
+                    <TextBlock
+                        Text="!"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        FontSize="19"
+                        FontWeight="Bold"
+                        Foreground="White" />
+                </Border>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock
+                        x:Name="RecoveryTitleText"
+                        Text="A Control Center component was isolated"
+                        FontWeight="SemiBold" />
+                    <TextBlock
+                        x:Name="RecoveryMessageText"
+                        Margin="0,3,12,0"
+                        TextWrapping="Wrap"
+                        Foreground="{DynamicResource PhoenixMutedBrush}" />
+                </StackPanel>
+                <StackPanel
+                    Grid.Column="2"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <Button
+                        x:Name="RecoveryRetryButton"
+                        Style="{StaticResource ModernButton}"
+                        MinWidth="76"
+                        Content="Retry" />
+                    <Button
+                        x:Name="RecoveryDetailsButton"
+                        Style="{StaticResource SecondaryButton}"
+                        MinWidth="76"
+                        Content="Details" />
+                    <Button
+                        x:Name="RecoveryDismissButton"
+                        Style="{StaticResource SecondaryButton}"
+                        MinWidth="76"
+                        Content="Dismiss" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border
+            Grid.Row="2"
             Background="{DynamicResource PhoenixSurfaceBrush}"
             BorderBrush="{DynamicResource PhoenixBorderBrush}"
             BorderThickness="0,1,0,0">

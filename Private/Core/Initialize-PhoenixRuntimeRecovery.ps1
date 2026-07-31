@@ -724,7 +724,7 @@ function Initialize-PhoenixRuntimeRecovery {
         }
 
         $settingsDefaults = [pscustomobject][ordered]@{
-            Version                 = '0.1.4'
+            Version                 = '0.1.5'
             MaxParallelJobs         = 4
             AutoReboot              = $true
             PreferredPackageManager = 'Auto'
@@ -737,7 +737,7 @@ function Initialize-PhoenixRuntimeRecovery {
         $normalizeSettings = {
             param($configuration)
 
-            $configuration.Version = '0.1.4'
+            $configuration.Version = '0.1.5'
 
             [int]$maximumJobs = 0
 

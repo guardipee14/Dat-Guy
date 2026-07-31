@@ -3616,7 +3616,7 @@ class PhoenixContext {
 
     PhoenixContext([string]$ProjectRoot) {
 
-        $this.Version = '0.1.4'
+        $this.Version = '0.1.5'
         $this.SessionID = [guid]::NewGuid().ToString()
         $this.StartTime = Get-Date
         $this.InitializedAtUtc = [datetime]::MinValue

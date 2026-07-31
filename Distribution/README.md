@@ -10,7 +10,7 @@ Run the normal validation pipeline and create a versioned archive:
 ```powershell
 $releaseResult =
     .\Build\New-PhoenixRelease.ps1 `
-        -Version '0.1.4'
+        -Version '0.1.5'
 
 $releaseResult | Format-List
 ```
@@ -25,7 +25,7 @@ Use `-AllowDirty` only while testing uncommitted release changes:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.4' `
+    -Version '0.1.5' `
     -AllowDirty
 ```
 
@@ -70,6 +70,11 @@ Upgrades preserve:
 - `Config\Phoenix.json`
 - `Config\Phoenix.UI.json`
 - `Config\Settings.json`
+- `Config\Recovery`
+- `Cache\ControlCenter`
+- `Cache\Recovery`
+- `Checkpoints`
+- `Logs`
 - `Themes\Installed`
 
 ## Uninstall
@@ -96,11 +101,11 @@ After committing and pushing a clean working tree:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.4' `
+    -Version '0.1.5' `
     -PublishGitHub
 ```
 
-This creates the `v0.1.4` GitHub release and uploads both the ZIP and checksum.
+This creates the `v0.1.5` GitHub release and uploads both the ZIP and checksum.
 Use `-Prerelease` when the GitHub release should be marked as a prerelease.
 
 ## License

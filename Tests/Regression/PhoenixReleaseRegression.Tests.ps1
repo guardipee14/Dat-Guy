@@ -127,7 +127,7 @@ Describe 'Phoenix release packaging' -Tag @(
             )
 
         $moduleManifest.ModuleVersion.ToString() |
-            Should-Be '0.1.4'
+            Should-Be '0.1.5'
 
         [string]$developmentHistory =
             Get-Content `
@@ -371,6 +371,7 @@ Describe 'Phoenix release packaging' -Tag @(
                 'Config\Phoenix.UI.json'
                 'Config\Settings.json'
                 'Config\Recovery'
+                'Cache\ControlCenter'
                 'Cache\Recovery'
                 'Checkpoints'
                 'Logs'

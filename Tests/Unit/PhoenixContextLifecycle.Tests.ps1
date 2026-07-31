@@ -69,7 +69,7 @@ Describe 'Phoenix context lifecycle' -Tag @(
                 Should-Be 1
 
             $context.Version |
-                Should-Be '0.1.4'
+                Should-Be '0.1.5'
 
             $context.RuntimeRecovery.Success |
                 Should-BeTrue

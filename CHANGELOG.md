@@ -4,21 +4,29 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-07-31
+
 ### Changed
 - use portable release separators
   - Replace Unicode roadmap separators with plain ASCII hyphens.
   - Prevent roadmap milestone text from becoming corrupted in Windows terminals.
   - Synchronize the repository roadmap and GitHub roadmap issue.
 
+
 ### Fixed
-- recover runtime state automatically
-  - Create required configuration, theme, cache, checkpoint, driver, log, and working directories before context initialization.
-  - Restore missing or malformed configuration from safe defaults with timestamped backups.
-  - Merge configuration defaults without discarding custom values or single-item dashboard tile arrays.
-  - Keep recovery idempotent and preserve the previous ready context when recovery fails.
-  - Record the last successful recovery and display its status in the Control Center.
-  - Preserve recovery history, checkpoints, logs, and installed themes during upgrades.
-  - Advance Phoenix to v0.1.4 with 68 passing automated tests.
+- isolate Control Center exceptions and recover the desktop
+  - Catch unhandled WPF dispatcher exceptions before they terminate the
+    Control Center window.
+  - Normalize component and startup exceptions into structured Phoenix
+    failure results with stable result codes.
+  - Display retry, diagnostic details, and dismissal controls in a persistent
+    in-app recovery surface.
+  - Offer retry, safe-layout reset, console, and close actions when the main
+    desktop cannot finish starting.
+  - Record the latest failure and retain the newest 20 Control Center
+    diagnostics under `Cache\ControlCenter`.
+  - Preserve Control Center recovery data across upgrades.
+  - Add focused recovery unit tests and Control Center regression coverage.
 
 ## [0.1.4] - 2026-07-30
 

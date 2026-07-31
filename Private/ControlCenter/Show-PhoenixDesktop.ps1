@@ -150,6 +150,12 @@ function Show-PhoenixDesktop {
             'OperationText'
             'OperationProgress'
             'CancelOperationButton'
+            'RecoveryPanel'
+            'RecoveryTitleText'
+            'RecoveryMessageText'
+            'RecoveryRetryButton'
+            'RecoveryDetailsButton'
+            'RecoveryDismissButton'
         )
     ) {
         $controls[$controlName] =
@@ -230,6 +236,9 @@ function Show-PhoenixDesktop {
         ApplicationReleaseUrl = ''
         DriverReleaseUrl = ''
         RefreshApplicationUpdates = $null
+        LastFailure     = $null
+        RecoveryAction  = $null
+        DispatcherFailureCount = 0
     }
 
     $getInventoryCommand =
@@ -249,6 +258,15 @@ function Show-PhoenixDesktop {
 
     $installThemeCommand =
         ${function:Install-PhoenixTheme}
+
+    $newControlCenterFailureCommand =
+        ${function:New-PhoenixControlCenterFailure}
+
+    $writeControlCenterFailureCommand =
+        ${function:Write-PhoenixControlCenterFailure}
+
+    $invokeControlCenterBoundaryCommand =
+        ${function:Invoke-PhoenixControlCenterBoundary}
 
     $pageMap = [ordered]@{
         Overview = [pscustomobject]@{
@@ -831,6 +849,137 @@ function Show-PhoenixDesktop {
         & $appendActivity $Message
     }.GetNewClosure()
 
+    $hideRecovery = {
+        $controls.RecoveryPanel.Visibility =
+            [System.Windows.Visibility]::Collapsed
+
+        $state.LastFailure = $null
+        $state.RecoveryAction = $null
+    }.GetNewClosure()
+
+    $showRecovery = {
+        param(
+            [Parameter(Mandatory)]
+            [object]$Failure,
+
+            [Parameter()]
+            [AllowNull()]
+            [scriptblock]$RetryAction
+        )
+
+        $state.LastFailure = $Failure
+        $state.RecoveryAction = $RetryAction
+
+        $controls.RecoveryTitleText.Text = (
+            '{0} was isolated' -f
+            [string]$Failure.Data.Component
+        )
+
+        $controls.RecoveryMessageText.Text =
+            [string]$Failure.Message
+
+        $controls.RecoveryRetryButton.IsEnabled =
+            $null -ne $RetryAction
+
+        $controls.RecoveryPanel.Visibility =
+            [System.Windows.Visibility]::Visible
+
+        & $appendActivity (
+            '[{0}] {1} (failure {2})' -f
+            $Failure.Code,
+            $Failure.Message,
+            $Failure.Data.FailureId
+        )
+
+        $controls.StatusText.Text = (
+            'Phoenix isolated an interface error. Other pages remain available.'
+        )
+    }.GetNewClosure()
+
+    $invokeSafeUiAction = {
+        param(
+            [Parameter(Mandatory)]
+            [string]$Component,
+
+            [Parameter(Mandatory)]
+            [string]$Operation,
+
+            [Parameter(Mandatory)]
+            [scriptblock]$Action,
+
+            [Parameter()]
+            [AllowNull()]
+            [scriptblock]$RetryAction
+        )
+
+        $boundaryShowRecovery = $showRecovery
+        $boundaryRetryAction = $RetryAction
+
+        return (
+            & $invokeControlCenterBoundaryCommand `
+                -Component $Component `
+                -Operation $Operation `
+                -Action $Action `
+                -OnFailure {
+                    param($failure)
+
+                    & $boundaryShowRecovery `
+                        $failure `
+                        $boundaryRetryAction
+                }.GetNewClosure()
+        )
+    }.GetNewClosure()
+
+    $dispatcherShowRecovery = $showRecovery
+    $dispatcherNewFailure =
+        $newControlCenterFailureCommand
+
+    $dispatcherWriteFailure =
+        $writeControlCenterFailureCommand
+
+    $dispatcherState = $state
+
+    $dispatcherExceptionScriptBlock = {
+            param(
+                $sender,
+                $eventArgs
+            )
+
+            try {
+                $dispatcherState.DispatcherFailureCount++
+
+                $failure =
+                    & $dispatcherNewFailure `
+                        -Component 'DesktopEvent' `
+                        -Operation 'DispatcherCallback' `
+                        -Exception $eventArgs.Exception
+
+                $null =
+                    & $dispatcherWriteFailure `
+                        -Failure $failure
+
+                & $dispatcherShowRecovery `
+                    $failure `
+                    $null
+
+                $eventArgs.Handled = $true
+            }
+            catch {
+                # Even if the recovery surface cannot render, keep the
+                # dispatcher exception contained so the desktop stays open.
+                $eventArgs.Handled = $true
+            }
+        }.GetNewClosure()
+
+    $dispatcherExceptionHandler =
+        [System.Windows.Threading.DispatcherUnhandledExceptionEventHandler](
+            $dispatcherExceptionScriptBlock
+        )
+
+    $window.Dispatcher.add_UnhandledException(
+        $dispatcherExceptionHandler
+    )
+
     $setOperationUi = {
         param(
             [bool]$Busy,
@@ -1007,7 +1156,9 @@ function Show-PhoenixDesktop {
         $timerSetOperationUi = $setOperationUi
         $timerSetStatus = $setStatus
         $timerAppendActivity = $appendActivity
-        $timerWindow = $window
+        $timerNewFailure = $newControlCenterFailureCommand
+        $timerWriteFailure = $writeControlCenterFailureCommand
+        $timerShowRecovery = $showRecovery
 
         $timer.Add_Tick({
 
@@ -1100,13 +1251,19 @@ function Show-PhoenixDesktop {
                         "Operation failed: $($envelope.Error)"
                     )
 
-                    [void][System.Windows.MessageBox]::Show(
-                        $timerWindow,
-                        [string]$envelope.Error,
-                        'Phoenix operation failed',
-                        [System.Windows.MessageBoxButton]::OK,
-                        [System.Windows.MessageBoxImage]::Error
-                    )
+                    $failure =
+                        & $timerNewFailure `
+                            -Component 'BackgroundOperation' `
+                            -Operation $operation.Description `
+                            -Message ([string]$envelope.Error)
+
+                    $null =
+                        & $timerWriteFailure `
+                            -Failure $failure
+
+                    & $timerShowRecovery `
+                        $failure `
+                        $null
 
                     return
                 }
@@ -1141,13 +1298,19 @@ function Show-PhoenixDesktop {
 
                 & $timerSetStatus $callbackError
 
-                [void][System.Windows.MessageBox]::Show(
-                    $timerWindow,
-                    $callbackError,
-                    'Phoenix interface error',
-                    [System.Windows.MessageBoxButton]::OK,
-                    [System.Windows.MessageBoxImage]::Error
-                )
+                $failure =
+                    & $timerNewFailure `
+                        -Component 'OperationCallback' `
+                        -Operation $operation.Description `
+                        -ErrorRecord $_
+
+                $null =
+                    & $timerWriteFailure `
+                        -Failure $failure
+
+                & $timerShowRecovery `
+                    $failure `
+                    $null
             }
         }.GetNewClosure())
 
@@ -2164,15 +2327,30 @@ function Show-PhoenixDesktop {
     }.GetNewClosure())
 
     $controls.RefreshAllButton.Add_Click({
-        & $refreshInventory
+        $null =
+            & $invokeSafeUiAction `
+                -Component 'Inventory' `
+                -Operation 'Refresh' `
+                -Action $refreshInventory `
+                -RetryAction $refreshInventory
     }.GetNewClosure())
 
     $controls.RefreshAppUpdatesButton.Add_Click({
-        & $refreshApplicationUpdates
+        $null =
+            & $invokeSafeUiAction `
+                -Component 'ApplicationUpdates' `
+                -Operation 'Refresh' `
+                -Action $refreshApplicationUpdates `
+                -RetryAction $refreshApplicationUpdates
     }.GetNewClosure())
 
     $controls.ViewAppUpdateDetailsButton.Add_Click({
-        & $loadApplicationRelease
+        $null =
+            & $invokeSafeUiAction `
+                -Component 'ApplicationDetails' `
+                -Operation 'LoadReleaseMetadata' `
+                -Action $loadApplicationRelease `
+                -RetryAction $loadApplicationRelease
     }.GetNewClosure())
 
     $controls.ApplicationGrid.Add_SelectionChanged({
@@ -2812,6 +2990,80 @@ function Show-PhoenixDesktop {
             }.GetNewClosure()
     }.GetNewClosure())
 
+    $controls.RecoveryRetryButton.Add_Click({
+
+        $retryAction =
+            $state.RecoveryAction
+
+        $failure =
+            $state.LastFailure
+
+        if (
+            $null -eq $retryAction -or
+            $null -eq $failure
+        ) {
+            return
+        }
+
+        $retryResult =
+            & $invokeSafeUiAction `
+                -Component (
+                    [string]$failure.Data.Component
+                ) `
+                -Operation (
+                    'Retry{0}' -f
+                    [string]$failure.Data.Operation
+                ) `
+                -Action $retryAction `
+                -RetryAction $retryAction
+
+        if ([bool]$retryResult.Success) {
+            & $hideRecovery
+            & $setStatus 'The Control Center component recovered successfully.'
+        }
+    }.GetNewClosure())
+
+    $controls.RecoveryDetailsButton.Add_Click({
+
+        $failure =
+            $state.LastFailure
+
+        if ($null -eq $failure) {
+            return
+        }
+
+        [string]$details = (
+            @(
+                "Code: $($failure.Code)"
+                "Failure ID: $($failure.Data.FailureId)"
+                "Time (UTC): $($failure.Data.TimestampUtc)"
+                "Component: $($failure.Data.Component)"
+                "Operation: $($failure.Data.Operation)"
+                "Exception: $($failure.Data.ExceptionType)"
+                ''
+                [string]$failure.Message
+                ''
+                [string]$failure.Data.PositionMessage
+                [string]$failure.Data.ScriptStackTrace
+                ''
+                "Journal: $($failure.Data.JournalPath)"
+            ) -join [Environment]::NewLine
+        ).Trim()
+
+        [void][System.Windows.MessageBox]::Show(
+            $window,
+            $details,
+            'Phoenix recovery details',
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Warning
+        )
+    }.GetNewClosure())
+
+    $controls.RecoveryDismissButton.Add_Click({
+        & $hideRecovery
+        & $setStatus 'The isolated interface error was dismissed.'
+    }.GetNewClosure())
+
     $controls.CancelOperationButton.Add_Click({
 
         $operation =
@@ -2885,7 +3137,12 @@ function Show-PhoenixDesktop {
     }
 
     $window.Add_ContentRendered({
-        & $refreshInventory
+        $null =
+            & $invokeSafeUiAction `
+                -Component 'Inventory' `
+                -Operation 'InitialRefresh' `
+                -Action $refreshInventory `
+                -RetryAction $refreshInventory
     }.GetNewClosure())
 
     $window.Add_Closing({
@@ -2921,5 +3178,12 @@ function Show-PhoenixDesktop {
         }
     }.GetNewClosure())
 
-    [void]$window.ShowDialog()
+    try {
+        [void]$window.ShowDialog()
+    }
+    finally {
+        $window.Dispatcher.remove_UnhandledException(
+            $dispatcherExceptionHandler
+        )
+    }
 }
