@@ -126,8 +126,25 @@ Describe 'Phoenix release packaging' -Tag @(
                 'Copyright (c) 2026 Donaven Guardipee'
             )
 
-        $moduleManifest.ModuleVersion.ToString() |
-            Should-Be '0.1.5'
+        [string]$moduleVersion =
+            $moduleManifest.ModuleVersion.ToString()
+
+        ($moduleVersion -match '^\d+\.\d+\.\d+$') |
+            Should-BeTrue
+
+        [string]$changelog =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'CHANGELOG.md'
+                ) `
+                -Raw
+
+        $changelog.Contains(
+            "## [$moduleVersion] - "
+        ) |
+            Should-BeTrue
 
         [string]$developmentHistory =
             Get-Content `
