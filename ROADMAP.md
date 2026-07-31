@@ -17,8 +17,8 @@ Center integration, automated tests, and documentation are complete.
 
 ## Released
 
-- [x] Phoenix v0.1.0 — First public release
-- [x] Phoenix v0.1.1 — Double-click Windows installer hotfix
+- [x] Phoenix v0.1.0 - First public release
+- [x] Phoenix v0.1.1 - Double-click Windows installer hotfix
 
 ## Phoenix v0.2.0
 
@@ -33,39 +33,39 @@ Phoenix v0.2.0 will be developed through 33 public, independently validated
 releases after v0.1.1. Each release must pass its backend, Control Center,
 automated-test, packaging, checksum, tag, and GitHub publication gates.
 
-- [x] `v0.1.2` — Publish the v0.2.0 roadmap and incremental release workflow
-- [x] `v0.1.3` — Reliable Phoenix context initialization and lifecycle
-- [x] `v0.1.4` — Automatic directory, configuration, and runtime recovery
-- [ ] `v0.1.5` — Control Center exception isolation and desktop recovery
-- [ ] `v0.1.6` — Shared background-job contract
-- [ ] `v0.1.7` — Background inventory, provider initialization, and searches
-- [ ] `v0.1.8` — Background application operation queue
-- [ ] `v0.1.9` — Background driver and restore jobs with cancellation
-- [ ] `v0.1.10` — Activity Center live job display
-- [ ] `v0.1.11` — Activity cancellation, retry, clearing, and result details
-- [ ] `v0.1.12` — Common provider capability and result contract
-- [ ] `v0.1.13` — Complete WinGet behavior and UI verification
-- [ ] `v0.1.14` — Complete Chocolatey behavior and UI verification
-- [ ] `v0.1.15` — Implement Scoop and connect it to the UI
-- [ ] `v0.1.16` — Implement MSI packages and connect them to the UI
-- [ ] `v0.1.17` — Implement EXE package definitions and UI operations
-- [ ] `v0.1.18` — Implement the GitHub Releases provider
-- [ ] `v0.1.19` — Implement the PowerShell Gallery provider
-- [ ] `v0.1.20` — Implement the NuGet provider
-- [ ] `v0.1.21` — Implement online DISM capability and package management
-- [ ] `v0.1.22` — Implement WSUS policy, discovery, and installation support
-- [ ] `v0.1.23` — Phoenix provider orchestration, selection, and fallback
-- [ ] `v0.1.24` — Common OEM driver-adapter framework
-- [ ] `v0.1.25` — Dell and HP driver integration
-- [ ] `v0.1.26` — Lenovo and Intel driver integration
-- [ ] `v0.1.27` — AMD and NVIDIA driver integration
-- [ ] `v0.1.28` — Restore planning engine
-- [ ] `v0.1.29` — Restore Plan UI, selection, and provider alternatives
-- [ ] `v0.1.30` — Versioned restore-checkpoint storage
-- [ ] `v0.1.31` — Restore resume, retry, interruption, and reboot state
-- [ ] `v0.1.32` — Restore verification engine and UI results
-- [ ] `v0.1.33` — Complete UI integration and end-to-end Windows VM testing
-- [ ] `v0.2.0` — Final hardening, documentation, packaging, and public release
+- [x] `v0.1.2` - Publish the v0.2.0 roadmap and incremental release workflow
+- [x] `v0.1.3` - Reliable Phoenix context initialization and lifecycle
+- [x] `v0.1.4` - Automatic directory, configuration, and runtime recovery
+- [ ] `v0.1.5` - Control Center exception isolation and desktop recovery
+- [ ] `v0.1.6` - Shared background-job contract
+- [ ] `v0.1.7` - Background inventory, provider initialization, and searches
+- [ ] `v0.1.8` - Background application operation queue
+- [ ] `v0.1.9` - Background driver and restore jobs with cancellation
+- [ ] `v0.1.10` - Activity Center live job display
+- [ ] `v0.1.11` - Activity cancellation, retry, clearing, and result details
+- [ ] `v0.1.12` - Common provider capability and result contract
+- [ ] `v0.1.13` - Complete WinGet behavior and UI verification
+- [ ] `v0.1.14` - Complete Chocolatey behavior and UI verification
+- [ ] `v0.1.15` - Implement Scoop and connect it to the UI
+- [ ] `v0.1.16` - Implement MSI packages and connect them to the UI
+- [ ] `v0.1.17` - Implement EXE package definitions and UI operations
+- [ ] `v0.1.18` - Implement the GitHub Releases provider
+- [ ] `v0.1.19` - Implement the PowerShell Gallery provider
+- [ ] `v0.1.20` - Implement the NuGet provider
+- [ ] `v0.1.21` - Implement online DISM capability and package management
+- [ ] `v0.1.22` - Implement WSUS policy, discovery, and installation support
+- [ ] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
+- [ ] `v0.1.24` - Common OEM driver-adapter framework
+- [ ] `v0.1.25` - Dell and HP driver integration
+- [ ] `v0.1.26` - Lenovo and Intel driver integration
+- [ ] `v0.1.27` - AMD and NVIDIA driver integration
+- [ ] `v0.1.28` - Restore planning engine
+- [ ] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
+- [ ] `v0.1.30` - Versioned restore-checkpoint storage
+- [ ] `v0.1.31` - Restore resume, retry, interruption, and reboot state
+- [ ] `v0.1.32` - Restore verification engine and UI results
+- [ ] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
+- [ ] `v0.2.0` - Final hardening, documentation, packaging, and public release
 
 ### 1. Runtime stability
 

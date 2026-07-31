@@ -4,6 +4,12 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- use portable release separators
+  - Replace Unicode roadmap separators with plain ASCII hyphens.
+  - Prevent roadmap milestone text from becoming corrupted in Windows terminals.
+  - Synchronize the repository roadmap and GitHub roadmap issue.
+
 ### Fixed
 - recover runtime state automatically
   - Create required configuration, theme, cache, checkpoint, driver, log, and working directories before context initialization.
