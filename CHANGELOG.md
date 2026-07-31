@@ -5,6 +5,27 @@ All notable changes to Phoenix are documented in this file.
 ## [Unreleased]
 
 ## [0.1.6] - 2026-07-31
+
+### Added
+- add a shared Phoenix background-operation lifecycle contract
+  - Define created, starting, running, cancellation-requested, cancelled,
+    completed, and failed lifecycle states.
+  - Track operation identity, component, action, parameters, timestamps,
+    progress, worker state, cancellation, results, and errors.
+  - Add reusable functions to create, start, receive, stop, and remove
+    background operations.
+
+### Changed
+- move Control Center process operations onto the shared lifecycle
+  - Run operations through isolated child PowerShell processes.
+  - Exchange atomic request, progress, and result JSON files.
+  - Use module-bound adapters when WPF callbacks invoke private Phoenix
+    lifecycle functions.
+  - Detect workers that exit without publishing a result.
+  - Centralize cancellation and deterministic process and temporary-file
+    cleanup.
+  - Add focused lifecycle unit and Control Center regression coverage.
+
 ## [0.1.5] - 2026-07-31
 
 ### Changed
