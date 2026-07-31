@@ -15,7 +15,7 @@ Roadmap items may be refined as implementation and Windows VM testing reveal
 new requirements. An item is checked only after its backend behavior, Control
 Center integration, automated tests, and documentation are complete.
 
-## Released
+## Earlier releases
 
 - [x] Phoenix v0.1.0 - First public release
 - [x] Phoenix v0.1.1 - Double-click Windows installer hotfix
