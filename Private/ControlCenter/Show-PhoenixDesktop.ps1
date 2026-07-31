@@ -268,6 +268,106 @@ function Show-PhoenixDesktop {
     $invokeControlCenterBoundaryCommand =
         ${function:Invoke-PhoenixControlCenterBoundary}
 
+    $phoenixModule =
+        $ExecutionContext.SessionState.Module
+
+    if ($null -eq $phoenixModule) {
+        throw (
+            'The Phoenix module session is unavailable for background ' +
+            'operation callbacks.'
+        )
+    }
+
+    $newBackgroundOperationCommand =
+        $phoenixModule.NewBoundScriptBlock({
+            [CmdletBinding()]
+            param(
+                [Parameter(Mandatory)]
+                [string]$Action,
+
+                [Parameter()]
+                [AllowNull()]
+                [object]$Parameters,
+
+                [Parameter(Mandatory)]
+                [string]$Component,
+
+                [Parameter(Mandatory)]
+                [string]$Description,
+
+                [Parameter(Mandatory)]
+                [scriptblock]$Completion,
+
+                [Parameter(Mandatory)]
+                [string]$ProjectRoot
+            )
+
+            New-PhoenixBackgroundOperation `
+                @PSBoundParameters
+        })
+
+    $startBackgroundOperationCommand =
+        $phoenixModule.NewBoundScriptBlock({
+            [CmdletBinding()]
+            param(
+                [Parameter(Mandatory)]
+                [object]$Operation,
+
+                [Parameter(Mandatory)]
+                [string]$ProjectRoot,
+
+                [Parameter()]
+                [AllowNull()]
+                [string]$WorkerPath,
+
+                [Parameter()]
+                [AllowNull()]
+                [string]$PowerShellPath
+            )
+
+            Start-PhoenixBackgroundOperation `
+                @PSBoundParameters
+        })
+
+    $receiveBackgroundOperationCommand =
+        $phoenixModule.NewBoundScriptBlock({
+            [CmdletBinding()]
+            param(
+                [Parameter(Mandatory)]
+                [object]$Operation
+            )
+
+            Receive-PhoenixBackgroundOperation `
+                @PSBoundParameters
+        })
+
+    $stopBackgroundOperationCommand =
+        $phoenixModule.NewBoundScriptBlock({
+            [CmdletBinding()]
+            param(
+                [Parameter(Mandatory)]
+                [object]$Operation,
+
+                [Parameter()]
+                [bool]$KillTree = $true
+            )
+
+            Stop-PhoenixBackgroundOperation `
+                @PSBoundParameters
+        })
+
+    $removeBackgroundOperationCommand =
+        $phoenixModule.NewBoundScriptBlock({
+            [CmdletBinding()]
+            param(
+                [Parameter(Mandatory)]
+                [object]$Operation
+            )
+
+            Remove-PhoenixBackgroundOperation `
+                @PSBoundParameters
+        })
+
     $pageMap = [ordered]@{
         Overview = [pscustomobject]@{
             Page   = $controls.OverviewPage
@@ -1037,87 +1137,28 @@ function Show-PhoenixDesktop {
                 ) `
                 -Parent
 
-        [string]$workerPath =
-            Join-Path `
-                $projectRoot `
-                'Tools\Invoke-PhoenixControlCenterWorker.ps1'
+        $operation =
+            & $newBackgroundOperationCommand `
+                -Action $Action `
+                -Parameters $Parameters `
+                -Component 'ControlCenter' `
+                -Description $Description `
+                -Completion $Completed `
+                -ProjectRoot $projectRoot
 
-        [string]$jobDirectory =
-            Join-Path `
-                (
-                    Join-Path `
-                        ([IO.Path]::GetTempPath()) `
-                        'PhoenixControlCenter'
-                ) `
-                (
-                    [guid]::NewGuid().ToString('N')
-                )
-
-        New-Item `
-            -ItemType Directory `
-            -Path $jobDirectory `
-            -Force |
-            Out-Null
-
-        [string]$requestPath =
-            Join-Path $jobDirectory 'request.json'
-
-        [string]$progressPath =
-            Join-Path $jobDirectory 'progress.json'
-
-        [string]$resultPath =
-            Join-Path $jobDirectory 'result.json'
-
-        [pscustomobject]@{
-            Action     = $Action
-            Parameters = $Parameters
-        } |
-            ConvertTo-Json `
-                -Depth 20 |
-            Set-Content `
-                -LiteralPath $requestPath `
-                -Encoding UTF8 `
-                -ErrorAction Stop
-
-        $startInfo =
-            [System.Diagnostics.ProcessStartInfo]::new()
-
-        $startInfo.FileName =
-            (Get-Process -Id $PID).Path
-
-        $startInfo.UseShellExecute = $false
-        $startInfo.CreateNoWindow = $true
-        $startInfo.WorkingDirectory = $projectRoot
-
-        foreach (
-            $argument in @(
-                '-NoLogo'
-                '-NoProfile'
-                '-NonInteractive'
-                '-ExecutionPolicy'
-                'Bypass'
-                '-STA'
-                '-File'
-                $workerPath
-                '-ProjectRoot'
-                $projectRoot
-                '-RequestPath'
-                $requestPath
-                '-ProgressPath'
-                $progressPath
-                '-ResultPath'
-                $resultPath
-            )
-        ) {
-            $startInfo.ArgumentList.Add(
-                [string]$argument
-            )
+        try {
+            $null =
+                & $startBackgroundOperationCommand `
+                    -Operation $operation `
+                    -ProjectRoot $projectRoot
         }
+        catch {
+            $null =
+                & $removeBackgroundOperationCommand `
+                    -Operation $operation
 
-        $process =
-            [System.Diagnostics.Process]::Start(
-                $startInfo
-            )
+            throw
+        }
 
         $timer =
             [System.Windows.Threading.DispatcherTimer]::new()
@@ -1127,19 +1168,11 @@ function Show-PhoenixDesktop {
                 350
             )
 
-        $operation = [pscustomobject]@{
-            Process       = $process
-            Timer         = $timer
-            JobDirectory  = $jobDirectory
-            ProgressPath  = $progressPath
-            ResultPath    = $resultPath
-            Completion    = $Completed
-            Description   = $Description
-            LastProgress  = ''
-            Cancelled     = $false
-        }
+        $operation.Timer =
+            $timer
 
-        $state.ActiveOperation = $operation
+        $state.ActiveOperation =
+            $operation
 
         & $setOperationUi `
             $true `
@@ -1159,103 +1192,58 @@ function Show-PhoenixDesktop {
         $timerNewFailure = $newControlCenterFailureCommand
         $timerWriteFailure = $writeControlCenterFailureCommand
         $timerShowRecovery = $showRecovery
+        $timerReceiveBackgroundOperation =
+            $receiveBackgroundOperationCommand
+        $timerRemoveBackgroundOperation =
+            $removeBackgroundOperationCommand
 
         $timer.Add_Tick({
 
             try {
-                if (
-                    Test-Path `
-                        -LiteralPath $operation.ProgressPath
-                ) {
-                    try {
-                        $progress =
-                            Get-Content `
-                                -LiteralPath $operation.ProgressPath `
-                                -Raw `
-                                -ErrorAction Stop |
-                                ConvertFrom-Json `
-                                    -ErrorAction Stop
+                $received =
+                    & $timerReceiveBackgroundOperation `
+                        -Operation $operation
 
-                        [string]$progressKey = (
-                            '{0}|{1}' -f
-                            $progress.Percent,
-                            $progress.Message
-                        )
+                if ($received.ProgressChanged) {
+                    & $timerSetOperationUi `
+                        $true `
+                        ([string]$received.Message) `
+                        ([int]$received.Percent)
 
-                        if (
-                            $progressKey -ne
-                            $operation.LastProgress
-                        ) {
-                            $operation.LastProgress =
-                                $progressKey
-
-                            & $timerSetOperationUi `
-                                $true `
-                                ([string]$progress.Message) `
-                                ([int]$progress.Percent)
-
-                            & $timerAppendActivity (
-                                [string]$progress.Message
-                            )
-                        }
-                    }
-                    catch {
-                        # The worker may be replacing the progress file.
-                    }
+                    & $timerAppendActivity (
+                        [string]$received.Message
+                    )
                 }
 
-                # The worker publishes result.json with an atomic rename.
-                # Treat that file as the completion signal so the WPF thread
-                # never waits on Process.HasExited for packaged pwsh hosts.
-                if (
-                    -not (
-                        Test-Path `
-                            -LiteralPath $operation.ResultPath
-                    )
-                ) {
+                if (-not $received.IsCompleted) {
                     return
                 }
 
                 $operation.Timer.Stop()
-                $timerState.ActiveOperation = $null
+
+                if (
+                    $timerState.ActiveOperation -eq
+                    $operation
+                ) {
+                    $timerState.ActiveOperation = $null
+                }
+
                 & $timerSetOperationUi $false
 
-                try {
-                    $envelope =
-                        Get-Content `
-                            -LiteralPath $operation.ResultPath `
-                            -Raw `
-                            -ErrorAction Stop |
-                            ConvertFrom-Json `
-                                -ErrorAction Stop
-                }
-                catch {
-                    $envelope = [pscustomobject]@{
-                        Success = $false
-                        Data    = $null
-                        Error   = (
-                            'The background worker result could not be read: {0}' -f
-                            $_.Exception.Message
-                        )
-                    }
-                }
+                $null =
+                    & $timerRemoveBackgroundOperation `
+                        -Operation $operation
 
-                Remove-Item `
-                    -LiteralPath $operation.JobDirectory `
-                    -Recurse `
-                    -Force `
-                    -ErrorAction SilentlyContinue
-
-                if (-not [bool]$envelope.Success) {
+                if (-not [bool]$received.Success) {
                     & $timerSetStatus (
-                        "Operation failed: $($envelope.Error)"
+                        "Operation failed: $($received.Error)"
                     )
 
                     $failure =
                         & $timerNewFailure `
                             -Component 'BackgroundOperation' `
                             -Operation $operation.Description `
-                            -Message ([string]$envelope.Error)
+                            -Message ([string]$received.Error)
 
                     $null =
                         & $timerWriteFailure `
@@ -1277,11 +1265,9 @@ function Show-PhoenixDesktop {
                     )
                 }
 
-                & $completionCommand $envelope.Data
+                & $completionCommand $received.Data
             }
             catch {
-                $operation.Timer.Stop()
-
                 if (
                     $timerState.ActiveOperation -eq
                     $operation
@@ -1290,6 +1276,10 @@ function Show-PhoenixDesktop {
                 }
 
                 & $timerSetOperationUi $false
+
+                $null =
+                    & $timerRemoveBackgroundOperation `
+                        -Operation $operation
 
                 [string]$callbackError = (
                     'Control Center operation callback failed: {0}' -f
@@ -3084,11 +3074,9 @@ function Show-PhoenixDesktop {
         }
 
         try {
-            $operation.Cancelled = $true
-            $operation.Timer.Stop()
-            $operation.Process.Kill(
-                $true
-            )
+            $null =
+                & $stopBackgroundOperationCommand `
+                    -Operation $operation
         }
         catch {
             & $appendActivity (
@@ -3100,13 +3088,21 @@ function Show-PhoenixDesktop {
             $state.ActiveOperation = $null
             & $setOperationUi $false
 
-            Remove-Item `
-                -LiteralPath $operation.JobDirectory `
-                -Recurse `
-                -Force `
-                -ErrorAction SilentlyContinue
+            $null =
+                & $removeBackgroundOperationCommand `
+                    -Operation $operation
 
-            & $setStatus 'The active operation was cancelled.'
+            if (
+                $operation.State.ToString() -eq
+                'Cancelled'
+            ) {
+                & $setStatus 'The active operation was cancelled.'
+            }
+            else {
+                & $setStatus (
+                    'The active operation could not be cancelled cleanly.'
+                )
+            }
         }
     }.GetNewClosure())
 
@@ -3152,18 +3148,26 @@ function Show-PhoenixDesktop {
         )
 
         if ($null -ne $state.ActiveOperation) {
+            $closingOperation =
+                $state.ActiveOperation
+
             try {
-                $state.ActiveOperation.Cancelled = $true
-                $state.ActiveOperation.Timer.Stop()
-                $state.ActiveOperation.Process.Kill(
-                    $true
-                )
+                $null =
+                    & $stopBackgroundOperationCommand `
+                        -Operation $closingOperation
             }
             catch {
                 Write-Warning (
                     'The active Control Center worker could not be stopped: {0}' -f
                     $_.Exception.Message
                 )
+            }
+            finally {
+                $null =
+                    & $removeBackgroundOperationCommand `
+                        -Operation $closingOperation
+
+                $state.ActiveOperation = $null
             }
         }
 

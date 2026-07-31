@@ -534,6 +534,15 @@ Describe 'Phoenix Control Center regressions' -Tag @(
                 ) `
                 -Raw
 
+        [string]$startSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Start-PhoenixBackgroundOperation.ps1'
+                ) `
+                -Raw
+
         [string]$workerSource =
             Get-Content `
                 -LiteralPath (
@@ -543,7 +552,7 @@ Describe 'Phoenix Control Center regressions' -Tag @(
                 ) `
                 -Raw
 
-        $desktopSource.Contains(
+        $startSource.Contains(
             '[System.Diagnostics.ProcessStartInfo]::new()'
         ) |
             Should-BeTrue
@@ -591,7 +600,7 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
     }
 
-    It 'uses the atomic worker result instead of polling process state' {
+    It 'uses the atomic worker result with an unexpected-exit fallback' {
 
         [string]$desktopSource =
             Get-Content `
@@ -602,13 +611,37 @@ Describe 'Phoenix Control Center regressions' -Tag @(
                 ) `
                 -Raw
 
+        [string]$receiveSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Receive-PhoenixBackgroundOperation.ps1'
+                ) `
+                -Raw
+
         $desktopSource.Contains(
             '$operation.Process.HasExited'
         ) |
             Should-BeFalse
 
-        $desktopSource.Contains(
-            '-LiteralPath $operation.ResultPath'
+        $receiveSource.Contains(
+            '-LiteralPath $Operation.ResultPath'
+        ) |
+            Should-BeTrue
+
+        $receiveSource.Contains(
+            '$Operation.Process.HasExited'
+        ) |
+            Should-BeTrue
+
+        $receiveSource.Contains(
+            'The background worker exited without publishing '
+        ) |
+            Should-BeTrue
+
+        $receiveSource.Contains(
+            "'a result.'"
         ) |
             Should-BeTrue
 
@@ -648,6 +681,106 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             '$timerState.ActiveOperation'
         ) |
             Should-BeTrue
+    }
+
+    It 'uses module-bound adapters for shared background operations' {
+
+        [string]$desktopPath =
+            Join-Path `
+                $projectRoot `
+                'Private\ControlCenter\Show-PhoenixDesktop.ps1'
+
+        [string]$desktopSource =
+            Get-Content `
+                -LiteralPath $desktopPath `
+                -Raw
+
+        $tokens = $null
+        $parseErrors = $null
+
+        $null =
+            [Management.Automation.Language.Parser]::ParseFile(
+                $desktopPath,
+                [ref]$tokens,
+                [ref]$parseErrors
+            )
+
+        @($parseErrors).Count |
+            Should-Be 0
+
+        $desktopSource.Contains(
+            '$ExecutionContext.SessionState.Module'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '.NewBoundScriptBlock({'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'NewBoundScriptBlock(' +
+            [Environment]::NewLine +
+            '            ${function:'
+        ) |
+            Should-BeFalse
+
+        $desktopSource.Contains(
+            '[PhoenixBackgroundOperationState]::Cancelled'
+        ) |
+            Should-BeFalse
+
+        foreach (
+            $functionName in @(
+                'New-PhoenixBackgroundOperation'
+                'Start-PhoenixBackgroundOperation'
+                'Receive-PhoenixBackgroundOperation'
+                'Stop-PhoenixBackgroundOperation'
+                'Remove-PhoenixBackgroundOperation'
+            )
+        ) {
+            [string]$functionPath =
+                Join-Path `
+                    $projectRoot `
+                    (
+                        'Private\ControlCenter\{0}.ps1' -f
+                        $functionName
+                    )
+
+            Test-Path `
+                -LiteralPath $functionPath `
+                -PathType Leaf |
+                Should-BeTrue
+
+            $desktopSource.Contains(
+                $functionName
+            ) |
+                Should-BeTrue
+        }
+
+        $desktopSource.Contains(
+            'New-PhoenixBackgroundOperation `' +
+            [Environment]::NewLine +
+            '                @PSBoundParameters'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'Start-PhoenixBackgroundOperation `' +
+            [Environment]::NewLine +
+            '                @PSBoundParameters'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$operation = [pscustomobject]@{'
+        ) |
+            Should-BeFalse
+
+        $desktopSource.Contains(
+            '$operation.Cancelled = $true'
+        ) |
+            Should-BeFalse
     }
 
     It 'invokes the application-update callback as a script block' {
