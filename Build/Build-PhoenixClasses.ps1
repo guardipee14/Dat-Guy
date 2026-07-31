@@ -368,6 +368,7 @@ $baseAndCoreFiles = @(
     '10-Core\PhoenixLogger.ps1'
     '10-Core\PhoenixConfiguration.ps1'
     '10-Core\PhoenixBuild.ps1'
+    '10-Core\PhoenixBackgroundOperation.ps1'
 )
 
 foreach ($relativePath in $baseAndCoreFiles) {
