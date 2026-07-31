@@ -357,6 +357,47 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
     }
 
+    It 'shows runtime recovery state and last repair details' {
+
+        [string]$inventorySource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Get-PhoenixControlCenterInventory.ps1'
+                ) `
+                -Raw
+
+        [string]$desktopSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Show-PhoenixDesktop.ps1'
+                ) `
+                -Raw
+
+        $inventorySource.Contains(
+            'RuntimeRecovery'
+        ) |
+            Should-BeTrue
+
+        $inventorySource.Contains(
+            'LastRecoveryAtUtc'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'Runtime recovery'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'Last repair (UTC)'
+        ) |
+            Should-BeTrue
+    }
+
     It 'keeps long operations off the WPF interface thread' {
 
         [string]$desktopSource =

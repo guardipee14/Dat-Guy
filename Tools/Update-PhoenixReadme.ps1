@@ -208,6 +208,7 @@ $backupPath = Join-Path $RepositoryRoot 'Public\Backup-Phoenix.ps1'
 $restorePath = Join-Path $RepositoryRoot 'Public\Restore-Phoenix.ps1'
 $loggingPath = Join-Path $RepositoryRoot 'Private\Logging\Write-PhoenixLog.ps1'
 $inventoryPath = Join-Path $RepositoryRoot 'Private\Inventory'
+$runtimeRecoveryPath = Join-Path $RepositoryRoot 'Private\Core\Initialize-PhoenixRuntimeRecovery.ps1'
 
 $providersText = Get-PhoenixSourceText -Path $providersPath
 $updateText = Get-PhoenixSourceText -Path $updatePath
@@ -216,6 +217,7 @@ $windowsUpdateDriverText = Get-PhoenixSourceText -Path $windowsUpdateDriverPath
 $elevationText = Get-PhoenixSourceText -Path $elevationPath
 $migrationText = Get-PhoenixSourceText -Path $migrationPath
 $restoreText = Get-PhoenixSourceText -Path $restorePath
+$runtimeRecoveryText = Get-PhoenixSourceText -Path $runtimeRecoveryPath
 
 if (
     $providersText -match 'WinGetProvider' -and
@@ -314,6 +316,15 @@ if (Test-Path -LiteralPath $inventoryPath) {
 if (Test-Path -LiteralPath $loggingPath) {
     $capabilities.Add(
         'Write Phoenix operational logs with structured severity levels.'
+    )
+}
+
+if (
+    $runtimeRecoveryText -match 'PHX_RUNTIME_RECOVERED' -and
+    $runtimeRecoveryText -match 'LastRecovery.json'
+) {
+    $capabilities.Add(
+        'Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.'
     )
 }
 
@@ -500,7 +511,7 @@ $readmeLines.Add('Import-Module .\Phoenix.psd1 -Force')
 $readmeLines.Add('Start-Phoenix')
 $readmeLines.Add('```')
 $readmeLines.Add('')
-$readmeLines.Add('Phoenix initializes its runtime context, logging, WinGet provider, Chocolatey provider, and missing-provider checks.')
+$readmeLines.Add('Phoenix first recovers required runtime directories and configuration, then initializes its context, logging, WinGet provider, Chocolatey provider, and missing-provider checks. Repeated calls reuse the active context; use `Start-Phoenix -Force` only when a new context generation is required.')
 $readmeLines.Add('')
 $readmeLines.Add('## Common examples')
 $readmeLines.Add('')

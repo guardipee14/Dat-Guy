@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.3`
+**Current module version:** `0.1.4`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -24,6 +24,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Restore drivers first and reinstall missing WinGet or Chocolatey packages from a versioned Phoenix manifest, with preview, provider filtering, progress, and structured results.
 - Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.
 - Write Phoenix operational logs with structured severity levels.
+- Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 
 ## Available commands
 
@@ -53,7 +54,7 @@ Import-Module .\Phoenix.psd1 -Force
 Start-Phoenix
 ```
 
-Phoenix initializes its runtime context, logging, WinGet provider, Chocolatey provider, and missing-provider checks.
+Phoenix first recovers required runtime directories and configuration, then initializes its context, logging, WinGet provider, Chocolatey provider, and missing-provider checks. Repeated calls reuse the active context; use `Start-Phoenix -Force` only when a new context generation is required.
 
 ## Common examples
 

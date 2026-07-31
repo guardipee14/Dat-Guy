@@ -5,15 +5,33 @@ All notable changes to Phoenix are documented in this file.
 ## [Unreleased]
 
 ### Fixed
-- make context initialization reliable
-  - Initialize module-scoped context state safely under StrictMode.
-  - Publish context state only after configuration, providers, and logging are ready.
-  - Restore the previous ready context when forced initialization fails.
-  - Reuse active sessions during repeated starts and support explicit generations with Start-Phoenix -Force.
-  - Route backup, restore, provider, package, search, and Control Center operations through shared context recovery.
-  - Display lifecycle state, generation, and session information in the Control Center.
-  - Add focused lifecycle and UI regression coverage with 58 passing tests.
-  - Advance the module version and roadmap milestone to Phoenix v0.1.3.
+- recover runtime state automatically
+  - Create required configuration, theme, cache, checkpoint, driver, log, and working directories before context initialization.
+  - Restore missing or malformed configuration from safe defaults with timestamped backups.
+  - Merge configuration defaults without discarding custom values or single-item dashboard tile arrays.
+  - Keep recovery idempotent and preserve the previous ready context when recovery fails.
+  - Record the last successful recovery and display its status in the Control Center.
+  - Preserve recovery history, checkpoints, logs, and installed themes during upgrades.
+  - Advance Phoenix to v0.1.4 with 68 passing automated tests.
+
+## [0.1.4] - 2026-07-30
+
+### Fixed
+- recover required Phoenix runtime state automatically
+  - Create configuration, theme, cache, checkpoint, driver, log, and working
+    directories before constructing a Phoenix context.
+  - Recreate missing configuration files from safe defaults.
+  - Back up malformed or incomplete configuration before repairing it.
+  - Merge missing defaults without discarding custom settings or theme tiles.
+  - Preserve one-item dashboard tile arrays while restoring missing default
+    tiles.
+  - Normalize unsafe logging, concurrency, UI color, and path settings.
+  - Record the last successful recovery in a persistent runtime journal.
+  - Preserve recovery history, checkpoints, logs, and installed themes during
+    upgrades.
+  - Display recovery status, repaired-item counts, and the last repair time in
+    the Control Center.
+  - Add focused recovery, configuration, lifecycle, UI, and release tests.
 
 ## [0.1.3] - 2026-07-30
 
@@ -155,4 +173,3 @@ All notable changes to Phoenix are documented in this file.
   - Skip unapproved migrations safely in unattended mode.
   - Protect Microsoft Edge and other system-managed packages unless explicitly forced.
   - Report migrated, protected, skipped, and failed migrations separately.
-

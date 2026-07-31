@@ -21,3 +21,6 @@ ElevationProbe.*
 *.user
 /Artifacts/
 /Themes/Installed/
+/Config/Recovery/
+/Checkpoints/
+/Drivers/

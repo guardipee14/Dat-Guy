@@ -27,6 +27,30 @@ function Get-PhoenixControlCenterInventory {
         }
     }
 
+    $runtimeRecovery =
+        $context.RuntimeRecovery
+
+    if ($null -ne $runtimeRecovery) {
+        foreach (
+            $recoveryWarning in @(
+                $runtimeRecovery.Warnings
+            )
+        ) {
+            if (
+                -not [string]::IsNullOrWhiteSpace(
+                    [string]$recoveryWarning
+                ) -and
+                -not $warnings.Contains(
+                    [string]$recoveryWarning
+                )
+            ) {
+                $warnings.Add(
+                    [string]$recoveryWarning
+                )
+            }
+        }
+    }
+
     $hardware = [ordered]@{}
     $network = [ordered]@{}
     $operatingSystem = $null
@@ -312,6 +336,45 @@ function Get-PhoenixControlCenterInventory {
         Administrator = [bool]$context.IsAdministrator
     }
 
+    [string]$recoveryCode =
+        'PHX_RUNTIME_UNKNOWN'
+
+    [bool]$runtimeRecovered = $false
+    [int]$recoveryItemCount = 0
+    [string]$lastRecoveryAtUtc = 'None recorded'
+    [string]$recoveryJournalPath = ''
+
+    if ($null -ne $runtimeRecovery) {
+        $recoveryCode =
+            [string]$runtimeRecovery.Code
+
+        $runtimeRecovered =
+            [bool]$runtimeRecovery.Recovered
+
+        $recoveryItemCount = (
+            @(
+                $runtimeRecovery.CreatedDirectories
+            ).Count +
+            @(
+                $runtimeRecovery.RepairedFiles
+            ).Count
+        )
+
+        $recoveryJournalPath =
+            [string]$runtimeRecovery.JournalPath
+
+        if (
+            $null -ne $runtimeRecovery.LastRecovery -and
+            $null -ne
+                $runtimeRecovery.LastRecovery.PSObject.Properties[
+                    'CompletedAtUtc'
+                ]
+        ) {
+            $lastRecoveryAtUtc =
+                [string]$runtimeRecovery.LastRecovery.CompletedAtUtc
+        }
+    }
+
     $lifecycle = [pscustomobject]@{
         State            = [string]$context.LifecycleState
         SessionId        = [string]$context.SessionID
@@ -322,6 +385,11 @@ function Get-PhoenixControlCenterInventory {
         WarningCount     = @(
             $context.InitializationWarnings
         ).Count
+        RecoveryCode       = $recoveryCode
+        RuntimeRecovered   = $runtimeRecovered
+        RecoveryItemCount  = $recoveryItemCount
+        LastRecoveryAtUtc  = $lastRecoveryAtUtc
+        RecoveryJournalPath = $recoveryJournalPath
     }
 
     return [pscustomobject]@{

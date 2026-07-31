@@ -35,7 +35,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 - [x] `v0.1.2` — Publish the v0.2.0 roadmap and incremental release workflow
 - [x] `v0.1.3` — Reliable Phoenix context initialization and lifecycle
-- [ ] `v0.1.4` — Automatic directory, configuration, and runtime recovery
+- [x] `v0.1.4` — Automatic directory, configuration, and runtime recovery
 - [ ] `v0.1.5` — Control Center exception isolation and desktop recovery
 - [ ] `v0.1.6` — Shared background-job contract
 - [ ] `v0.1.7` — Background inventory, provider initialization, and searches
@@ -70,14 +70,14 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 ### 1. Runtime stability
 
 - [x] Make Phoenix context initialization idempotent and recoverable.
-- [ ] Automatically create required configuration, theme, cache, checkpoint,
+- [x] Automatically create required configuration, theme, cache, checkpoint,
       and working directories.
 - [ ] Prevent a failed component from closing the desktop interface.
 - [ ] Add UI-safe exception boundaries with structured Phoenix results.
 - [x] Prevent duplicate state during repeated starts, refreshes, and provider
       initialization.
 - [ ] Validate administrator and standard-user behavior.
-- [ ] Add regression tests for initialization, recovery, missing directories,
+- [x] Add regression tests for initialization, recovery, missing directories,
       and repeated startup.
 
 ### 2. Background job system

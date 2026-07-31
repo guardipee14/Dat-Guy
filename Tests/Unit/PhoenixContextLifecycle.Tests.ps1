@@ -69,7 +69,18 @@ Describe 'Phoenix context lifecycle' -Tag @(
                 Should-Be 1
 
             $context.Version |
-                Should-Be '0.1.3'
+                Should-Be '0.1.4'
+
+            $context.RuntimeRecovery.Success |
+                Should-BeTrue
+
+            (
+                $context.RuntimeRecovery.Code -in @(
+                    'PHX_RUNTIME_READY'
+                    'PHX_RUNTIME_RECOVERED'
+                )
+            ) |
+                Should-BeTrue
 
             ($context.InitializedAtUtc -gt [datetime]::MinValue) |
                 Should-BeTrue
@@ -137,6 +148,43 @@ Describe 'Phoenix context lifecycle' -Tag @(
 
             Mock Initialize-PhoenixProviders {
                 throw 'Simulated provider initialization failure.'
+            }
+
+            $capturedError = $null
+
+            try {
+                $null =
+                    Start-Phoenix `
+                        -Force `
+                        -ErrorAction Stop
+            }
+            catch {
+                $capturedError = $_
+            }
+
+            ($null -ne $capturedError) |
+                Should-BeTrue
+
+            $restoredContext = Get-PhoenixContext
+
+            $restoredContext.SessionID |
+                Should-Be $readyContext.SessionID
+
+            $restoredContext.LifecycleState |
+                Should-Be 'Ready'
+        }
+    }
+
+    It 'keeps the previous ready context when runtime recovery fails' {
+        InModuleScope Phoenix {
+            $null = Start-Phoenix
+            $readyContext = Get-PhoenixContext
+
+            Mock Initialize-PhoenixRuntimeRecovery {
+                [pscustomobject]@{
+                    Success = $false
+                    Message = 'Simulated runtime recovery failure.'
+                }
             }
 
             $capturedError = $null

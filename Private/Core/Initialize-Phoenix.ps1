@@ -10,19 +10,6 @@ function Initialize-Phoenix {
         [switch]$Force
     )
 
-    $currentContext =
-        Get-PhoenixContext
-
-    if (
-        -not $Force -and
-        (
-            Test-PhoenixContext `
-                -Context $currentContext
-        )
-    ) {
-        return $currentContext
-    }
-
     [string]$projectRoot =
         Split-Path `
             -Path $PSScriptRoot `
@@ -33,9 +20,52 @@ function Initialize-Phoenix {
             -Path $projectRoot `
             -Parent
 
+    $currentContext =
+        Get-PhoenixContext
+
     $candidate = $null
 
     try {
+        $runtimeRecovery =
+            Initialize-PhoenixRuntimeRecovery `
+                -ProjectRoot $projectRoot
+
+        if (-not $runtimeRecovery.Success) {
+            throw $runtimeRecovery.Message
+        }
+
+        if (
+            -not $Force -and
+            (
+                Test-PhoenixContext `
+                    -Context $currentContext
+            )
+        ) {
+            $currentContext.RuntimeRecovery =
+                $runtimeRecovery
+
+            foreach (
+                $recoveryWarning in @(
+                    $runtimeRecovery.Warnings
+                )
+            ) {
+                if (
+                    -not [string]::IsNullOrWhiteSpace(
+                        [string]$recoveryWarning
+                    ) -and
+                    -not $currentContext.InitializationWarnings.Contains(
+                        [string]$recoveryWarning
+                    )
+                ) {
+                    $currentContext.InitializationWarnings.Add(
+                        [string]$recoveryWarning
+                    )
+                }
+            }
+
+            return $currentContext
+        }
+
         $candidate =
             [PhoenixContext]::new(
                 $projectRoot
@@ -45,6 +75,24 @@ function Initialize-Phoenix {
         $candidate.IsResumed = [bool]$Resume
         $candidate.Generation =
             $script:PhoenixContextGeneration + 1
+        $candidate.RuntimeRecovery =
+            $runtimeRecovery
+
+        foreach (
+            $recoveryWarning in @(
+                $runtimeRecovery.Warnings
+            )
+        ) {
+            if (
+                -not [string]::IsNullOrWhiteSpace(
+                    [string]$recoveryWarning
+                )
+            ) {
+                $candidate.InitializationWarnings.Add(
+                    [string]$recoveryWarning
+                )
+            }
+        }
 
         $phoenixModule =
             Get-Module `

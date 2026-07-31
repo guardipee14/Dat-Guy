@@ -48,6 +48,10 @@
         'Config\Phoenix.json'
         'Config\Phoenix.UI.json'
         'Config\Settings.json'
+        'Config\Recovery'
+        'Cache\Recovery'
+        'Checkpoints'
+        'Logs'
         'Themes\Installed'
     )
 }

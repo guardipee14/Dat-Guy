@@ -127,7 +127,7 @@ Describe 'Phoenix release packaging' -Tag @(
             )
 
         $moduleManifest.ModuleVersion.ToString() |
-            Should-Be '0.1.3'
+            Should-Be '0.1.4'
 
         [string]$developmentHistory =
             Get-Content `
@@ -352,6 +352,33 @@ Describe 'Phoenix release packaging' -Tag @(
                 $requiredText
             ) |
                 Should-BeTrue
+        }
+    }
+
+    It 'preserves recovery data checkpoints logs and installed themes' {
+
+        $releaseConfiguration =
+            Import-PowerShellDataFile `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Build\Phoenix.Release.psd1'
+                )
+
+        foreach (
+            $preservedPath in @(
+                'Config\Phoenix.json'
+                'Config\Phoenix.UI.json'
+                'Config\Settings.json'
+                'Config\Recovery'
+                'Cache\Recovery'
+                'Checkpoints'
+                'Logs'
+                'Themes\Installed'
+            )
+        ) {
+            @($releaseConfiguration.PreserveOnUpgrade) |
+                Should-ContainCollection $preservedPath
         }
     }
 

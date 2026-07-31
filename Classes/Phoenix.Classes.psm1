@@ -3594,6 +3594,10 @@ class PhoenixContext {
     [string]$ProjectRoot
     [string]$CacheRoot
     [string]$WorkingRoot
+    [string]$CheckpointRoot
+    [string]$ThemeRoot
+    [string]$InstalledThemeRoot
+    [string]$RecoveryRoot
     [string]$ComputerName
     [string]$UserName
 
@@ -3605,13 +3609,14 @@ class PhoenixContext {
     [PhoenixBuild]$Build
     [PhoenixInventory]$Inventory
     [object]$Scheduler
+    [object]$RuntimeRecovery
 
     [System.Collections.Generic.List[PhoenixProvider]]$Providers
     [System.Collections.Generic.List[string]]$InitializationWarnings
 
     PhoenixContext([string]$ProjectRoot) {
 
-        $this.Version = '0.1.3'
+        $this.Version = '0.1.4'
         $this.SessionID = [guid]::NewGuid().ToString()
         $this.StartTime = Get-Date
         $this.InitializedAtUtc = [datetime]::MinValue
@@ -3632,6 +3637,22 @@ class PhoenixContext {
         $this.WorkingRoot = Join-Path `
             $this.CacheRoot `
             'Working'
+
+        $this.CheckpointRoot = Join-Path `
+            $this.ProjectRoot `
+            'Checkpoints'
+
+        $this.ThemeRoot = Join-Path `
+            $this.ProjectRoot `
+            'Themes'
+
+        $this.InstalledThemeRoot = Join-Path `
+            $this.ThemeRoot `
+            'Installed'
+
+        $this.RecoveryRoot = Join-Path `
+            $this.CacheRoot `
+            'Recovery'
 
         if (-not (Test-Path -LiteralPath $this.WorkingRoot)) {
 
@@ -3667,6 +3688,7 @@ class PhoenixContext {
         $this.Build = [PhoenixBuild]::new()
         $this.Inventory = [PhoenixInventory]::new()
         $this.Scheduler = $null
+        $this.RuntimeRecovery = $null
 
         $this.Providers =
             [System.Collections.Generic.List[PhoenixProvider]]::new()
