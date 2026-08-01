@@ -4,6 +4,20 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.23] - 2026-08-01
+
+### Added
+- Phoenix provider orchestration
+  - Select preferred providers deterministically and use fallback only when
+    explicitly allowed.
+  - Apply operation capability, availability, elevation, restore eligibility,
+    and protected-package safety policy in one resolver.
+  - Expose ordered provider alternatives with privilege and safety metadata to
+    application inventory and future restore planning.
+  - Normalize provider results for both public-command and Control Center
+    consumers.
+  - Add preferred, fallback, safety, alternatives, and result-contract tests.
+
 ## [0.1.22] - 2026-08-01
 
 ### Added

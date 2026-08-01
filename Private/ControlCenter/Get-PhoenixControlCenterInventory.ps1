@@ -149,6 +149,14 @@ function Get-PhoenixControlCenterInventory {
                                 ))
                     }
 
+                    $restoreSelection =
+                        Resolve-PhoenixProviderSelection `
+                            -Context $context `
+                            -Package $_ `
+                            -Operation Restore `
+                            -PreferredProvider $_.Provider `
+                            -AllowFallback
+
                     [pscustomobject]@{
                         IsSelected     = $false
                         Name           = $_.Name
@@ -182,6 +190,9 @@ function Get-PhoenixControlCenterInventory {
                             'Provider is not registered.'
                         }
                         Restorable     = $restorable
+                        ProviderAlternatives = @(
+                            $restoreSelection.Alternatives.Name
+                        ) -join ', '
                         Actionable     = [bool](
                             $providerAvailable -and
                             (

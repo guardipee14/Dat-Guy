@@ -105,16 +105,19 @@ function Invoke-PhoenixControlCenterPackageAction {
         }
 
         [PhoenixProvider]$actionProvider = $null
+        $providerSelection = $null
 
         try {
             $context = Resolve-PhoenixContext -ErrorAction Stop
-            $actionProvider = @(
-                $context.Providers |
-                    Where-Object {
-                        $_.Name -ieq $resolvedPackage.Provider
-                    } |
-                    Sort-Object Priority -Descending
-            ) | Select-Object -First 1
+            $providerSelection =
+                Resolve-PhoenixProviderSelection `
+                    -Context $context `
+                    -Package $resolvedPackage `
+                    -Operation $(if ($Action -eq 'Uninstall') {
+                        'Remove'
+                    } else { $Action }) `
+                    -PreferredProvider $resolvedPackage.Provider
+            $actionProvider = $providerSelection.Provider
         }
         catch {
             $actionProvider = $null
@@ -241,6 +244,14 @@ function Invoke-PhoenixControlCenterPackageAction {
             $result.Code =
                 'PHX_CONTROL_CENTER_NO_RESULT'
         }
+
+        $result = ConvertTo-PhoenixOrchestratedResult `
+            -Result $result `
+            -Provider $resolvedPackage.Provider `
+            -Operation $(if ($Action -eq 'Uninstall') {
+                'Remove'
+            } else { $Action }) `
+            -Target $resolvedPackage.Id
 
         $results.Add($result)
     }

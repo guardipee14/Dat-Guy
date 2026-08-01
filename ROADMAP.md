@@ -54,7 +54,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.20` - Implement the NuGet provider
 - [x] `v0.1.21` - Implement online DISM capability and package management
 - [x] `v0.1.22` - Implement WSUS policy, discovery, and installation support
-- [ ] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
+- [x] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
 - [ ] `v0.1.24` - Common OEM driver-adapter framework
 - [ ] `v0.1.25` - Dell and HP driver integration
 - [ ] `v0.1.26` - Lenovo and Intel driver integration
@@ -213,10 +213,10 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### Phoenix orchestration provider
 
-- [ ] Coordinate provider selection and fallback.
-- [ ] Apply eligibility, elevation, and safety policies consistently.
-- [ ] Expose provider alternatives during restore planning.
-- [ ] Return one normalized result model to the CLI and Control Center.
+- [x] Coordinate provider selection and fallback.
+- [x] Apply eligibility, elevation, and safety policies consistently.
+- [x] Expose provider alternatives during restore planning.
+- [x] Return one normalized result model to the CLI and Control Center.
 
 ### 5. OEM driver support
 
