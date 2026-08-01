@@ -307,6 +307,19 @@ try {
             } $request.Parameters
         }
 
+        'RestorePlan' {
+            Write-PhoenixWorkerProgress `
+                -Percent 10 `
+                -Message 'Building the Phoenix restore plan...'
+
+            New-PhoenixRestorePlan `
+                -ManifestPath ([string]$request.Parameters.ManifestPath) `
+                -Provider @($request.Parameters.Provider) `
+                -SkipDrivers:([bool]$request.Parameters.SkipDrivers) `
+                -SkipPackages:([bool]$request.Parameters.SkipPackages) `
+                -ReinstallInstalled:([bool]$request.Parameters.ReinstallInstalled)
+        }
+
         default {
             throw (
                 "Unsupported Control Center worker action '$($request.Action)'."

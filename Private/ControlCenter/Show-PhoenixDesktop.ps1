@@ -52,6 +52,7 @@ function Show-PhoenixDesktop {
             'OverviewNavButton'
             'ApplicationsNavButton'
             'DriversNavButton'
+            'RestorePlanNavButton'
             'ActivityNavButton'
             'CustomizeNavButton'
             'HeaderSubtitle'
@@ -59,6 +60,7 @@ function Show-PhoenixDesktop {
             'OverviewPage'
             'ApplicationsPage'
             'DriversPage'
+            'RestorePlanPage'
             'ActivityPage'
             'CustomizePage'
             'EditLayoutButton'
@@ -112,6 +114,20 @@ function Show-PhoenixDesktop {
             'DriverUpdateGrid'
             'DriverDetailsText'
             'OpenDriverReleaseUrlButton'
+            'RestoreManifestPathText'
+            'BrowseRestoreManifestButton'
+            'BuildRestorePlanButton'
+            'LoadRestorePlanButton'
+            'SaveRestorePlanButton'
+            'RestoreRecordTypeFilter'
+            'RestoreProviderFilter'
+            'RestoreActionFilter'
+            'SelectVisibleRestoreButton'
+            'ClearRestoreSelectionButton'
+            'RestorePlanGrid'
+            'RestorePlanSummaryText'
+            'RestoreProviderCombo'
+            'ApplyRestoreProviderButton'
             'ActivityGrid'
             'ActivityCancelButton'
             'ActivityRetryButton'
@@ -233,6 +249,8 @@ function Show-PhoenixDesktop {
         Inventory    = $null
         SearchResult = @()
         DriverUpdate = @()
+        RestorePlan   = $null
+        RestorePlanPath = ''
         UiConfiguration = $uiConfiguration
         EditMode       = $false
         Themes         = @()
@@ -398,6 +416,10 @@ function Show-PhoenixDesktop {
         Drivers = [pscustomobject]@{
             Page   = $controls.DriversPage
             Button = $controls.DriversNavButton
+        }
+        RestorePlan = [pscustomobject]@{
+            Page   = $controls.RestorePlanPage
+            Button = $controls.RestorePlanNavButton
         }
         Activity = [pscustomobject]@{
             Page   = $controls.ActivityPage
@@ -1031,6 +1053,18 @@ function Show-PhoenixDesktop {
                 ) {
                     $provider =
                         @($parameters.Provider) -join ', '
+                }
+            }
+
+            'RestorePlan' {
+                $provider = 'Phoenix restore planner'
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['ManifestPath']
+                ) {
+                    $target = Split-Path `
+                        -Path ([string]$parameters.ManifestPath) `
+                        -Leaf
                 }
             }
 
@@ -2533,6 +2567,238 @@ function Show-PhoenixDesktop {
                 -Confirm:$false
         )
     }.GetNewClosure()
+
+    $getRestoreFilterValue = {
+        param([object]$ComboBox)
+        if ($null -eq $ComboBox.SelectedItem) { return 'All' }
+        if ($null -ne $ComboBox.SelectedItem.PSObject.Properties['Content']) {
+            return [string]$ComboBox.SelectedItem.Content
+        }
+        return [string]$ComboBox.SelectedItem
+    }.GetNewClosure()
+
+    $updateRestoreProviderChoices = {
+        $controls.RestoreProviderCombo.Items.Clear()
+        $selected = $controls.RestorePlanGrid.SelectedItem
+        [bool]$canChange = (
+            $null -ne $selected -and
+            [string]$selected.RecordType -eq 'Application' -and
+            [bool]$selected.Eligible
+        )
+        if ($canChange) {
+            foreach ($providerName in @(
+                @([string]$selected.Provider) +
+                @($selected.ProviderAlternatives) |
+                    Where-Object { -not [string]::IsNullOrWhiteSpace([string]$_) } |
+                    Sort-Object -Unique
+            )) {
+                $null = $controls.RestoreProviderCombo.Items.Add(
+                    [string]$providerName
+                )
+            }
+            $controls.RestoreProviderCombo.SelectedItem =
+                [string]$selected.Provider
+        }
+        $controls.RestoreProviderCombo.IsEnabled = $canChange
+        $controls.ApplyRestoreProviderButton.IsEnabled = $canChange
+    }.GetNewClosure()
+
+    $refreshRestorePlanGrid = {
+        if ($null -eq $state.RestorePlan) {
+            $controls.RestorePlanGrid.ItemsSource = $null
+            $controls.RestorePlanSummaryText.Text =
+                'Choose a manifest or load a saved restore plan.'
+            return
+        }
+        [string]$typeFilter =
+            & $getRestoreFilterValue $controls.RestoreRecordTypeFilter
+        [string]$providerFilter =
+            & $getRestoreFilterValue $controls.RestoreProviderFilter
+        [string]$actionFilter =
+            & $getRestoreFilterValue $controls.RestoreActionFilter
+        $visibleRecords = @(
+            $state.RestorePlan.Records |
+                Where-Object {
+                    ($typeFilter -eq 'All' -or $_.RecordType -eq $typeFilter) -and
+                    ($providerFilter -eq 'All' -or $_.Provider -eq $providerFilter) -and
+                    ($actionFilter -eq 'All' -or $_.PlannedAction -eq $actionFilter)
+                }
+        )
+        $controls.RestorePlanGrid.ItemsSource = $null
+        $controls.RestorePlanGrid.ItemsSource = $visibleRecords
+        [int]$selectedCount = @(
+            $state.RestorePlan.Records | Where-Object Selected
+        ).Count
+        [int]$blockedCount = @(
+            $state.RestorePlan.Records | Where-Object { -not $_.Eligible }
+        ).Count
+        $controls.RestorePlanSummaryText.Text = (
+            '{0} records | {1} visible | {2} selected | {3} blocked' -f
+            @($state.RestorePlan.Records).Count,
+            $visibleRecords.Count,
+            $selectedCount,
+            $blockedCount
+        )
+        $controls.SaveRestorePlanButton.IsEnabled = $true
+        & $updateRestoreProviderChoices
+    }.GetNewClosure()
+
+    $setRestorePlan = {
+        param([Parameter(Mandatory)][object]$Plan, [string]$PlanPath = '')
+        $state.RestorePlan = $Plan
+        $state.RestorePlanPath = $PlanPath
+        if (-not [string]::IsNullOrWhiteSpace([string]$Plan.ManifestPath)) {
+            $controls.RestoreManifestPathText.Text = [string]$Plan.ManifestPath
+        }
+        $controls.RestoreProviderFilter.Items.Clear()
+        foreach ($providerName in @(
+            'All'
+            @($Plan.Records.Provider | Where-Object {
+                -not [string]::IsNullOrWhiteSpace([string]$_)
+            } | Sort-Object -Unique)
+        )) {
+            $item = [System.Windows.Controls.ComboBoxItem]::new()
+            $item.Content = [string]$providerName
+            $null = $controls.RestoreProviderFilter.Items.Add($item)
+        }
+        $controls.RestoreProviderFilter.SelectedIndex = 0
+        $controls.RestoreRecordTypeFilter.SelectedIndex = 0
+        $controls.RestoreActionFilter.SelectedIndex = 0
+        & $refreshRestorePlanGrid
+    }.GetNewClosure()
+
+    $controls.BrowseRestoreManifestButton.Add_Click({
+        $dialog = [Microsoft.Win32.OpenFileDialog]::new()
+        $dialog.Title = 'Choose a Phoenix restore manifest'
+        $dialog.Filter = 'Phoenix manifests (*.json)|*.json|All files (*.*)|*.*'
+        if ($dialog.ShowDialog($window)) {
+            $controls.RestoreManifestPathText.Text = $dialog.FileName
+        }
+    }.GetNewClosure())
+
+    $controls.BuildRestorePlanButton.Add_Click({
+        [string]$manifestPath = $controls.RestoreManifestPathText.Text.Trim()
+        if (-not (Test-Path -LiteralPath $manifestPath -PathType Leaf)) {
+            [void][System.Windows.MessageBox]::Show(
+                $window,
+                'Choose an existing Phoenix restore manifest first.',
+                'Phoenix Restore Plan',
+                [System.Windows.MessageBoxButton]::OK,
+                [System.Windows.MessageBoxImage]::Warning
+            )
+            return
+        }
+        $completionSetPlan = $setRestorePlan
+        $completionSetStatus = $setStatus
+        & $startOperation `
+            -Action 'RestorePlan' `
+            -Parameters ([pscustomobject]@{
+                ManifestPath = $manifestPath
+                Provider = @('WinGet','Chocolatey','Scoop','PowerShell Gallery','NuGet')
+                SkipDrivers = $false
+                SkipPackages = $false
+                ReinstallInstalled = $false
+            }) `
+            -Description 'Building restore plan...' `
+            -Completed {
+                param($plan)
+                & $completionSetPlan -Plan $plan
+                & $completionSetStatus (
+                    "Restore plan '$($plan.PlanId)' is ready for review."
+                )
+            }.GetNewClosure()
+    }.GetNewClosure())
+
+    $controls.LoadRestorePlanButton.Add_Click({
+        $dialog = [Microsoft.Win32.OpenFileDialog]::new()
+        $dialog.Title = 'Load a Phoenix restore plan'
+        $dialog.Filter = 'Phoenix restore plans (*.json)|*.json|All files (*.*)|*.*'
+        if ($dialog.ShowDialog($window)) {
+            try {
+                $plan = Import-PhoenixRestorePlan -LiteralPath $dialog.FileName
+                & $setRestorePlan -Plan $plan -PlanPath $dialog.FileName
+                & $setStatus "Loaded restore plan '$($plan.PlanId)'."
+            }
+            catch {
+                & $setStatus "Restore plan load failed: $($_.Exception.Message)"
+            }
+        }
+    }.GetNewClosure())
+
+    $controls.SaveRestorePlanButton.Add_Click({
+        if ($null -eq $state.RestorePlan) { return }
+        $dialog = [Microsoft.Win32.SaveFileDialog]::new()
+        $dialog.Title = 'Save the Phoenix restore plan'
+        $dialog.Filter = 'Phoenix restore plans (*.json)|*.json'
+        $dialog.FileName = "Phoenix-RestorePlan-$($state.RestorePlan.PlanId).json"
+        if ($dialog.ShowDialog($window)) {
+            try {
+                $savedPath = Save-PhoenixRestorePlan `
+                    -Plan $state.RestorePlan `
+                    -LiteralPath $dialog.FileName `
+                    -Confirm:$false
+                $state.RestorePlanPath = $savedPath
+                & $setStatus "Restore plan saved to '$savedPath'."
+            }
+            catch {
+                & $setStatus "Restore plan save failed: $($_.Exception.Message)"
+            }
+        }
+    }.GetNewClosure())
+
+    foreach ($filterControl in @(
+        $controls.RestoreRecordTypeFilter,
+        $controls.RestoreProviderFilter,
+        $controls.RestoreActionFilter
+    )) {
+        $filterControl.Add_SelectionChanged({
+            & $refreshRestorePlanGrid
+        }.GetNewClosure())
+    }
+
+    $controls.RestorePlanGrid.Add_SelectionChanged({
+        & $updateRestoreProviderChoices
+    }.GetNewClosure())
+
+    $controls.SelectVisibleRestoreButton.Add_Click({
+        foreach ($record in @($controls.RestorePlanGrid.ItemsSource)) {
+            if (
+                [bool]$record.Eligible -and
+                [string]$record.PlannedAction -notin @('AlreadySatisfied','SkipNotRestorable')
+            ) { $record.Selected = $true }
+        }
+        $controls.RestorePlanGrid.Items.Refresh()
+        & $refreshRestorePlanGrid
+    }.GetNewClosure())
+
+    $controls.ClearRestoreSelectionButton.Add_Click({
+        if ($null -eq $state.RestorePlan) { return }
+        foreach ($record in @($state.RestorePlan.Records)) {
+            $record.Selected = $false
+        }
+        $controls.RestorePlanGrid.Items.Refresh()
+        & $refreshRestorePlanGrid
+    }.GetNewClosure())
+
+    $controls.ApplyRestoreProviderButton.Add_Click({
+        $record = $controls.RestorePlanGrid.SelectedItem
+        $providerName = [string]$controls.RestoreProviderCombo.SelectedItem
+        if ($null -eq $record -or [string]::IsNullOrWhiteSpace($providerName)) {
+            return
+        }
+        if (
+            $providerName -ne [string]$record.Provider -and
+            @($record.ProviderAlternatives) -notcontains $providerName
+        ) {
+            & $setStatus "Provider '$providerName' is not eligible for this record."
+            return
+        }
+        $record.Provider = $providerName
+        $record.Reason = "Provider changed during restore-plan review."
+        $controls.RestorePlanGrid.Items.Refresh()
+        & $refreshRestorePlanGrid
+        & $setStatus "Selected '$providerName' for '$($record.Name)'."
+    }.GetNewClosure())
 
     foreach ($pageName in $pageMap.Keys) {
         $resolvedPageName = $pageName

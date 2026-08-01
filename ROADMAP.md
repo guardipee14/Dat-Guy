@@ -60,7 +60,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.26` - Lenovo and Intel driver integration
 - [x] `v0.1.27` - AMD and NVIDIA driver integration
 - [x] `v0.1.28` - Restore planning engine
-- [ ] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
+- [x] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
 - [ ] `v0.1.30` - Versioned restore-checkpoint storage
 - [ ] `v0.1.31` - Restore resume, retry, interruption, and reboot state
 - [ ] `v0.1.32` - Restore verification engine and UI results
@@ -89,7 +89,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Move application operations off the WPF interface thread.
 - [x] Move driver operations off the WPF interface thread.
 - [x] Move OEM driver operations off the WPF interface thread.
-- [ ] Move restore planning, execution, and verification off the WPF interface
+- [x] Move restore planning, execution, and verification off the WPF interface
       thread.
 - [x] Add created, starting, running, cancellation-requested, cancelled,
       completed, and failed lifecycle states.
@@ -244,12 +244,12 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Show installed, requested, and available versions.
 - [x] Show the selected provider and provider alternatives.
 - [x] Show privilege, dependency, safety, and restart information.
-- [ ] Allow individual and grouped selection.
-- [ ] Allow filtering by provider, record type, and planned action.
-- [ ] Allow eligible application records to change providers.
-- [ ] Save and reload restore plans.
+- [x] Allow individual and grouped selection.
+- [x] Allow filtering by provider, record type, and planned action.
+- [x] Allow eligible application records to change providers.
+- [x] Save and reload restore plans.
 - [x] Support `-WhatIf`, interactive, and unattended execution.
-- [ ] Add a Restore Plan view to the Control Center.
+- [x] Add a Restore Plan view to the Control Center.
 
 ### 7. Restore checkpoints and resume
 

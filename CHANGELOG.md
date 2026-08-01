@@ -4,6 +4,20 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.29] - 2026-08-01
+
+### Added
+- Restore Plan Control Center experience
+  - Build restore plans in an isolated worker and display them on a dedicated
+    Control Center page without blocking the WPF dispatcher.
+  - Review installed, requested, and available versions, providers, actions,
+    elevation, and restart requirements in one grid.
+  - Select individual or filtered groups and filter records by type, provider,
+    or planned action.
+  - Change eligible application records to provider alternatives.
+  - Save plans atomically, validate and reload versioned plan files, and add UI,
+    persistence, worker, selection, filter, and export tests.
+
 ## [0.1.28] - 2026-08-01
 
 ### Added

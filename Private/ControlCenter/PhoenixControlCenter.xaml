@@ -360,6 +360,10 @@
                             Style="{StaticResource NavigationButton}"
                             Content="Drivers" />
                         <Button
+                            x:Name="RestorePlanNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Restore Plan" />
+                        <Button
                             x:Name="ActivityNavButton"
                             Style="{StaticResource NavigationButton}"
                             Content="Activity" />
@@ -871,6 +875,133 @@
                                     Content="Open support link"
                                     IsEnabled="False"
                                     VerticalAlignment="Top" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+
+                    <Grid x:Name="RestorePlanPage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Restore Plan" />
+                            <TextBlock
+                                Style="{StaticResource SectionSubtitle}"
+                                Text="Review and select application and driver actions before restoration." />
+                        </StackPanel>
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    Grid.Column="0"
+                                    x:Name="RestoreManifestPathText"
+                                    ToolTip="Phoenix restore manifest path" />
+                                <Button
+                                    Grid.Column="1"
+                                    x:Name="BrowseRestoreManifestButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Browse manifest" />
+                                <Button
+                                    Grid.Column="2"
+                                    x:Name="BuildRestorePlanButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Build plan" />
+                                <Button
+                                    Grid.Column="3"
+                                    x:Name="LoadRestorePlanButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Load plan" />
+                                <Button
+                                    Grid.Column="4"
+                                    x:Name="SaveRestorePlanButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Save plan"
+                                    IsEnabled="False" />
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                            <WrapPanel>
+                                <TextBlock Text="Type" VerticalAlignment="Center" Margin="4" />
+                                <ComboBox x:Name="RestoreRecordTypeFilter" MinWidth="125">
+                                    <ComboBoxItem Content="All" IsSelected="True" />
+                                    <ComboBoxItem Content="Application" />
+                                    <ComboBoxItem Content="Driver" />
+                                </ComboBox>
+                                <TextBlock Text="Provider" VerticalAlignment="Center" Margin="12,4,4,4" />
+                                <ComboBox x:Name="RestoreProviderFilter" MinWidth="155">
+                                    <ComboBoxItem Content="All" IsSelected="True" />
+                                </ComboBox>
+                                <TextBlock Text="Action" VerticalAlignment="Center" Margin="12,4,4,4" />
+                                <ComboBox x:Name="RestoreActionFilter" MinWidth="155">
+                                    <ComboBoxItem Content="All" IsSelected="True" />
+                                    <ComboBoxItem Content="Install" />
+                                    <ComboBoxItem Content="Update" />
+                                    <ComboBoxItem Content="AlreadySatisfied" />
+                                    <ComboBoxItem Content="Blocked" />
+                                    <ComboBoxItem Content="Invalid" />
+                                    <ComboBoxItem Content="SkipNotRestorable" />
+                                </ComboBox>
+                                <Button
+                                    x:Name="SelectVisibleRestoreButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Select eligible" />
+                                <Button
+                                    x:Name="ClearRestoreSelectionButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Clear selection" />
+                            </WrapPanel>
+                        </Border>
+                        <DataGrid
+                            Grid.Row="3"
+                            x:Name="RestorePlanGrid"
+                            AutoGenerateColumns="False"
+                            SelectionMode="Single">
+                            <DataGrid.Columns>
+                                <DataGridCheckBoxColumn Header="Select" Binding="{Binding Selected, Mode=TwoWay}" Width="60" />
+                                <DataGridTextColumn Header="Type" Binding="{Binding RecordType}" Width="90" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="2*" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Requested" Binding="{Binding RequestedVersion}" Width="105" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Installed" Binding="{Binding InstalledVersion}" Width="105" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Available" Binding="{Binding AvailableVersion}" Width="105" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="130" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Action" Binding="{Binding PlannedAction}" Width="125" IsReadOnly="True" />
+                                <DataGridCheckBoxColumn Header="Elevate" Binding="{Binding RequiresElevation}" Width="70" IsReadOnly="True" />
+                                <DataGridCheckBoxColumn Header="Restart" Binding="{Binding RebootRequired}" Width="70" IsReadOnly="True" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border Grid.Row="4" Style="{StaticResource CardBorder}" Margin="0,10,0,0">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    x:Name="RestorePlanSummaryText"
+                                    Margin="8"
+                                    VerticalAlignment="Center"
+                                    Text="Choose a manifest or load a saved restore plan." />
+                                <ComboBox
+                                    Grid.Column="1"
+                                    x:Name="RestoreProviderCombo"
+                                    MinWidth="180"
+                                    IsEnabled="False" />
+                                <Button
+                                    Grid.Column="2"
+                                    x:Name="ApplyRestoreProviderButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Use provider"
+                                    IsEnabled="False" />
                             </Grid>
                         </Border>
                     </Grid>
