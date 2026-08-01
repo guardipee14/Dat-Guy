@@ -113,6 +113,10 @@ function Show-PhoenixDesktop {
             'DriverDetailsText'
             'OpenDriverReleaseUrlButton'
             'ActivityGrid'
+            'ActivityCancelButton'
+            'ActivityRetryButton'
+            'ActivityDetailsButton'
+            'ActivityClearButton'
             'ActivityText'
             'ThemePresetCombo'
             'ApplyThemeButton'
@@ -1071,11 +1075,60 @@ function Show-PhoenixDesktop {
         }
     }.GetNewClosure()
 
+    $updateActivityButtons = {
+        $selectedActivity =
+            $controls.ActivityGrid.SelectedItem
+
+        $controls.ActivityCancelButton.IsEnabled = (
+            $null -ne $selectedActivity -and
+            [bool]$selectedActivity.CanCancel
+        )
+
+        $controls.ActivityRetryButton.IsEnabled = (
+            $null -ne $selectedActivity -and
+            [bool]$selectedActivity.CanRetry
+        )
+
+        $controls.ActivityDetailsButton.IsEnabled =
+            $null -ne $selectedActivity
+
+        $controls.ActivityClearButton.IsEnabled =
+            @(
+                $state.ActivityOperations |
+                    Where-Object {
+                        $_.IsTerminal
+                    }
+            ).Count -gt 0
+    }.GetNewClosure()
+
     $refreshActivityGrid = {
+        [string]$selectedOperationId = if (
+            $null -ne $controls.ActivityGrid.SelectedItem
+        ) {
+            [string]$controls.ActivityGrid.SelectedItem.OperationId
+        }
+        else {
+            ''
+        }
+
         $controls.ActivityGrid.ItemsSource = $null
         $controls.ActivityGrid.ItemsSource = @(
             $state.ActivityOperations.ToArray()
         )
+
+        if (-not [string]::IsNullOrWhiteSpace(
+            $selectedOperationId
+        )) {
+            $controls.ActivityGrid.SelectedItem = @(
+                $state.ActivityOperations |
+                    Where-Object {
+                        $_.OperationId -eq $selectedOperationId
+                    }
+            ) |
+                Select-Object -First 1
+        }
+
+        & $updateActivityButtons
     }.GetNewClosure()
 
     $updateActivityOperation = {
@@ -3486,6 +3539,232 @@ function Show-PhoenixDesktop {
     $controls.RecoveryDismissButton.Add_Click({
         & $hideRecovery
         & $setStatus 'The isolated interface error was dismissed.'
+    }.GetNewClosure())
+
+    $controls.ActivityGrid.Add_SelectionChanged({
+        & $updateActivityButtons
+    }.GetNewClosure())
+
+    $controls.ActivityCancelButton.Add_Click({
+        $selectedActivity =
+            $controls.ActivityGrid.SelectedItem
+
+        if ($null -eq $selectedActivity) {
+            return
+        }
+
+        $selectedOperation =
+            $selectedActivity.Operation
+
+        if ($selectedOperation -eq $state.ActiveOperation) {
+            $controls.CancelOperationButton.RaiseEvent(
+                [System.Windows.RoutedEventArgs]::new(
+                    [System.Windows.Controls.Button]::ClickEvent
+                )
+            )
+
+            return
+        }
+
+        if (
+            $selectedOperation.State -ne
+            [PhoenixBackgroundOperationState]::Queued
+        ) {
+            return
+        }
+
+        if (
+            -not (
+                & $confirmAction (
+                    "Cancel queued operation '$($selectedOperation.Description)'?"
+                )
+            )
+        ) {
+            return
+        }
+
+        $remainingOperations =
+            [System.Collections.Generic.List[PhoenixBackgroundOperation]]::new()
+
+        while ($state.OperationQueue.Count -gt 0) {
+            $queuedOperation =
+                $state.OperationQueue.Dequeue()
+
+            if (
+                $queuedOperation.OperationId -ne
+                $selectedOperation.OperationId
+            ) {
+                $remainingOperations.Add(
+                    $queuedOperation
+                )
+            }
+        }
+
+        foreach ($remainingOperation in $remainingOperations) {
+            $state.OperationQueue.Enqueue(
+                $remainingOperation
+            )
+        }
+
+        $selectedOperation.MarkCancelled()
+
+        & $updateActivityOperation `
+            $selectedOperation `
+            $null
+
+        $null =
+            & $removeBackgroundOperationCommand `
+                -Operation $selectedOperation
+
+        & $setStatus 'The queued operation was cancelled.'
+    }.GetNewClosure())
+
+    $controls.ActivityRetryButton.Add_Click({
+        $selectedActivity =
+            $controls.ActivityGrid.SelectedItem
+
+        if (
+            $null -eq $selectedActivity -or
+            -not $selectedActivity.IsTerminal
+        ) {
+            return
+        }
+
+        if (
+            -not (
+                & $confirmAction (
+                    "Retry '$($selectedActivity.Description)'?"
+                )
+            )
+        ) {
+            return
+        }
+
+        $previousOperation =
+            $selectedActivity.Operation
+
+        $startOperationCommand =
+            $state.StartOperation
+
+        if ($startOperationCommand -isnot [scriptblock]) {
+            throw 'The Activity retry scheduler is unavailable.'
+        }
+
+        $retryParameters = @{
+            Action      = $previousOperation.Action
+            Parameters  = $previousOperation.Parameters
+            Description = $previousOperation.Description
+            Completed   = $previousOperation.Completion
+        }
+
+        if ($previousOperation.Action -eq 'PackageAction') {
+            $retryParameters.QueueIfBusy = $true
+        }
+
+        & $startOperationCommand `
+            @retryParameters
+    }.GetNewClosure())
+
+    $controls.ActivityClearButton.Add_Click({
+        [int]$removedCount = 0
+
+        for (
+            [int]$index = $state.ActivityOperations.Count - 1;
+            $index -ge 0;
+            $index--
+        ) {
+            if ($state.ActivityOperations[$index].IsTerminal) {
+                $state.ActivityOperations.RemoveAt($index)
+                $removedCount++
+            }
+        }
+
+        $controls.ActivityGrid.SelectedItem = $null
+        & $refreshActivityGrid
+        & $setStatus (
+            'Cleared {0} completed Activity record(s).' -f
+            $removedCount
+        )
+    }.GetNewClosure())
+
+    $controls.ActivityDetailsButton.Add_Click({
+        $selectedActivity =
+            $controls.ActivityGrid.SelectedItem
+
+        if ($null -eq $selectedActivity) {
+            return
+        }
+
+        [string]$resultText = if (
+            $null -eq $selectedActivity.ResultData
+        ) {
+            '(none)'
+        }
+        else {
+            try {
+                $selectedActivity.ResultData |
+                    ConvertTo-Json `
+                        -Depth 8
+            }
+            catch {
+                [string]$selectedActivity.ResultData
+            }
+        }
+
+        if ($resultText.Length -gt 5000) {
+            $resultText =
+                $resultText.Substring(0, 5000) +
+                "`n... result details truncated"
+        }
+
+        [string]$warningText = if (
+            @($selectedActivity.Warnings).Count -gt 0
+        ) {
+            @($selectedActivity.Warnings) -join '; '
+        }
+        else {
+            '(none)'
+        }
+
+        [string]$errorText = if (
+            @($selectedActivity.Errors).Count -gt 0
+        ) {
+            @($selectedActivity.Errors) -join '; '
+        }
+        elseif (-not [string]::IsNullOrWhiteSpace(
+            [string]$selectedActivity.ErrorMessage
+        )) {
+            [string]$selectedActivity.ErrorMessage
+        }
+        else {
+            '(none)'
+        }
+
+        [string]$details = @(
+            "Operation ID: $($selectedActivity.OperationId)"
+            "State: $($selectedActivity.State)"
+            "Action: $($selectedActivity.Action)"
+            "Target: $($selectedActivity.Target)"
+            "Provider: $($selectedActivity.Provider)"
+            "Started: $($selectedActivity.StartedText)"
+            "Elapsed: $($selectedActivity.ElapsedText)"
+            "Progress: $($selectedActivity.ProgressText)"
+            "Result code: $($selectedActivity.ResultCode)"
+            "Restart required: $($selectedActivity.RequiresRestart)"
+            "Warnings: $warningText"
+            "Errors: $errorText"
+            ''
+            'Result data:'
+            $resultText
+        ) -join [Environment]::NewLine
+
+        [void][System.Windows.MessageBox]::Show(
+            $window,
+            $details,
+            'Phoenix Activity details',
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Information
+        )
     }.GetNewClosure())
 
     $controls.CancelOperationButton.Add_Click({

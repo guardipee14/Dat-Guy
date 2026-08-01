@@ -877,6 +877,7 @@
                     <Grid x:Name="ActivityPage" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
                             <RowDefinition Height="2*" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
@@ -886,8 +887,30 @@
                                 Style="{StaticResource SectionSubtitle}"
                                 Text="Phoenix operation history for this session." />
                         </StackPanel>
+                        <WrapPanel Grid.Row="1" Margin="0,0,0,10">
+                            <Button
+                                x:Name="ActivityCancelButton"
+                                Style="{StaticResource DangerButton}"
+                                Content="Cancel selected"
+                                IsEnabled="False" />
+                            <Button
+                                x:Name="ActivityRetryButton"
+                                Style="{StaticResource ModernButton}"
+                                Content="Retry selected"
+                                IsEnabled="False" />
+                            <Button
+                                x:Name="ActivityDetailsButton"
+                                Style="{StaticResource SecondaryButton}"
+                                Content="View details"
+                                IsEnabled="False" />
+                            <Button
+                                x:Name="ActivityClearButton"
+                                Style="{StaticResource SecondaryButton}"
+                                Content="Clear completed"
+                                IsEnabled="False" />
+                        </WrapPanel>
                         <Border
-                            Grid.Row="1"
+                            Grid.Row="2"
                             Style="{StaticResource CardBorder}"
                             Margin="0,0,0,12">
                             <DataGrid
@@ -908,7 +931,7 @@
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Border>
-                        <Border Grid.Row="2" Style="{StaticResource CardBorder}">
+                        <Border Grid.Row="3" Style="{StaticResource CardBorder}">
                             <TextBox
                                 x:Name="ActivityText"
                                 Margin="0"

@@ -701,6 +701,63 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
     }
 
+    It 'provides Activity cancellation retry clearing and result details' {
+        [string]$xamlSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\PhoenixControlCenter.xaml'
+                ) `
+                -Raw
+
+        [string]$desktopSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Show-PhoenixDesktop.ps1'
+                ) `
+                -Raw
+
+        foreach (
+            $controlName in @(
+                'ActivityCancelButton'
+                'ActivityRetryButton'
+                'ActivityDetailsButton'
+                'ActivityClearButton'
+            )
+        ) {
+            $xamlSource.Contains($controlName) |
+                Should-BeTrue
+
+            $desktopSource.Contains(
+                "$controlName.Add_Click"
+            ) |
+                Should-BeTrue
+        }
+
+        $desktopSource.Contains(
+            '$selectedOperation.MarkCancelled()'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$retryParameters.QueueIfBusy = $true'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$state.ActivityOperations.RemoveAt($index)'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'Phoenix Activity details'
+        ) |
+            Should-BeTrue
+    }
+
     It 'defers provider bootstrap from desktop startup to a worker' {
 
         [string]$openSource =

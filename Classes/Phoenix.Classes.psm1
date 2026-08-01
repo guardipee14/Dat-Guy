@@ -3835,7 +3835,10 @@ class PhoenixActivityRecord {
     [string]$ResultCode
     [string]$ErrorMessage
     [string[]]$Warnings
+    [string[]]$Errors
     [bool]$RequiresRestart
+    [bool]$CanCancel
+    [bool]$CanRetry
 
     PhoenixActivityRecord(
         [PhoenixBackgroundOperation]$Operation,
@@ -3853,6 +3856,7 @@ class PhoenixActivityRecord {
         $this.Provider = $Provider
         $this.Description = $Operation.Description
         $this.Warnings = @()
+        $this.Errors = @()
 
         $this.UpdateLifecycle()
     }
@@ -3877,6 +3881,10 @@ class PhoenixActivityRecord {
             $this.Operation.CompletedAtUtc
         $this.IsTerminal =
             $this.Operation.IsTerminal()
+        $this.CanCancel =
+            $this.Operation.CanCancel()
+        $this.CanRetry =
+            $this.IsTerminal
 
         [datetime]$effectiveStart = if (
             $this.StartedAtUtc -gt [datetime]::MinValue
@@ -3925,6 +3933,98 @@ class PhoenixActivityRecord {
     ) {
         $this.ResultData = $Data
         $this.ErrorMessage = $Error
+
+        $codes =
+            [System.Collections.Generic.List[string]]::new()
+
+        $warningItems =
+            [System.Collections.Generic.List[string]]::new()
+
+        $errorItems =
+            [System.Collections.Generic.List[string]]::new()
+
+        $candidates =
+            [System.Collections.Generic.List[object]]::new()
+
+        foreach ($item in @($Data)) {
+            if ($null -eq $item) {
+                continue
+            }
+
+            $candidates.Add($item)
+
+            if ($null -ne $item.PSObject.Properties['Data']) {
+                foreach ($nestedItem in @($item.Data)) {
+                    if ($null -ne $nestedItem) {
+                        $candidates.Add($nestedItem)
+                    }
+                }
+            }
+        }
+
+        foreach ($candidate in $candidates) {
+            if (
+                $null -ne $candidate.PSObject.Properties['Code'] -and
+                -not [string]::IsNullOrWhiteSpace(
+                    [string]$candidate.Code
+                )
+            ) {
+                [string]$code = [string]$candidate.Code
+
+                if (-not $codes.Contains($code)) {
+                    $codes.Add($code)
+                }
+            }
+
+            if ($null -ne $candidate.PSObject.Properties['Warnings']) {
+                foreach ($warning in @($candidate.Warnings)) {
+                    if (-not [string]::IsNullOrWhiteSpace(
+                        [string]$warning
+                    )) {
+                        $warningItems.Add([string]$warning)
+                    }
+                }
+            }
+
+            if ($null -ne $candidate.PSObject.Properties['Errors']) {
+                foreach ($resultError in @($candidate.Errors)) {
+                    if (-not [string]::IsNullOrWhiteSpace(
+                        [string]$resultError
+                    )) {
+                        $errorItems.Add([string]$resultError)
+                    }
+                }
+            }
+
+            foreach (
+                $restartProperty in @(
+                    'RequiresRestart'
+                    'RebootRequired'
+                    'RestartRequired'
+                )
+            ) {
+                if (
+                    $null -ne $candidate.PSObject.Properties[
+                        $restartProperty
+                    ] -and
+                    [bool]$candidate.$restartProperty
+                ) {
+                    $this.RequiresRestart = $true
+                }
+            }
+        }
+
+        if (-not [string]::IsNullOrWhiteSpace($Error)) {
+            $errorItems.Insert(0, $Error)
+        }
+
+        $this.ResultCode = $codes -join ', '
+        $this.Warnings = $warningItems.ToArray()
+        $this.Errors = $errorItems.ToArray()
+
+        if ($errorItems.Count -gt 0) {
+            $this.ErrorMessage = $errorItems -join [Environment]::NewLine
+        }
     }
 }
 #endregion 30-Models\PhoenixActivityRecord.ps1

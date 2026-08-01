@@ -61,6 +61,12 @@ Describe 'PhoenixActivityRecord' -Tag @(
 
         $record.IsTerminal |
             Should-BeFalse
+
+        $record.CanCancel |
+            Should-BeTrue
+
+        $record.CanRetry |
+            Should-BeFalse
     }
 
     It 'retains completed result details' {
@@ -87,6 +93,12 @@ Describe 'PhoenixActivityRecord' -Tag @(
         $resultData =
             [pscustomobject]@{
                 Code = 'PHX_DRIVER_SCAN_COMPLETE'
+                Warnings = @(
+                    'A driver catalog was unavailable.'
+                )
+                Data = [pscustomobject]@{
+                    RebootRequired = $true
+                }
             }
 
         $record.SetResult(
@@ -102,6 +114,21 @@ Describe 'PhoenixActivityRecord' -Tag @(
 
         $record.ResultData.Code |
             Should-Be 'PHX_DRIVER_SCAN_COMPLETE'
+
+        $record.ResultCode |
+            Should-Be 'PHX_DRIVER_SCAN_COMPLETE'
+
+        $record.Warnings.Count |
+            Should-Be 1
+
+        $record.RequiresRestart |
+            Should-BeTrue
+
+        $record.CanCancel |
+            Should-BeFalse
+
+        $record.CanRetry |
+            Should-BeTrue
 
         (
             $record.ElapsedText -match

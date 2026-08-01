@@ -4,6 +4,23 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-08-01
+
+### Added
+- control and inspect jobs from the Activity Center
+  - Cancel the active worker through the shared cancellation path or remove a
+    selected queued application operation without disturbing FIFO order.
+  - Retry terminal operations from their preserved action, parameters,
+    description, and completion callback.
+  - Clear terminal Activity records while preserving queued and running work.
+  - Show bounded structured details for result data, Phoenix result codes,
+    warnings, errors, progress, timing, provider, and target.
+  - Normalize restart flags from `RequiresRestart`, `RebootRequired`, and
+    `RestartRequired` result fields.
+  - Preserve grid selection during live polling and enable controls according
+    to the selected operation lifecycle.
+  - Add Activity control, result-normalization, and UI regression coverage.
+
 ## [0.1.10] - 2026-08-01
 
 ### Added
