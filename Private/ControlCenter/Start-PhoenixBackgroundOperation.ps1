@@ -22,7 +22,9 @@ function Start-PhoenixBackgroundOperation {
 
     if (
         $Operation.State -ne
-        [PhoenixBackgroundOperationState]::Created
+            [PhoenixBackgroundOperationState]::Created -and
+        $Operation.State -ne
+            [PhoenixBackgroundOperationState]::Queued
     ) {
         throw (
             "Operation '$($Operation.OperationId)' cannot start " +

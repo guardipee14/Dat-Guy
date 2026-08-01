@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.7`
+**Current module version:** `0.1.8`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -24,6 +24,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Restore drivers first and reinstall missing WinGet or Chocolatey packages from a versioned Phoenix manifest, with preview, provider filtering, progress, and structured results.
 - Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.
 - Keep the desktop responsive while provider checks, inventory, searches, application operations, and driver operations run in isolated workers.
+- Queue application install, update, repair, and removal operations in FIFO order when another Control Center operation is active.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.

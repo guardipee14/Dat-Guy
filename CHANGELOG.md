@@ -4,6 +4,22 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-08-01
+
+### Added
+- queue Control Center application operations in the background
+  - Add a queued state to the shared background-operation lifecycle.
+  - Schedule application install, update, repair, and removal operations in
+    first-in, first-out order when another operation is active.
+  - Continue the queue after successful, failed, or cancelled workers.
+  - Report queue position and queued-operation startup in the activity log.
+  - Suppress intermediate result dialogs and refresh application inventory
+    after the queue drains.
+  - Cancel and clean up pending operations when the Control Center closes.
+  - Keep driver and restore serialization reserved for their later roadmap
+    milestones.
+  - Add lifecycle, worker, and Control Center queue regression coverage.
+
 ## [0.1.7] - 2026-08-01
 
 ### Changed

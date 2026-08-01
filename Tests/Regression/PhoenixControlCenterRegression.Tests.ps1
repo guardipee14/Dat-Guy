@@ -578,6 +578,72 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
     }
 
+    It 'queues application operations in FIFO order' {
+
+        [string]$desktopSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Show-PhoenixDesktop.ps1'
+                ) `
+                -Raw
+
+        [string]$operationSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Classes\10-Core\PhoenixBackgroundOperation.ps1'
+                ) `
+                -Raw
+
+        $operationSource.Contains('Queued') |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '[System.Collections.Generic.Queue[PhoenixBackgroundOperation]]::new()'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$state.OperationQueue.Enqueue('
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$state.OperationQueue.Dequeue()'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'Queued application operation {0}: {1}'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'Starting queued application operation: {0}'
+        ) |
+            Should-BeTrue
+
+        [regex]::Matches(
+            $desktopSource,
+            '(?s)-Action ''PackageAction''.{0,80}-QueueIfBusy'
+        ).Count |
+            Should-Be 2
+
+        [regex]::Matches(
+            $desktopSource,
+            '(?s)-Action ''DriverAction''.{0,80}-QueueIfBusy'
+        ).Count |
+            Should-Be 0
+
+        $desktopSource.Contains(
+            'while ($state.OperationQueue.Count -gt 0)'
+        ) |
+            Should-BeTrue
+    }
+
     It 'defers provider bootstrap from desktop startup to a worker' {
 
         [string]$openSource =

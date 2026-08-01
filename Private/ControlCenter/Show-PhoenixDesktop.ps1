@@ -232,6 +232,11 @@ function Show-PhoenixDesktop {
         EditMode       = $false
         Themes         = @()
         ActiveOperation = $null
+        OperationQueue =
+            [System.Collections.Generic.Queue[PhoenixBackgroundOperation]]::new()
+        StartOperation = $null
+        StartNextOperation = $null
+        RefreshInventory = $null
         ColorEditorLoading = $false
         ApplicationReleaseUrl = ''
         DriverReleaseUrl = ''
@@ -1113,10 +1118,20 @@ function Show-PhoenixDesktop {
             [string]$Description,
 
             [Parameter(Mandatory)]
-            [scriptblock]$Completed
+            [scriptblock]$Completed,
+
+            [Parameter()]
+            [switch]$QueueIfBusy,
+
+            [Parameter()]
+            [AllowNull()]
+            [PhoenixBackgroundOperation]$Operation
         )
 
-        if ($null -ne $state.ActiveOperation) {
+        if (
+            $null -ne $state.ActiveOperation -and
+            -not $QueueIfBusy
+        ) {
             [void][System.Windows.MessageBox]::Show(
                 $window,
                 (
@@ -1140,14 +1155,41 @@ function Show-PhoenixDesktop {
                 ) `
                 -Parent
 
-        $operation =
-            & $newBackgroundOperationCommand `
-                -Action $Action `
-                -Parameters $Parameters `
-                -Component 'ControlCenter' `
-                -Description $Description `
-                -Completion $Completed `
-                -ProjectRoot $projectRoot
+        $operation = $Operation
+
+        if ($null -eq $operation) {
+            $operation =
+                & $newBackgroundOperationCommand `
+                    -Action $Action `
+                    -Parameters $Parameters `
+                    -Component 'ControlCenter' `
+                    -Description $Description `
+                    -Completion $Completed `
+                    -ProjectRoot $projectRoot
+        }
+
+        if ($null -ne $state.ActiveOperation) {
+            $operation.MarkQueued()
+            $state.OperationQueue.Enqueue(
+                $operation
+            )
+
+            [int]$queuePosition =
+                $state.OperationQueue.Count
+
+            & $appendActivity (
+                'Queued application operation {0}: {1}' -f
+                $queuePosition,
+                $operation.Description
+            )
+
+            & $setStatus (
+                'Application operation queued in position {0}.' -f
+                $queuePosition
+            )
+
+            return
+        }
 
         try {
             $null =
@@ -1195,6 +1237,8 @@ function Show-PhoenixDesktop {
         $timerNewFailure = $newControlCenterFailureCommand
         $timerWriteFailure = $writeControlCenterFailureCommand
         $timerShowRecovery = $showRecovery
+        $timerStartNextOperation =
+            $timerState.StartNextOperation
         $timerReceiveBackgroundOperation =
             $receiveBackgroundOperationCommand
         $timerRemoveBackgroundOperation =
@@ -1256,6 +1300,28 @@ function Show-PhoenixDesktop {
                         $failure `
                         $null
 
+                    if (
+                        $operation.Action -eq 'PackageAction' -and
+                        $timerState.OperationQueue.Count -eq 0
+                    ) {
+                        $refreshInventoryCommand =
+                            $timerState.RefreshInventory
+
+                        if (
+                            $refreshInventoryCommand -is
+                            [scriptblock]
+                        ) {
+                            & $refreshInventoryCommand
+                        }
+                    }
+
+                    if (
+                        $timerStartNextOperation -is
+                        [scriptblock]
+                    ) {
+                        & $timerStartNextOperation
+                    }
+
                     return
                 }
 
@@ -1269,6 +1335,13 @@ function Show-PhoenixDesktop {
                 }
 
                 & $completionCommand $received.Data
+
+                if (
+                    $timerStartNextOperation -is
+                    [scriptblock]
+                ) {
+                    & $timerStartNextOperation
+                }
             }
             catch {
                 if (
@@ -1304,11 +1377,87 @@ function Show-PhoenixDesktop {
                 & $timerShowRecovery `
                     $failure `
                     $null
+
+                if (
+                    $timerStartNextOperation -is
+                    [scriptblock]
+                ) {
+                    & $timerStartNextOperation
+                }
             }
         }.GetNewClosure())
 
         $timer.Start()
     }.GetNewClosure()
+
+    $state.StartOperation =
+        $startOperation
+
+    $startNextOperation = {
+        while (
+            $null -eq $state.ActiveOperation -and
+            $state.OperationQueue.Count -gt 0
+        ) {
+            $nextOperation =
+                $state.OperationQueue.Dequeue()
+
+            try {
+                & $appendActivity (
+                    'Starting queued application operation: {0}' -f
+                    $nextOperation.Description
+                )
+
+                $startOperationCommand =
+                    $state.StartOperation
+
+                if (
+                    $startOperationCommand -isnot
+                    [scriptblock]
+                ) {
+                    throw (
+                        'The queued operation scheduler is unavailable.'
+                    )
+                }
+
+                & $startOperationCommand `
+                    -Action $nextOperation.Action `
+                    -Parameters $nextOperation.Parameters `
+                    -Description $nextOperation.Description `
+                    -Completed $nextOperation.Completion `
+                    -Operation $nextOperation
+
+                return
+            }
+            catch {
+                $null =
+                    & $removeBackgroundOperationCommand `
+                        -Operation $nextOperation
+
+                [string]$queueError = (
+                    'Queued application operation failed to start: {0}' -f
+                    $_.Exception.Message
+                )
+
+                & $appendActivity $queueError
+                & $setStatus $queueError
+
+                if ($state.OperationQueue.Count -eq 0) {
+                    $refreshInventoryCommand =
+                        $state.RefreshInventory
+
+                    if (
+                        $refreshInventoryCommand -is
+                        [scriptblock]
+                    ) {
+                        & $refreshInventoryCommand
+                    }
+                }
+            }
+        }
+    }.GetNewClosure()
+
+    $state.StartNextOperation =
+        $startNextOperation
 
     $confirmAction = {
         param(
@@ -1329,7 +1478,8 @@ function Show-PhoenixDesktop {
     $showResults = {
         param(
             [string]$Action,
-            [object[]]$Results
+            [object[]]$Results,
+            [bool]$ShowDialog = $true
         )
 
         [int]$successCount = @(
@@ -1356,23 +1506,25 @@ function Show-PhoenixDesktop {
             )
         }
 
-        [void][System.Windows.MessageBox]::Show(
-            $window,
-            (
-                "{0}`n`nSucceeded: {1}`nFailed: {2}" -f
-                $Action,
-                $successCount,
-                $failureCount
-            ),
-            'Phoenix result',
-            [System.Windows.MessageBoxButton]::OK,
-            $(if ($failureCount -eq 0) {
-                [System.Windows.MessageBoxImage]::Information
-            }
-            else {
-                [System.Windows.MessageBoxImage]::Warning
-            })
-        )
+        if ($ShowDialog) {
+            [void][System.Windows.MessageBox]::Show(
+                $window,
+                (
+                    "{0}`n`nSucceeded: {1}`nFailed: {2}" -f
+                    $Action,
+                    $successCount,
+                    $failureCount
+                ),
+                'Phoenix result',
+                [System.Windows.MessageBoxButton]::OK,
+                $(if ($failureCount -eq 0) {
+                    [System.Windows.MessageBoxImage]::Information
+                }
+                else {
+                    [System.Windows.MessageBoxImage]::Warning
+                })
+            )
+        }
     }.GetNewClosure()
 
     $refreshInventory = {
@@ -1499,6 +1651,9 @@ function Show-PhoenixDesktop {
                 }
             }.GetNewClosure()
     }.GetNewClosure()
+
+    $state.RefreshInventory =
+        $refreshInventory
 
     $getCheckedItems = {
         param(
@@ -1632,9 +1787,11 @@ function Show-PhoenixDesktop {
 
         $applicationActionShowResults = $showResults
         $applicationActionRefreshInventory = $refreshInventory
+        $applicationActionQueue = $state.OperationQueue
 
         & $startOperation `
             -Action 'PackageAction' `
+            -QueueIfBusy `
             -Parameters ([pscustomobject]@{
                 PackageAction = $Action
                 Packages      = $packageDescriptors
@@ -1645,11 +1802,17 @@ function Show-PhoenixDesktop {
             -Completed {
                 param($results)
 
+                [bool]$queueDrained =
+                    $applicationActionQueue.Count -eq 0
+
                 & $applicationActionShowResults `
                     "$Action applications" `
-                    @($results)
+                    @($results) `
+                    $queueDrained
 
-                & $applicationActionRefreshInventory
+                if ($queueDrained) {
+                    & $applicationActionRefreshInventory
+                }
             }.GetNewClosure()
     }.GetNewClosure()
 
@@ -2516,9 +2679,11 @@ function Show-PhoenixDesktop {
 
         $searchInstallShowResults = $showResults
         $searchInstallRefreshInventory = $refreshInventory
+        $searchInstallQueue = $state.OperationQueue
 
         & $startOperation `
             -Action 'PackageAction' `
+            -QueueIfBusy `
             -Parameters ([pscustomobject]@{
                 PackageAction = 'Install'
                 Packages      = $packageDescriptors
@@ -2529,11 +2694,17 @@ function Show-PhoenixDesktop {
             -Completed {
                 param($results)
 
+                [bool]$queueDrained =
+                    $searchInstallQueue.Count -eq 0
+
                 & $searchInstallShowResults `
                     'Install applications' `
-                    @($results)
+                    @($results) `
+                    $queueDrained
 
-                & $searchInstallRefreshInventory
+                if ($queueDrained) {
+                    & $searchInstallRefreshInventory
+                }
             }.GetNewClosure()
     }.GetNewClosure()
 
@@ -3141,6 +3312,31 @@ function Show-PhoenixDesktop {
                     'The active operation could not be cancelled cleanly.'
                 )
             }
+
+            if (
+                $operation.Action -eq 'PackageAction' -and
+                $state.OperationQueue.Count -eq 0
+            ) {
+                $refreshInventoryCommand =
+                    $state.RefreshInventory
+
+                if (
+                    $refreshInventoryCommand -is
+                    [scriptblock]
+                ) {
+                    & $refreshInventoryCommand
+                }
+            }
+
+            $startNextOperationCommand =
+                $state.StartNextOperation
+
+            if (
+                $startNextOperationCommand -is
+                [scriptblock]
+            ) {
+                & $startNextOperationCommand
+            }
         }
     }.GetNewClosure())
 
@@ -3206,6 +3402,29 @@ function Show-PhoenixDesktop {
                         -Operation $closingOperation
 
                 $state.ActiveOperation = $null
+            }
+        }
+
+        while ($state.OperationQueue.Count -gt 0) {
+            $queuedOperation =
+                $state.OperationQueue.Dequeue()
+
+            try {
+                if (-not $queuedOperation.IsTerminal()) {
+                    $queuedOperation.MarkCancelled()
+                }
+            }
+            catch {
+                Write-Warning (
+                    'A queued Control Center operation could not be ' +
+                    'cancelled cleanly: {0}' -f
+                    $_.Exception.Message
+                )
+            }
+            finally {
+                $null =
+                    & $removeBackgroundOperationCommand `
+                        -Operation $queuedOperation
             }
         }
 

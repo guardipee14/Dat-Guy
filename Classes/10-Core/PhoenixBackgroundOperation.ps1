@@ -1,5 +1,6 @@
 enum PhoenixBackgroundOperationState {
     Created
+    Queued
     Starting
     Running
     CancellationRequested
@@ -99,10 +100,27 @@ class PhoenixBackgroundOperation {
         $this.ErrorMessage = ''
     }
 
-    [void] MarkStarting() {
+    [void] MarkQueued() {
         $this.AssertState(
             [PhoenixBackgroundOperationState]::Created
         )
+
+        $this.State =
+            [PhoenixBackgroundOperationState]::Queued
+    }
+
+    [void] MarkStarting() {
+        if (
+            $this.State -ne
+                [PhoenixBackgroundOperationState]::Created -and
+            $this.State -ne
+                [PhoenixBackgroundOperationState]::Queued
+        ) {
+            throw (
+                "Operation '$($this.OperationId)' cannot start " +
+                "from state '$($this.State)'."
+            )
+        }
 
         $this.State =
             [PhoenixBackgroundOperationState]::Starting
@@ -166,6 +184,8 @@ class PhoenixBackgroundOperation {
     [void] MarkCancelled() {
         if (
             $this.State -ne
+                [PhoenixBackgroundOperationState]::Queued -and
+            $this.State -ne
                 [PhoenixBackgroundOperationState]::Running -and
             $this.State -ne
                 [PhoenixBackgroundOperationState]::Starting -and
@@ -228,6 +248,8 @@ class PhoenixBackgroundOperation {
 
     [bool] CanCancel() {
         return (
+            $this.State -eq
+                [PhoenixBackgroundOperationState]::Queued -or
             $this.State -eq
                 [PhoenixBackgroundOperationState]::Starting -or
             $this.State -eq

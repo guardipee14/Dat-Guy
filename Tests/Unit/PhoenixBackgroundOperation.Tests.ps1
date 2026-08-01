@@ -86,6 +86,35 @@ Describe 'PhoenixBackgroundOperation' -Tag @(
             Should-BeGreaterThan ([datetime]::MinValue)
     }
 
+    It 'moves a queued operation into the running lifecycle' {
+        $operation =
+            [PhoenixBackgroundOperation]::new(
+                'PackageAction',
+                [pscustomobject]@{},
+                'Applications',
+                'Installing applications...',
+                {}
+            )
+
+        $operation.MarkQueued()
+
+        $operation.State.ToString() |
+            Should-Be 'Queued'
+
+        $operation.CanCancel() |
+            Should-BeTrue
+
+        $operation.MarkStarting()
+        $operation.MarkRunning()
+        $operation.MarkCompleted()
+
+        $operation.State.ToString() |
+            Should-Be 'Completed'
+
+        $operation.IsTerminal() |
+            Should-BeTrue
+    }
+
     It 'clamps progress to the supported range' {
         $operation =
             [PhoenixBackgroundOperation]::new(
@@ -139,6 +168,31 @@ Describe 'PhoenixBackgroundOperation' -Tag @(
 
         $operation.CancellationRequested |
             Should-BeTrue
+
+        $operation.MarkCancelled()
+
+        $operation.State.ToString() |
+            Should-Be 'Cancelled'
+
+        $operation.IsTerminal() |
+            Should-BeTrue
+    }
+
+    It 'supports cancellation before a queued operation starts' {
+        $operation =
+            [PhoenixBackgroundOperation]::new(
+                'PackageAction',
+                [pscustomobject]@{},
+                'Applications',
+                'Updating applications...',
+                {}
+            )
+
+        $operation.MarkQueued()
+        $operation.RequestCancellation()
+
+        $operation.State.ToString() |
+            Should-Be 'CancellationRequested'
 
         $operation.MarkCancelled()
 

@@ -144,7 +144,7 @@ Describe 'Phoenix background-operation functions' -Tag @(
         }
     }
 
-    It 'starts a worker and receives its atomic result' {
+    It 'starts a queued worker and receives its atomic result' {
         [string]$workerPath =
             Join-Path `
                 $TestDrive `
@@ -196,6 +196,11 @@ param(
                     -Completion {} `
                     -ProjectRoot $Root
             } $projectRoot
+
+        $operation.MarkQueued()
+
+        $operation.State.ToString() |
+            Should-Be 'Queued'
 
         try {
             $null =

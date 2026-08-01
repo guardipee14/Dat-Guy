@@ -39,7 +39,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.5` - Control Center exception isolation and desktop recovery
 - [x] `v0.1.6` - Shared background-job contract
 - [x] `v0.1.7` - Background inventory, provider initialization, and searches
-- [ ] `v0.1.8` - Background application operation queue
+- [x] `v0.1.8` - Background application operation queue
 - [ ] `v0.1.9` - Background driver and restore jobs with cancellation
 - [ ] `v0.1.10` - Activity Center live job display
 - [ ] `v0.1.11` - Activity cancellation, retry, clearing, and result details
@@ -93,7 +93,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
       thread.
 - [x] Add created, starting, running, cancellation-requested, cancelled,
       completed, and failed lifecycle states.
-- [ ] Add queued state and queue scheduling.
+- [x] Add queued state and queue scheduling.
 - [x] Add cancellation and deterministic process and file cleanup.
 - [ ] Add retry, timeout, and concurrency controls.
 - [ ] Serialize drivers, reboots, protected packages, and conflicting
