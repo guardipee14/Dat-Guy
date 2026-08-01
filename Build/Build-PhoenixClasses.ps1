@@ -421,6 +421,7 @@ $modelFiles = @(
     '30-Models\PhoenixInventory.ps1'
     '30-Models\PackageCandidate.ps1'
     '30-Models\PhoenixManifest.ps1'
+    '30-Models\PhoenixRestoreCheckpoint.ps1'
 
     '10-Core\PhoenixContext.ps1'
 )

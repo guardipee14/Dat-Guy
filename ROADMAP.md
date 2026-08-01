@@ -61,7 +61,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.27` - AMD and NVIDIA driver integration
 - [x] `v0.1.28` - Restore planning engine
 - [x] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
-- [ ] `v0.1.30` - Versioned restore-checkpoint storage
+- [x] `v0.1.30` - Versioned restore-checkpoint storage
 - [ ] `v0.1.31` - Restore resume, retry, interruption, and reboot state
 - [ ] `v0.1.32` - Restore verification engine and UI results
 - [ ] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
@@ -253,11 +253,11 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 7. Restore checkpoints and resume
 
-- [ ] Define a versioned checkpoint schema.
-- [ ] Assign restore-session and operation identifiers.
+- [x] Define a versioned checkpoint schema.
+- [x] Assign restore-session and operation identifiers.
 - [ ] Save progress after every meaningful restore action.
 - [ ] Record completed, pending, skipped, failed, and retryable records.
-- [ ] Record manifest identity, computer identity, timestamps, and reboot state.
+- [x] Record manifest identity, computer identity, timestamps, and reboot state.
 - [ ] Resume without repeating successful work.
 - [ ] Detect incompatible or stale checkpoints safely.
 - [ ] Display checkpoint and resume status in the Control Center.

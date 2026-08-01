@@ -4,6 +4,21 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.30] - 2026-08-01
+
+### Added
+- versioned restore-checkpoint storage
+  - Define a typed checkpoint schema with restore-session and per-operation
+    identifiers.
+  - Preserve plan and manifest identity, SHA-256, computer identity, Phoenix
+    version, timestamps, status, and reboot state.
+  - Model pending, skipped, running, completed, failed, and retryable operation
+    records for subsequent resume behavior.
+  - Save immutable sequence snapshots before atomically replacing the current
+    checkpoint and constrain session paths to GUID identities.
+  - Validate schema version and computer ownership when loading checkpoints and
+    add schema, storage, safety, metadata, and export tests.
+
 ## [0.1.29] - 2026-08-01
 
 ### Added

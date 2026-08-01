@@ -12,7 +12,7 @@
 RootModule = 'Phoenix.psm1'
 
 # Version number of this module.
-    ModuleVersion = '0.1.29'
+    ModuleVersion = '0.1.30'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -72,15 +72,18 @@ Description = 'PowerShell deployment and recovery framework for Windows applicat
 FunctionsToExport = @(
     'Backup-Phoenix'
     'Get-PhoenixContext'
+    'Get-PhoenixRestoreCheckpoint'
     'Get-PhoenixPackages'
     'Get-PhoenixProviders'
     'Install-PhoenixPackage'
     'Import-PhoenixRestorePlan'
     'New-PhoenixRestorePlan'
+    'New-PhoenixRestoreCheckpoint'
     'Repair-PhoenixPackage'
     'Receive-PhoenixJob'
     'Restore-Phoenix'
     'Save-PhoenixRestorePlan'
+    'Save-PhoenixRestoreCheckpoint'
     'Start-Phoenix'
     'Start-PhoenixRestoreJob'
     'Stop-PhoenixJob'
