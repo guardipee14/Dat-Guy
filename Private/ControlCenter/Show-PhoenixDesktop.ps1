@@ -130,6 +130,7 @@ function Show-PhoenixDesktop {
             'ApplyRestoreProviderButton'
             'ExecuteRestorePlanButton'
             'ResumeRestoreButton'
+            'VerifyRestoreButton'
             'ActivityGrid'
             'ActivityCancelButton'
             'ActivityRetryButton'
@@ -1084,6 +1085,14 @@ function Show-PhoenixDesktop {
                 else {
                     $target = 'Selected restore plan records'
                 }
+            }
+
+            'RestoreVerify' {
+                $provider = 'Phoenix restore verifier'
+                $target = if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['SessionId']
+                ) { "Session $($parameters.SessionId)" } else { 'Restore session' }
             }
 
             'SearchPackages' {
@@ -2839,6 +2848,20 @@ function Show-PhoenixDesktop {
             )
             $controls.ResumeRestoreButton.IsEnabled =
                 [string]$checkpoint.Status -in @('Interrupted','Partial','RestartPending')
+            $controls.VerifyRestoreButton.IsEnabled = $true
+            if ($null -ne $Result.Data.Verification) {
+                foreach ($verificationRecord in @($Result.Data.Verification.Records)) {
+                    $planRecord = @(
+                        $state.RestorePlan.Records |
+                            Where-Object OperationId -EQ $verificationRecord.OperationId
+                    ) | Select-Object -First 1
+                    if ($null -ne $planRecord) {
+                        $planRecord.VerificationStatus = [string]$verificationRecord.Status
+                        $planRecord.VerificationDetails = [string]$verificationRecord.Details
+                    }
+                }
+                $controls.RestorePlanGrid.Items.Refresh()
+            }
             & $setStatus ([string]$Result.Message)
         }
         else {
@@ -2888,6 +2911,44 @@ function Show-PhoenixDesktop {
             }) `
             -Description "Resuming restore session $($state.RestoreSessionId)..." `
             -Completed $completion
+    }.GetNewClosure())
+
+    $controls.VerifyRestoreButton.Add_Click({
+        if ([string]::IsNullOrWhiteSpace($state.RestoreSessionId)) { return }
+        $verificationState = $state
+        $verificationControls = $controls
+        $verificationSetStatus = $setStatus
+        & $startOperation `
+            -Action 'RestoreVerify' `
+            -Parameters ([pscustomobject]@{
+                SessionId = $state.RestoreSessionId
+                CheckpointRoot = ''
+            }) `
+            -Description "Verifying restore session $($state.RestoreSessionId)..." `
+            -Completed {
+                param($verification)
+                foreach ($verificationRecord in @($verification.Records)) {
+                    $planRecord = @(
+                        $verificationState.RestorePlan.Records |
+                            Where-Object OperationId -EQ $verificationRecord.OperationId
+                    ) | Select-Object -First 1
+                    if ($null -ne $planRecord) {
+                        $planRecord.VerificationStatus = [string]$verificationRecord.Status
+                        $planRecord.VerificationDetails = [string]$verificationRecord.Details
+                    }
+                }
+                $verificationControls.RestorePlanGrid.Items.Refresh()
+                $verificationControls.RestorePlanSummaryText.Text = (
+                    'Verification {0}: {1} verified, {2} problems, {3} skipped' -f
+                    $verification.Status,
+                    $verification.VerifiedCount,
+                    $verification.ProblemCount,
+                    $verification.SkippedCount
+                )
+                & $verificationSetStatus (
+                    "Restore verification completed with status $($verification.Status)."
+                )
+            }.GetNewClosure()
     }.GetNewClosure())
 
     foreach ($pageName in $pageMap.Keys) {

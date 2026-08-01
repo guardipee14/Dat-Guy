@@ -8165,6 +8165,8 @@ class PhoenixRestorePlanRecord {
     [string[]]$DependencyIds
     [string]$Safety
     [string]$Reason
+    [string]$VerificationStatus
+    [string]$VerificationDetails
     [object]$ManifestRecord
 
     PhoenixRestorePlanRecord() {
@@ -8251,6 +8253,7 @@ class PhoenixRestoreCheckpoint {
     [bool]$RebootRequired
     [string]$PhoenixVersion
     [object]$PlanSnapshot
+    [object]$VerificationSnapshot
     [PhoenixRestoreCheckpointRecord[]]$Records
     [string]$StoragePath
 
@@ -8265,6 +8268,43 @@ class PhoenixRestoreCheckpoint {
     }
 }
 #endregion 30-Models\PhoenixRestoreCheckpoint.ps1
+
+#region 30-Models\PhoenixRestoreVerification.ps1
+class PhoenixRestoreVerificationRecord {
+    [string]$OperationId
+    [string]$RecordType
+    [string]$Id
+    [string]$Provider
+    [string]$ExpectedVersion
+    [string]$ActualVersion
+    [string]$Status
+    [string]$ResultCode
+    [string]$Details
+    [bool]$RebootRequired
+}
+
+class PhoenixRestoreVerification {
+    [string]$Schema
+    [string]$SchemaVersion
+    [string]$SessionId
+    [datetime]$StartedAtUtc
+    [datetime]$CompletedAtUtc
+    [string]$Status
+    [PhoenixRestoreVerificationRecord[]]$Records
+    [int]$VerifiedCount
+    [int]$ProblemCount
+    [int]$SkippedCount
+    [bool]$RebootRequired
+
+    PhoenixRestoreVerification() {
+        $this.Schema = 'PhoenixRestoreVerification'
+        $this.SchemaVersion = '1.0'
+        $this.StartedAtUtc = [datetime]::UtcNow
+        $this.Status = 'Running'
+        $this.Records = @()
+    }
+}
+#endregion 30-Models\PhoenixRestoreVerification.ps1
 
 #region 10-Core\PhoenixContext.ps1
 class PhoenixContext {

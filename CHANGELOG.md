@@ -4,6 +4,23 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.32] - 2026-08-01
+
+### Added
+- restore verification engine and UI results
+  - Rescan applications through their selected providers and drivers through
+    live Windows inventory after restoration.
+  - Classify records as verified, version mismatch, already satisfied, skipped,
+    restart pending, missing, failed, no longer applicable, or unable to
+    verify.
+  - Return typed reports with provider, expected/actual version, result-code,
+    failure, count, and aggregate completion details.
+  - Run verification automatically after non-interrupted restores, persist the
+    report in the checkpoint, and allow manual background re-verification.
+  - Add a verification column and action to the Restore Plan page with typed,
+    classification, rescan, aggregate, persistence, UI, worker, and export
+    tests.
+
 ## [0.1.31] - 2026-08-01
 
 ### Added

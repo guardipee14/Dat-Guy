@@ -17,6 +17,8 @@ class PhoenixRestorePlanRecord {
     [string[]]$DependencyIds
     [string]$Safety
     [string]$Reason
+    [string]$VerificationStatus
+    [string]$VerificationDetails
     [object]$ManifestRecord
 
     PhoenixRestorePlanRecord() {

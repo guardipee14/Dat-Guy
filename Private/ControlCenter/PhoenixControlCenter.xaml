@@ -975,6 +975,7 @@
                                 <DataGridTextColumn Header="Available" Binding="{Binding AvailableVersion}" Width="105" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="130" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Action" Binding="{Binding PlannedAction}" Width="125" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Verification" Binding="{Binding VerificationStatus}" Width="125" IsReadOnly="True" />
                                 <DataGridCheckBoxColumn Header="Elevate" Binding="{Binding RequiresElevation}" Width="70" IsReadOnly="True" />
                                 <DataGridCheckBoxColumn Header="Restart" Binding="{Binding RebootRequired}" Width="70" IsReadOnly="True" />
                             </DataGrid.Columns>
@@ -983,6 +984,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
@@ -1015,6 +1017,12 @@
                                     x:Name="ResumeRestoreButton"
                                     Style="{StaticResource SecondaryButton}"
                                     Content="Resume / retry"
+                                    IsEnabled="False" />
+                                <Button
+                                    Grid.Column="5"
+                                    x:Name="VerifyRestoreButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Verify"
                                     IsEnabled="False" />
                             </Grid>
                         </Border>

@@ -184,6 +184,22 @@ function Invoke-PhoenixRestorePlan {
     $checkpoint = Save-PhoenixRestoreCheckpoint `
         -Checkpoint $checkpoint -CheckpointRoot $CheckpointRoot -Confirm:$false
 
+    $verification = $null
+    $verificationError = ''
+    if ($checkpoint.Status -ne 'Interrupted') {
+        try {
+            $verification = Test-PhoenixRestoreVerification `
+                -Checkpoint $checkpoint `
+                -CheckpointRoot $CheckpointRoot
+            $checkpoint.VerificationSnapshot = $verification
+            $checkpoint = Save-PhoenixRestoreCheckpoint `
+                -Checkpoint $checkpoint -CheckpointRoot $CheckpointRoot -Confirm:$false
+        }
+        catch {
+            $verificationError = $_.Exception.Message
+        }
+    }
+
     $result = if ($failedCount -eq 0) { [Result]::Success() }
         else { [Result]::Failure("$failedCount restore operations failed.") }
     $result.Code = switch ($checkpoint.Status) {
@@ -200,6 +216,8 @@ function Invoke-PhoenixRestorePlan {
         ProcessedCount = $processed
         PendingCount = $pendingCount
         FailedCount = $failedCount
+        Verification = $verification
+        VerificationError = $verificationError
     }
     return $result
 }

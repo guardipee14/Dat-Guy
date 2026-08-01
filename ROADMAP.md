@@ -63,7 +63,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
 - [x] `v0.1.30` - Versioned restore-checkpoint storage
 - [x] `v0.1.31` - Restore resume, retry, interruption, and reboot state
-- [ ] `v0.1.32` - Restore verification engine and UI results
+- [x] `v0.1.32` - Restore verification engine and UI results
 - [ ] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
 - [ ] `v0.2.0` - Final hardening, documentation, packaging, and public release
 
@@ -265,14 +265,14 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 8. Restore verification
 
-- [ ] Rescan applications and drivers after restoration.
-- [ ] Classify records as verified, version mismatch, already satisfied,
+- [x] Rescan applications and drivers after restoration.
+- [x] Classify records as verified, version mismatch, already satisfied,
       skipped, restart pending, missing, failed, no longer applicable, or
       unable to verify.
-- [ ] Show verification results in the Control Center.
-- [ ] Return structured verification results to PowerShell.
-- [ ] Include provider, version, and failure details.
-- [ ] Add complete, partial, failed, and restart-pending verification tests.
+- [x] Show verification results in the Control Center.
+- [x] Return structured verification results to PowerShell.
+- [x] Include provider, version, and failure details.
+- [x] Add complete, partial, failed, and restart-pending verification tests.
 
 ### 9. Control Center integration
 
@@ -295,7 +295,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [ ] Add unit tests for every completed provider.
 - [ ] Add mocked provider and OEM integration tests.
 - [ ] Add background-job cancellation, timeout, and retry tests.
-- [ ] Add restore planning, checkpoint, resume, and verification tests.
+- [x] Add restore planning, checkpoint, resume, and verification tests.
 - [ ] Add Control Center lifecycle and binding tests.
 - [ ] Complete administrator and standard-user VM testing.
 - [ ] Update user, troubleshooting, provider, and developer documentation.
@@ -312,7 +312,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
       tabs.
 - [ ] Restore plans can be reviewed before execution.
 - [ ] Interrupted restores can resume from checkpoints.
-- [ ] Completed restores produce verification results.
+- [x] Completed restores produce verification results.
 - [ ] Automated tests pass with zero failures.
 - [ ] PSScriptAnalyzer reports zero blocking findings.
 - [ ] Installation, upgrade, launch, and complete removal pass Windows VM

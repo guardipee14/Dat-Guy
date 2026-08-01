@@ -70,6 +70,7 @@ function Get-PhoenixRestoreCheckpoint {
     $checkpoint.UpdatedAtUtc = [datetime]$raw.UpdatedAtUtc
     $checkpoint.StoragePath = $path
     $checkpoint.PlanSnapshot = $raw.PlanSnapshot
+    $checkpoint.VerificationSnapshot = $raw.VerificationSnapshot
     $records = [Collections.Generic.List[PhoenixRestoreCheckpointRecord]]::new()
     foreach ($rawRecord in @($raw.Records)) {
         $record = [PhoenixRestoreCheckpointRecord]::new()

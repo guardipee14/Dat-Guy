@@ -346,6 +346,25 @@ try {
             }
         }
 
+        'RestoreVerify' {
+            Write-PhoenixWorkerProgress `
+                -Percent 10 `
+                -Message 'Rescanning applications and drivers for verification...'
+
+            $verification = Test-PhoenixRestoreVerification `
+                -SessionId ([string]$request.Parameters.SessionId) `
+                -CheckpointRoot ([string]$request.Parameters.CheckpointRoot)
+            $checkpoint = Get-PhoenixRestoreCheckpoint `
+                -SessionId ([string]$request.Parameters.SessionId) `
+                -CheckpointRoot ([string]$request.Parameters.CheckpointRoot)
+            $checkpoint.VerificationSnapshot = $verification
+            $null = Save-PhoenixRestoreCheckpoint `
+                -Checkpoint $checkpoint `
+                -CheckpointRoot ([string]$request.Parameters.CheckpointRoot) `
+                -Confirm:$false
+            $verification
+        }
+
         default {
             throw (
                 "Unsupported Control Center worker action '$($request.Action)'."

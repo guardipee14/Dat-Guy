@@ -38,6 +38,7 @@ function Import-PhoenixRestorePlan {
             'InstalledVersion','AvailableVersion','Provider','PlannedAction',
             'Selected','Eligible','RequiresElevation','Protected',
             'RebootRequired','Safety','Reason','ManifestRecord'
+            'VerificationStatus','VerificationDetails'
         )) {
             if ($null -ne $rawRecord.PSObject.Properties[$property]) {
                 $record.$property = $rawRecord.$property
