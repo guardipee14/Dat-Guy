@@ -47,7 +47,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.13` - Complete WinGet behavior and UI verification
 - [x] `v0.1.14` - Complete Chocolatey behavior and UI verification
 - [x] `v0.1.15` - Implement Scoop and connect it to the UI
-- [ ] `v0.1.16` - Implement MSI packages and connect them to the UI
+- [x] `v0.1.16` - Implement MSI packages and connect them to the UI
 - [ ] `v0.1.17` - Implement EXE package definitions and UI operations
 - [ ] `v0.1.18` - Implement the GitHub Releases provider
 - [ ] `v0.1.19` - Implement the PowerShell Gallery provider
@@ -155,11 +155,11 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### MSI
 
-- [ ] Detect MSI product codes and installed versions.
-- [ ] Implement silent and interactive installation.
-- [ ] Implement repair and uninstall.
-- [ ] Normalize MSI success, failure, and reboot exit codes.
-- [ ] Add MSI package definitions and results to the Applications tab.
+- [x] Detect MSI product codes and installed versions.
+- [x] Implement silent and interactive installation.
+- [x] Implement repair and uninstall.
+- [x] Normalize MSI success, failure, and reboot exit codes.
+- [x] Add MSI package definitions and results to the Applications tab.
 
 #### EXE
 

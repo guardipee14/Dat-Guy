@@ -118,6 +118,10 @@ function Get-PhoenixControlCenterInventory {
                         $null -ne $providerCapability -and
                         $providerCapability.Available
 
+                    [bool]$restorable =
+                        Test-PhoenixRestorePackage `
+                            -InputObject $_
+
                     [pscustomobject]@{
                         IsSelected     = $false
                         Name           = $_.Name
@@ -148,9 +152,14 @@ function Get-PhoenixControlCenterInventory {
                         else {
                             'Provider is not registered.'
                         }
+                        Restorable     = $restorable
                         Actionable     = [bool](
-                            Test-PhoenixRestorePackage `
-                                -InputObject $_
+                            $providerAvailable -and
+                            (
+                                $providerCapability.SupportsUpdate -or
+                                $providerCapability.SupportsRepair -or
+                                $providerCapability.SupportsRemove
+                            )
                         )
                         UpdateAvailable = $false
                         AvailableVersion = ''

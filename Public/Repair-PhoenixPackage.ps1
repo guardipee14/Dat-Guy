@@ -34,7 +34,8 @@ function Repair-PhoenixPackage {
         )]
         [ValidateSet(
             'WinGet',
-            'Chocolatey'
+            'Chocolatey',
+            'MSI'
         )]
         [string]$Provider,
 

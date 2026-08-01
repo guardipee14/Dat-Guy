@@ -88,10 +88,8 @@ function Invoke-PhoenixControlCenterPackageAction {
 
         if (
             $null -eq $resolvedPackage -or
-            -not (
-                Test-PhoenixRestorePackage `
-                    -InputObject $resolvedPackage
-            )
+            [string]::IsNullOrWhiteSpace($resolvedPackage.Id) -or
+            [string]::IsNullOrWhiteSpace($resolvedPackage.Provider)
         ) {
 
             [Result]$result = [Result]::Failure(
@@ -102,6 +100,43 @@ function Invoke-PhoenixControlCenterPackageAction {
                 'PHX_CONTROL_CENTER_PACKAGE_UNSUPPORTED'
 
             $result.Data = $inputPackage
+            $results.Add($result)
+            continue
+        }
+
+        [PhoenixProvider]$actionProvider = $null
+
+        try {
+            $context = Resolve-PhoenixContext -ErrorAction Stop
+            $actionProvider = @(
+                $context.Providers |
+                    Where-Object {
+                        $_.Name -ieq $resolvedPackage.Provider
+                    } |
+                    Sort-Object Priority -Descending
+            ) | Select-Object -First 1
+        }
+        catch {
+            $actionProvider = $null
+        }
+
+        [bool]$actionSupported =
+            $null -ne $actionProvider -and
+            $actionProvider.Available -and
+            $(switch ($Action) {
+                'Install' { $actionProvider.SupportsInstall }
+                'Update' { $actionProvider.SupportsUpdate }
+                'Repair' { $actionProvider.SupportsRepair }
+                'Uninstall' { $actionProvider.SupportsRemove }
+            })
+
+        if (-not $actionSupported) {
+            [Result]$result = [Result]::Failure(
+                "The selected provider does not support $Action for this application."
+            )
+            $result.Code =
+                'PHX_CONTROL_CENTER_PACKAGE_UNSUPPORTED'
+            $result.Data = $resolvedPackage
             $results.Add($result)
             continue
         }

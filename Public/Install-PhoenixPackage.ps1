@@ -34,7 +34,9 @@ function Install-PhoenixPackage {
     )]
     [ValidateSet(
         'WinGet',
-        'Chocolatey'
+        'Chocolatey',
+        'Scoop',
+        'MSI'
     )]
     [string]$Provider,
 

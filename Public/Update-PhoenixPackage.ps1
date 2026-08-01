@@ -34,7 +34,8 @@ function Update-PhoenixPackage {
         )]
         [ValidateSet(
             'WinGet',
-            'Chocolatey'
+            'Chocolatey',
+            'Scoop'
         )]
         [string]$Provider,
 

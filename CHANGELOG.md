@@ -4,6 +4,20 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-08-01
+
+### Added
+- native Windows Installer package support
+  - Inventory installed MSI products and product codes from both native and
+    32-bit registry views without invoking `Win32_Product`.
+  - Install local MSI packages silently or interactively and repair or remove
+    installed product-code records.
+  - Normalize Windows Installer success, failure, exit-code, and restart
+    results through the common provider contract.
+  - Register MSI capabilities, health, inventory, and capability-aware actions
+    in the Control Center.
+  - Add MSI provider and UI-routing tests.
+
 ## [0.1.15] - 2026-08-01
 
 ### Added
