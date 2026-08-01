@@ -4,6 +4,19 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.25] - 2026-08-01
+
+### Added
+- Dell and HP OEM driver adapters
+  - Gate Dell Command Update and HP Image Assistant operations by detected
+    computer manufacturer.
+  - Detect installed vendor utilities and publish explicit approval metadata
+    when installation is required.
+  - Run vendor scan and installation commands through the isolated OEM worker
+    path and normalize results into the Phoenix driver contract.
+  - Publish vendor source, release-report, and official support-link metadata.
+  - Add registry, applicability, command-path, approval, and metadata tests.
+
 ## [0.1.24] - 2026-08-01
 
 ### Added

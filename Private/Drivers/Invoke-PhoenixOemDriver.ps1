@@ -27,7 +27,10 @@ function Get-PhoenixOemDriverAdapter {
     [OutputType([PhoenixOemDriverAdapter[]])]
     param()
 
-    return @()
+    return @(
+        [DellOemDriverAdapter]::new()
+        [HpOemDriverAdapter]::new()
+    )
 }
 
 function Get-PhoenixOemAdapterStatus {

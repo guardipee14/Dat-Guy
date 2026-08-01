@@ -56,7 +56,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.22` - Implement WSUS policy, discovery, and installation support
 - [x] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
 - [x] `v0.1.24` - Common OEM driver-adapter framework
-- [ ] `v0.1.25` - Dell and HP driver integration
+- [x] `v0.1.25` - Dell and HP driver integration
 - [ ] `v0.1.26` - Lenovo and Intel driver integration
 - [ ] `v0.1.27` - AMD and NVIDIA driver integration
 - [ ] `v0.1.28` - Restore planning engine
@@ -222,8 +222,8 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 - [x] Define a common OEM driver-adapter contract.
 - [x] Detect manufacturer and applicable hardware before enabling an adapter.
-- [ ] Add Dell integration.
-- [ ] Add HP integration.
+- [x] Add Dell integration.
+- [x] Add HP integration.
 - [ ] Add Lenovo integration.
 - [ ] Add Intel integration.
 - [ ] Add AMD integration.
