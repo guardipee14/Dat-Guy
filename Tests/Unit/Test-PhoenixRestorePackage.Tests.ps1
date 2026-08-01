@@ -140,6 +140,20 @@ Describe 'Test-PhoenixRestorePackage' -Tag @(
             Should-BeTrue
     }
 
+    It 'accepts a PowerShell Gallery resource' {
+
+        $package = [pscustomobject]@{
+            Name     = 'Pester'
+            Id       = 'Pester'
+            Provider = 'PowerShell Gallery'
+            Source   = 'PSGallery'
+        }
+
+        Test-PhoenixRestorePackage `
+            -InputObject $package |
+            Should-BeTrue
+    }
+
     It 'rejects an unsupported provider' {
 
         $package = [pscustomobject]@{

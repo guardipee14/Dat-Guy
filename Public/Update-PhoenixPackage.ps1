@@ -36,7 +36,8 @@ function Update-PhoenixPackage {
             'WinGet',
             'Chocolatey',
             'Scoop',
-            'GitHub Releases'
+            'GitHub Releases',
+            'PowerShell Gallery'
         )]
         [string]$Provider,
 

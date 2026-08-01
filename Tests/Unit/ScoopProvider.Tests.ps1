@@ -47,7 +47,6 @@ Describe 'ScoopProvider' -Tag @('Unit','Provider','Scoop') {
 
         $initialize.Contains('[ScoopProvider]::new()') | Should-BeTrue
         $search.Contains("'Scoop'") | Should-BeTrue
-        $eligibility.Contains("@('Chocolatey', 'Scoop')") |
-            Should-BeTrue
+        $eligibility.Contains("'Scoop'") | Should-BeTrue
     }
 }

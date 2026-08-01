@@ -50,7 +50,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.16` - Implement MSI packages and connect them to the UI
 - [x] `v0.1.17` - Implement EXE package definitions and UI operations
 - [x] `v0.1.18` - Implement the GitHub Releases provider
-- [ ] `v0.1.19` - Implement the PowerShell Gallery provider
+- [x] `v0.1.19` - Implement the PowerShell Gallery provider
 - [ ] `v0.1.20` - Implement the NuGet provider
 - [ ] `v0.1.21` - Implement online DISM capability and package management
 - [ ] `v0.1.22` - Implement WSUS policy, discovery, and installation support
@@ -181,11 +181,11 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### PowerShell Gallery
 
-- [ ] Implement module and script search.
-- [ ] Implement installed-item inventory and version comparison.
-- [ ] Implement install, update, and removal.
-- [ ] Implement export and restore support.
-- [ ] Add PowerShell Gallery actions and results to the Applications tab.
+- [x] Implement module and script search.
+- [x] Implement installed-item inventory and version comparison.
+- [x] Implement install, update, and removal.
+- [x] Implement export and restore support.
+- [x] Add PowerShell Gallery actions and results to the Applications tab.
 
 #### NuGet
 

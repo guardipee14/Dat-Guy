@@ -369,6 +369,7 @@ $baseAndCoreFiles = @(
     '00-Base\Package.ps1'
     '00-Base\EXEPackageDefinition.ps1'
     '00-Base\GitHubReleasePackageDefinition.ps1'
+    '00-Base\PowerShellGalleryPackageDefinition.ps1'
     '00-Base\Driver.ps1'
 
     '10-Core\PhoenixLogger.ps1'
@@ -391,6 +392,7 @@ $partOneProviders = @(
     'MSIProvider'
     'EXEProvider'
     'GitHubProvider'
+    'PowerShellGalleryProvider'
 )
 
 foreach ($providerName in $partOneProviders) {

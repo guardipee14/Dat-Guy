@@ -37,7 +37,8 @@ function Remove-PhoenixPackage {
             'Chocolatey',
             'Scoop',
             'MSI',
-            'EXE'
+            'EXE',
+            'PowerShell Gallery'
         )]
         [string]$Provider
     )

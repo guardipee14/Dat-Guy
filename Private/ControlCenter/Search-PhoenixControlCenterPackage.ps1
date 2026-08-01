@@ -12,13 +12,15 @@ function Search-PhoenixControlCenterPackage {
             'WinGet',
             'Chocolatey',
             'Scoop',
-            'GitHub Releases'
+            'GitHub Releases',
+            'PowerShell Gallery'
         )]
         [string[]]$Provider = @(
             'WinGet',
             'Chocolatey',
             'Scoop',
-            'GitHub Releases'
+            'GitHub Releases',
+            'PowerShell Gallery'
         )
     )
 
@@ -58,6 +60,36 @@ function Search-PhoenixControlCenterPackage {
                         continue
                     }
 
+                    [string]$installedVersion = ''
+                    $installedVersionProperty =
+                        $package.PSObject.Properties['InstalledVersion']
+                    if ($null -ne $installedVersionProperty) {
+                        $installedVersion =
+                            [string]$installedVersionProperty.Value
+                    }
+                    elseif ($package.Installed) {
+                        $installedVersion = [string]$package.Version
+                    }
+
+                    [bool]$updateAvailable = $false
+                    if (
+                        $package.Installed -and
+                        -not [string]::IsNullOrWhiteSpace($installedVersion) -and
+                        -not [string]::IsNullOrWhiteSpace(
+                            [string]$package.Version
+                        )
+                    ) {
+                        try {
+                            $updateAvailable =
+                                [Management.Automation.SemanticVersion]$package.Version -gt
+                                [Management.Automation.SemanticVersion]$installedVersion
+                        }
+                        catch {
+                            $updateAvailable =
+                                [string]$package.Version -ne $installedVersion
+                        }
+                    }
+
                     [pscustomobject]@{
                         IsSelected      = $false
                         Name            = $package.Name
@@ -66,6 +98,9 @@ function Search-PhoenixControlCenterPackage {
                         Provider        = $package.Provider
                         Source          = $package.Source
                         Architecture    = $package.Architecture
+                        Installed       = [bool]$package.Installed
+                        InstalledVersion = $installedVersion
+                        UpdateAvailable = $updateAvailable
                         OriginalPackage = $package
                     }
                 }

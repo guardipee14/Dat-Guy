@@ -4,6 +4,20 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.19] - 2026-08-01
+
+### Added
+- PowerShell Gallery provider
+  - Search modules and scripts and inventory installed resources with version
+    comparison through PSResourceGet, with PowerShellGet fallback support.
+  - Install, update, and remove resources in current-user scope through the
+    common provider result contract.
+  - Export typed Gallery inventory and restore selected module or script
+    records from Phoenix manifests.
+  - Register Gallery capabilities, health, search, inventory, update status,
+    and actions in the Applications tab.
+  - Add Gallery provider, restore eligibility, and client-adapter tests.
+
 ## [0.1.18] - 2026-08-01
 
 ### Added

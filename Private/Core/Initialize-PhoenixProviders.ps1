@@ -16,6 +16,7 @@ function Initialize-PhoenixProviders {
         [MSIProvider]::new()
         [EXEProvider]::new()
         [GitHubProvider]::new()
+        [PowerShellGalleryProvider]::new()
     )) {
 
         Write-Host "Adding $($provider.GetType().Name)..."

@@ -45,7 +45,11 @@ function Test-PhoenixRestorePackage {
             return $false
         }
 
-        if ($provider -iin @('Chocolatey', 'Scoop')) {
+        if ($provider -iin @(
+            'Chocolatey'
+            'Scoop'
+            'PowerShell Gallery'
+        )) {
             return $true
         }
 

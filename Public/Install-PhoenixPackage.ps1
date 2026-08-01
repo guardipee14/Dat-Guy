@@ -38,7 +38,8 @@ function Install-PhoenixPackage {
         'Scoop',
         'MSI',
         'EXE',
-        'GitHub Releases'
+        'GitHub Releases',
+        'PowerShell Gallery'
     )]
     [string]$Provider,
 

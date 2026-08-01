@@ -16,11 +16,15 @@ function Restore-Phoenix {
         [Parameter()]
         [ValidateSet(
             'WinGet',
-            'Chocolatey'
+            'Chocolatey',
+            'Scoop',
+            'PowerShell Gallery'
         )]
         [string[]]$Provider = @(
             'WinGet',
-            'Chocolatey'
+            'Chocolatey',
+            'Scoop',
+            'PowerShell Gallery'
         ),
 
         [Parameter()]
