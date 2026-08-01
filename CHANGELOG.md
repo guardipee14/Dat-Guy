@@ -4,6 +4,18 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.27] - 2026-08-01
+
+### Added
+- AMD and NVIDIA OEM driver adapters
+  - Detect AMD and NVIDIA devices through PCI vendor IDs independently of the
+    computer manufacturer.
+  - Integrate installed AMD Software and NVIDIA App command paths without
+    allowing automatic restarts.
+  - Complete the six-adapter OEM registry and expose vendor source, version,
+    release, support, approval, and reboot metadata to Drivers and Activity.
+  - Add applicability, registration, command-path, metadata, and result tests.
+
 ## [0.1.26] - 2026-08-01
 
 ### Added

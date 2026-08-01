@@ -32,6 +32,8 @@ function Get-PhoenixOemDriverAdapter {
         [HpOemDriverAdapter]::new()
         [LenovoOemDriverAdapter]::new()
         [IntelOemDriverAdapter]::new()
+        [AmdOemDriverAdapter]::new()
+        [NvidiaOemDriverAdapter]::new()
     )
 }
 

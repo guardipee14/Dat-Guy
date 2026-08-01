@@ -58,7 +58,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.24` - Common OEM driver-adapter framework
 - [x] `v0.1.25` - Dell and HP driver integration
 - [x] `v0.1.26` - Lenovo and Intel driver integration
-- [ ] `v0.1.27` - AMD and NVIDIA driver integration
+- [x] `v0.1.27` - AMD and NVIDIA driver integration
 - [ ] `v0.1.28` - Restore planning engine
 - [ ] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
 - [ ] `v0.1.30` - Versioned restore-checkpoint storage
@@ -88,7 +88,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Move package searches off the WPF interface thread.
 - [x] Move application operations off the WPF interface thread.
 - [x] Move driver operations off the WPF interface thread.
-- [ ] Move OEM driver operations off the WPF interface thread.
+- [x] Move OEM driver operations off the WPF interface thread.
 - [ ] Move restore planning, execution, and verification off the WPF interface
       thread.
 - [x] Add created, starting, running, cancellation-requested, cancelled,
@@ -226,12 +226,12 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Add HP integration.
 - [x] Add Lenovo integration.
 - [x] Add Intel integration.
-- [ ] Add AMD integration.
-- [ ] Add NVIDIA integration.
+- [x] Add AMD integration.
+- [x] Add NVIDIA integration.
 - [x] Require approval before installing an OEM utility.
 - [x] Use Windows Update when no applicable OEM source is available.
-- [ ] Show installed and available driver versions.
-- [ ] Show driver source, release information, support links, and restart
+- [x] Show installed and available driver versions.
+- [x] Show driver source, release information, support links, and restart
       requirements.
 - [x] Route every OEM scan and operation through the background job system.
 - [x] Verify OEM information and actions in the Drivers and Activity tabs.
