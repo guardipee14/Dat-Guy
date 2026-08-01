@@ -11,12 +11,14 @@ function Search-PhoenixControlCenterPackage {
         [ValidateSet(
             'WinGet',
             'Chocolatey',
-            'Scoop'
+            'Scoop',
+            'GitHub Releases'
         )]
         [string[]]$Provider = @(
             'WinGet',
             'Chocolatey',
-            'Scoop'
+            'Scoop',
+            'GitHub Releases'
         )
     )
 

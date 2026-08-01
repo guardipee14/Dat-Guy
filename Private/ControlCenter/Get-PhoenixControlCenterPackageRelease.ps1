@@ -10,7 +10,8 @@ function Get-PhoenixControlCenterPackageRelease {
         [Parameter(Mandatory)]
         [ValidateSet(
             'WinGet',
-            'Chocolatey'
+            'Chocolatey',
+            'GitHub Releases'
         )]
         [string]$Provider,
 
@@ -87,6 +88,33 @@ function Get-PhoenixControlCenterPackageRelease {
                             $_.ToString()
                         }
                 )
+            }
+
+            'GitHub Releases' {
+                $headers = @{
+                    Accept = 'application/vnd.github+json'
+                    'User-Agent' = 'PhoenixDeploy'
+                    'X-GitHub-Api-Version' = '2022-11-28'
+                }
+                if (-not [string]::IsNullOrWhiteSpace($env:GITHUB_TOKEN)) {
+                    $headers.Authorization = "Bearer $($env:GITHUB_TOKEN)"
+                }
+                $release = Invoke-RestMethod `
+                    -Uri "https://api.github.com/repos/$Id/releases/latest" `
+                    -Headers $headers `
+                    -Method Get `
+                    -ErrorAction Stop
+
+                return [pscustomobject]@{
+                    Id               = $Id
+                    Provider         = $Provider
+                    Version          = ([string]$release.tag_name).TrimStart('v', 'V')
+                    MetadataStatus   = 'Publisher metadata available'
+                    ReleaseNotes     = [string]$release.body
+                    ReleaseNotesUrl  = [string]$release.html_url
+                    ProviderMetadata = [string]$release.name
+                    Error            = ''
+                }
             }
         }
     }

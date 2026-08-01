@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.17`
+**Current module version:** `0.1.18`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -35,6 +35,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Discover and manage Scoop applications with user-scope search, inventory, install, update, removal, export, restore, provider health, and Control Center support.
 - Inventory native Windows Installer products without `Win32_Product`, install local MSI packages, and repair or remove product-code records with normalized exit and restart results.
 - Model declarative EXE installers, discover registered executable applications, and run supported install, repair, or uninstall commands with vendor-specific success and restart codes.
+- Discover GitHub repositories and latest releases, select Windows installer assets by architecture, verify publisher checksums, and delegate installation to the MSI or EXE engine with release notes in the UI.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.

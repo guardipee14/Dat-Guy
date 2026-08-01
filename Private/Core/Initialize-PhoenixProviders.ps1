@@ -15,6 +15,7 @@ function Initialize-PhoenixProviders {
         [ScoopProvider]::new()
         [MSIProvider]::new()
         [EXEProvider]::new()
+        [GitHubProvider]::new()
     )) {
 
         Write-Host "Adding $($provider.GetType().Name)..."

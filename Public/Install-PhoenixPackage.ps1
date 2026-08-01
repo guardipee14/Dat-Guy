@@ -37,7 +37,8 @@ function Install-PhoenixPackage {
         'Chocolatey',
         'Scoop',
         'MSI',
-        'EXE'
+        'EXE',
+        'GitHub Releases'
     )]
     [string]$Provider,
 

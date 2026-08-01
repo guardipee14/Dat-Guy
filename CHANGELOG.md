@@ -4,6 +4,21 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.18] - 2026-08-01
+
+### Added
+- GitHub Releases provider
+  - Discover exact `owner/repository` targets or repositories by name through
+    the GitHub REST API and load their latest published release.
+  - Select supported Windows MSI or EXE assets by architecture and optional
+    declarative asset pattern.
+  - Correlate installed application versions, retain release notes and links,
+    and expose publisher metadata in the Applications tab.
+  - Verify explicit or publisher-provided SHA-256 checksums before delegating
+    installation to the native MSI or EXE engine.
+  - Add authenticated API support through `GITHUB_TOKEN`, safe download
+    cleanup, normalized results, and focused tests.
+
 ## [0.1.17] - 2026-08-01
 
 ### Added

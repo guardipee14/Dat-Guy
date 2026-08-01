@@ -49,7 +49,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.15` - Implement Scoop and connect it to the UI
 - [x] `v0.1.16` - Implement MSI packages and connect them to the UI
 - [x] `v0.1.17` - Implement EXE package definitions and UI operations
-- [ ] `v0.1.18` - Implement the GitHub Releases provider
+- [x] `v0.1.18` - Implement the GitHub Releases provider
 - [ ] `v0.1.19` - Implement the PowerShell Gallery provider
 - [ ] `v0.1.20` - Implement the NuGet provider
 - [ ] `v0.1.21` - Implement online DISM capability and package management
@@ -172,12 +172,12 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### GitHub Releases
 
-- [ ] Implement repository and release discovery.
-- [ ] Select assets by Windows architecture and package definition.
-- [ ] Compare installed and available versions.
-- [ ] Verify downloaded asset hashes when publishers provide them.
-- [ ] Install supported release assets through the appropriate package engine.
-- [ ] Display release notes and links in the Applications tab.
+- [x] Implement repository and release discovery.
+- [x] Select assets by Windows architecture and package definition.
+- [x] Compare installed and available versions.
+- [x] Verify downloaded asset hashes when publishers provide them.
+- [x] Install supported release assets through the appropriate package engine.
+- [x] Display release notes and links in the Applications tab.
 
 #### PowerShell Gallery
 
