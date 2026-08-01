@@ -260,6 +260,37 @@ try {
             } $request.Parameters
         }
 
+        'RestoreAction' {
+            Write-PhoenixWorkerProgress `
+                -Percent 10 `
+                -Message 'Preparing the Phoenix restore job...'
+
+            & $phoenixModule {
+                param($workerParameters)
+
+                $restoreParameters = @{
+                    ManifestPath =
+                        [string]$workerParameters.ManifestPath
+                    SkipDrivers =
+                        [bool]$workerParameters.SkipDrivers
+                    SkipPackages =
+                        [bool]$workerParameters.SkipPackages
+                    Provider =
+                        @($workerParameters.Provider)
+                    ReinstallInstalled =
+                        [bool]$workerParameters.ReinstallInstalled
+                    StopOnError =
+                        [bool]$workerParameters.StopOnError
+                    Unattended =
+                        [bool]$workerParameters.Unattended
+                    Confirm = $false
+                }
+
+                Restore-Phoenix `
+                    @restoreParameters
+            } $request.Parameters
+        }
+
         default {
             throw (
                 "Unsupported Control Center worker action '$($request.Action)'."

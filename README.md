@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.8`
+**Current module version:** `0.1.9`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -25,6 +25,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.
 - Keep the desktop responsive while provider checks, inventory, searches, application operations, and driver operations run in isolated workers.
 - Queue application install, update, repair, and removal operations in FIFO order when another Control Center operation is active.
+- Start, poll, wait for, or cancel restore work through the shared isolated background-job lifecycle.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.
@@ -39,8 +40,11 @@ PowerShell deployment and recovery framework for Windows application and driver 
 | `Get-PhoenixProviders` | Available | List active Phoenix package providers. |
 | `Install-PhoenixPackage` | Available | Install a package through WinGet or Chocolatey with elevation and install-mode handling. |
 | `Repair-PhoenixPackage` | Available | Repair a supported package using silent or interactive provider behavior. |
+| `Receive-PhoenixJob` | Available | Poll or wait for a Phoenix background job and clean up its worker resources. |
 | `Restore-Phoenix` | Available | Restore drivers first and reinstall missing WinGet or Chocolatey packages from a Phoenix manifest. |
 | `Start-Phoenix` | Available | Create or reuse a ready Phoenix context; use -Force for a new lifecycle generation. |
+| `Start-PhoenixRestoreJob` | Available | Start a cancellable restore in an isolated Phoenix worker process. |
+| `Stop-PhoenixJob` | Available | Cancel a Phoenix background job and remove its temporary worker resources. |
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |

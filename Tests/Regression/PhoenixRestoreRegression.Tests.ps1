@@ -80,6 +80,42 @@ Describe 'Phoenix restore regressions' -Tag @(
     'Manifest'
     'Restore'
 ) {
+    It 'routes restore work through a cancellable background worker' {
+        [string]$workerSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Tools\Invoke-PhoenixControlCenterWorker.ps1'
+                ) `
+                -Raw
+
+        [string]$startSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Public\Start-PhoenixRestoreJob.ps1'
+                ) `
+                -Raw
+
+        $workerSource.Contains("'RestoreAction'") |
+            Should-BeTrue
+
+        $workerSource.Contains('Restore-Phoenix') |
+            Should-BeTrue
+
+        $startSource.Contains(
+            "-Action 'RestoreAction'"
+        ) |
+            Should-BeTrue
+
+        $startSource.Contains(
+            'Start-PhoenixBackgroundOperation'
+        ) |
+            Should-BeTrue
+    }
+
 
     It 'keeps the restore-related source files syntactically valid' {
 

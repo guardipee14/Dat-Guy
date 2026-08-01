@@ -40,7 +40,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.6` - Shared background-job contract
 - [x] `v0.1.7` - Background inventory, provider initialization, and searches
 - [x] `v0.1.8` - Background application operation queue
-- [ ] `v0.1.9` - Background driver and restore jobs with cancellation
+- [x] `v0.1.9` - Background driver and restore jobs with cancellation
 - [ ] `v0.1.10` - Activity Center live job display
 - [ ] `v0.1.11` - Activity cancellation, retry, clearing, and result details
 - [ ] `v0.1.12` - Common provider capability and result contract

@@ -4,6 +4,21 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-08-01
+
+### Added
+- run restore work through the shared cancellable background-job lifecycle
+  - Add `Start-PhoenixRestoreJob`, `Receive-PhoenixJob`, and
+    `Stop-PhoenixJob` public commands.
+  - Route restore requests through an isolated `RestoreAction` worker with
+    atomic request, progress, and result files.
+  - Preserve provider filters, driver and package selection, reinstall,
+    stop-on-error, and unattended restore options across the worker boundary.
+  - Cancel the worker process tree and remove temporary operation files
+    deterministically.
+  - Add safe fake-worker tests for completion, cancellation, cleanup, and
+    invalid workload selection without changing packages or drivers.
+
 ## [0.1.8] - 2026-08-01
 
 ### Added
