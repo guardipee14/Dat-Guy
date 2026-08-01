@@ -41,7 +41,8 @@ function Install-PhoenixPackage {
         'GitHub Releases',
         'PowerShell Gallery',
         'NuGet',
-        'DISM'
+        'DISM',
+        'WSUS'
     )]
     [string]$Provider,
 

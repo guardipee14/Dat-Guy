@@ -19,6 +19,7 @@ function Initialize-PhoenixProviders {
         [PowerShellGalleryProvider]::new()
         [NuGetProvider]::new()
         [DISMProvider]::new()
+        [WSUSProvider]::new()
     )) {
 
         Write-Host "Adding $($provider.GetType().Name)..."

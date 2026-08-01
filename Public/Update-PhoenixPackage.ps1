@@ -38,7 +38,8 @@ function Update-PhoenixPackage {
             'Scoop',
             'GitHub Releases',
             'PowerShell Gallery',
-            'NuGet'
+            'NuGet',
+            'WSUS'
         )]
         [string]$Provider,
 

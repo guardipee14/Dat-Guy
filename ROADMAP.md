@@ -53,7 +53,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.19` - Implement the PowerShell Gallery provider
 - [x] `v0.1.20` - Implement the NuGet provider
 - [x] `v0.1.21` - Implement online DISM capability and package management
-- [ ] `v0.1.22` - Implement WSUS policy, discovery, and installation support
+- [x] `v0.1.22` - Implement WSUS policy, discovery, and installation support
 - [ ] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
 - [ ] `v0.1.24` - Common OEM driver-adapter framework
 - [ ] `v0.1.25` - Dell and HP driver integration
@@ -205,11 +205,11 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### WSUS
 
-- [ ] Detect configured Windows Update and WSUS policy.
-- [ ] Discover applicable updates from the managed update source.
-- [ ] Implement download and installation through the managed source.
-- [ ] Report approval, applicability, failure, and reboot status.
-- [ ] Display WSUS source and operation details in the Control Center.
+- [x] Detect configured Windows Update and WSUS policy.
+- [x] Discover applicable updates from the managed update source.
+- [x] Implement download and installation through the managed source.
+- [x] Report approval, applicability, failure, and reboot status.
+- [x] Display WSUS source and operation details in the Control Center.
 
 #### Phoenix orchestration provider
 

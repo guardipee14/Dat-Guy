@@ -4,6 +4,18 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.22] - 2026-08-01
+
+### Added
+- managed Windows Update and WSUS provider
+  - Detect configured WSUS server, status server, and managed-source policy.
+  - Discover applicable or installed updates through Windows Update Agent and
+    retain source, KB, approval, applicability, and download state.
+  - Download and install selected updates through the active managed source.
+  - Normalize download or install failure HRESULTs, result codes, and reboot
+    requirements in the common result model and Control Center.
+  - Add policy, discovery, operation, safety, result, and UI tests.
+
 ## [0.1.21] - 2026-08-01
 
 ### Added

@@ -15,7 +15,8 @@ function Search-PhoenixControlCenterPackage {
             'GitHub Releases',
             'PowerShell Gallery',
             'NuGet',
-            'DISM'
+            'DISM',
+            'WSUS'
         )]
         [string[]]$Provider = @(
             'WinGet',
@@ -24,7 +25,8 @@ function Search-PhoenixControlCenterPackage {
             'GitHub Releases',
             'PowerShell Gallery',
             'NuGet',
-            'DISM'
+            'DISM',
+            'WSUS'
         )
     )
 
