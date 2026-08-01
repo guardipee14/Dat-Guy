@@ -15,6 +15,8 @@ class PhoenixProvider {
 [int]$Priority
 [bool]$Available
 [PhoenixPrivilegeLevel]$RequiredPrivilege
+[bool]$SupportsSearch
+[bool]$SupportsInventory
 [bool]$SupportsInstall
 [bool]$SupportsUpdate
 [bool]$SupportsRemove
@@ -26,6 +28,7 @@ class PhoenixProvider {
 [bool]$SupportsRepair
 [bool]$SupportsSilentRepair
 [bool]$SupportsInteractiveRepair
+[bool]$SupportsRestore
 [bool]$SupportsCleanup
 [bool]$CleanupAfterInstall
 [bool]$CleanupOnFailure
@@ -43,6 +46,8 @@ PhoenixProvider() {
         $this.Priority  = 0
         $this.Available = $false
 
+        $this.SupportsSearch       = $true
+        $this.SupportsInventory    = $true
         $this.SupportsInstall      = $true
         $this.SupportsUpdate       = $true
         $this.SupportsRemove       = $true
@@ -55,6 +60,7 @@ PhoenixProvider() {
         $this.SupportsRepair = $false
         $this.SupportsSilentRepair = $false
         $this.SupportsInteractiveRepair = $false
+        $this.SupportsRestore = $true
 
         $this.SupportsCleanup = $true
         $this.CleanupAfterInstall = $true

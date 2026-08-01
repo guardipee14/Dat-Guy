@@ -758,6 +758,82 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
     }
 
+    It 'binds provider capabilities health and supported application actions' {
+        [string]$xamlSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\PhoenixControlCenter.xaml'
+                ) `
+                -Raw
+
+        [string]$desktopSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Show-PhoenixDesktop.ps1'
+                ) `
+                -Raw
+
+        [string]$inventorySource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Get-PhoenixControlCenterInventory.ps1'
+                ) `
+                -Raw
+
+        foreach (
+            $columnHeader in @(
+                'Availability'
+                'Operations'
+                'Privilege'
+                'Health'
+            )
+        ) {
+            $xamlSource.Contains(
+                "Header=`"$columnHeader`""
+            ) |
+                Should-BeTrue
+        }
+
+        $inventorySource.Contains(
+            '$provider.GetCapability()'
+        ) |
+            Should-BeTrue
+
+        $inventorySource.Contains(
+            '$capability.SupportedOperations'
+        ) |
+            Should-BeTrue
+
+        foreach (
+            $capabilityProperty in @(
+                'ProviderAvailable'
+                'SupportsUpdate'
+                'SupportsRepair'
+                'SupportsRemove'
+                'SupportsInstall'
+            )
+        ) {
+            $desktopSource.Contains($capabilityProperty) |
+                Should-BeTrue
+        }
+
+        $desktopSource.Contains(
+            '$state.UpdateApplicationActions'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$state.UpdateSearchActions'
+        ) |
+            Should-BeTrue
+    }
+
     It 'defers provider bootstrap from desktop startup to a worker' {
 
         [string]$openSource =

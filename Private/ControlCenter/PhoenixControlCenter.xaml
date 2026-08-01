@@ -610,13 +610,11 @@
                                             IsReadOnly="True"
                                             AutoGenerateColumns="False">
                                             <DataGrid.Columns>
-                                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
-                                                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="90" />
-                                                <DataGridCheckBoxColumn Header="Available" Binding="{Binding Available}" Width="75" />
-                                                <DataGridCheckBoxColumn Header="Install" Binding="{Binding Install}" Width="65" />
-                                                <DataGridCheckBoxColumn Header="Update" Binding="{Binding Update}" Width="65" />
-                                                <DataGridCheckBoxColumn Header="Repair" Binding="{Binding Repair}" Width="65" />
-                                                <DataGridTextColumn Header="Privilege" Binding="{Binding Privilege}" Width="110" />
+                                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="105" />
+                                                <DataGridTextColumn Header="Availability" Binding="{Binding Availability}" Width="90" />
+                                                <DataGridTextColumn Header="Operations" Binding="{Binding Operations}" Width="2*" />
+                                                <DataGridTextColumn Header="Privilege" Binding="{Binding Privilege}" Width="105" />
+                                                <DataGridTextColumn Header="Health" Binding="{Binding Health}" Width="*" />
                                             </DataGrid.Columns>
                                         </DataGrid>
                                         <primitives:Thumb
@@ -685,12 +683,12 @@
                             Margin="0,0,0,12">
                             <WrapPanel>
                                 <Button x:Name="RefreshAppUpdatesButton" Style="{StaticResource ModernButton}" Content="Check for updates" />
-                                <Button x:Name="ViewAppUpdateDetailsButton" Style="{StaticResource SecondaryButton}" Content="Load update details" />
-                                <Button x:Name="UpdateSelectedAppsButton" Style="{StaticResource ModernButton}" Content="Update selected" />
-                                <Button x:Name="UpdateAllAppsButton" Style="{StaticResource SecondaryButton}" Content="Update all" />
-                                <Button x:Name="RepairSelectedAppsButton" Style="{StaticResource SecondaryButton}" Content="Repair selected" />
-                                <Button x:Name="RepairAllAppsButton" Style="{StaticResource SecondaryButton}" Content="Repair all" />
-                                <Button x:Name="UninstallSelectedAppsButton" Style="{StaticResource DangerButton}" Content="Uninstall selected" />
+                                <Button x:Name="ViewAppUpdateDetailsButton" Style="{StaticResource SecondaryButton}" Content="Load update details" IsEnabled="False" />
+                                <Button x:Name="UpdateSelectedAppsButton" Style="{StaticResource ModernButton}" Content="Update selected" IsEnabled="False" />
+                                <Button x:Name="UpdateAllAppsButton" Style="{StaticResource SecondaryButton}" Content="Update all" IsEnabled="False" />
+                                <Button x:Name="RepairSelectedAppsButton" Style="{StaticResource SecondaryButton}" Content="Repair selected" IsEnabled="False" />
+                                <Button x:Name="RepairAllAppsButton" Style="{StaticResource SecondaryButton}" Content="Repair all" IsEnabled="False" />
+                                <Button x:Name="UninstallSelectedAppsButton" Style="{StaticResource DangerButton}" Content="Uninstall selected" IsEnabled="False" />
                             </WrapPanel>
                         </Border>
                         <DataGrid
@@ -754,17 +752,20 @@
                                     Grid.Column="1"
                                     x:Name="SearchAppsButton"
                                     Style="{StaticResource ModernButton}"
-                                    Content="Search" />
+                                    Content="Search"
+                                    IsEnabled="False" />
                                 <Button
                                     Grid.Column="2"
                                     x:Name="InstallSelectedSearchButton"
                                     Style="{StaticResource ModernButton}"
-                                    Content="Install selected" />
+                                    Content="Install selected"
+                                    IsEnabled="False" />
                                 <Button
                                     Grid.Column="3"
                                     x:Name="InstallAllSearchButton"
                                     Style="{StaticResource SecondaryButton}"
-                                    Content="Install all results" />
+                                    Content="Install all results"
+                                    IsEnabled="False" />
                             </Grid>
                         </Border>
                         <DataGrid

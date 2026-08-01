@@ -4,6 +4,24 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-08-01
+
+### Added
+- a common provider capability, availability, and result contract
+  - Describe search, inventory, install, update, repair, remove, export, and
+    restore support through `PhoenixProviderCapability`.
+  - Normalize provider data and `Result` envelopes through
+    `PhoenixProviderResult`, including privilege, restart, timeout,
+    cancellation, exit-code, warnings, errors, and stable Phoenix codes.
+  - Publish capability snapshots from the provider base class for both
+    currently registered providers.
+  - Show provider availability, operations, privilege, and health in the
+    Control Center provider grid.
+  - Disable application update, repair, remove, search, and install actions
+    when the selected provider or result does not support them.
+  - Add simulated availability and result coverage for WinGet, Chocolatey,
+    and every common provider operation.
+
 ## [0.1.11] - 2026-08-01
 
 ### Added

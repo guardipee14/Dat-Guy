@@ -22,6 +22,32 @@ enum PhoenixInstallMode {
 }
 #endregion 00-Base\PhoenixInstallMode.ps1
 
+#region 00-Base\PhoenixProviderOperation.ps1
+enum PhoenixProviderOperation {
+
+    Search = 0
+    Inventory = 1
+    Install = 2
+    Update = 3
+    Repair = 4
+    Remove = 5
+    Export = 6
+    Restore = 7
+
+}
+#endregion 00-Base\PhoenixProviderOperation.ps1
+
+#region 00-Base\PhoenixProviderAvailability.ps1
+enum PhoenixProviderAvailability {
+
+    Unknown = 0
+    Available = 1
+    Unavailable = 2
+    Degraded = 3
+
+}
+#endregion 00-Base\PhoenixProviderAvailability.ps1
+
 #region 00-Base\Result.ps1
 class Result {
 
@@ -83,6 +109,116 @@ static [Result] Success(
 
 }
 #endregion 00-Base\Result.ps1
+
+#region 00-Base\PhoenixProviderCapability.ps1
+class PhoenixProviderCapability {
+
+    [string]$ProviderName
+    [string]$ProviderVersion
+    [PhoenixProviderAvailability]$Availability
+    [bool]$Available
+    [PhoenixPrivilegeLevel]$RequiredPrivilege
+    [bool]$SupportsSearch
+    [bool]$SupportsInventory
+    [bool]$SupportsInstall
+    [bool]$SupportsUpdate
+    [bool]$SupportsRepair
+    [bool]$SupportsRemove
+    [bool]$SupportsExport
+    [bool]$SupportsRestore
+    [string[]]$SupportedOperations
+    [string]$HealthMessage
+    [datetime]$CheckedAtUtc
+
+    PhoenixProviderCapability() {
+
+        $this.ProviderName = ''
+        $this.ProviderVersion = ''
+        $this.Availability =
+            [PhoenixProviderAvailability]::Unknown
+        $this.Available = $false
+        $this.RequiredPrivilege =
+            [PhoenixPrivilegeLevel]::User
+        $this.SupportedOperations = @()
+        $this.HealthMessage = 'Provider health has not been checked.'
+        $this.CheckedAtUtc = [datetime]::UtcNow
+    }
+
+    [bool] Supports(
+        [PhoenixProviderOperation]$Operation
+    ) {
+
+        if ($Operation -eq [PhoenixProviderOperation]::Search) {
+            return $this.SupportsSearch
+        }
+
+        if ($Operation -eq [PhoenixProviderOperation]::Inventory) {
+            return $this.SupportsInventory
+        }
+
+        if ($Operation -eq [PhoenixProviderOperation]::Install) {
+            return $this.SupportsInstall
+        }
+
+        if ($Operation -eq [PhoenixProviderOperation]::Update) {
+            return $this.SupportsUpdate
+        }
+
+        if ($Operation -eq [PhoenixProviderOperation]::Repair) {
+            return $this.SupportsRepair
+        }
+
+        if ($Operation -eq [PhoenixProviderOperation]::Remove) {
+            return $this.SupportsRemove
+        }
+
+        if ($Operation -eq [PhoenixProviderOperation]::Export) {
+            return $this.SupportsExport
+        }
+
+        if ($Operation -eq [PhoenixProviderOperation]::Restore) {
+            return $this.SupportsRestore
+        }
+
+        return $false
+    }
+}
+#endregion 00-Base\PhoenixProviderCapability.ps1
+
+#region 00-Base\PhoenixProviderResult.ps1
+class PhoenixProviderResult {
+
+    [string]$ProviderName
+    [PhoenixProviderOperation]$Operation
+    [string]$Target
+    [bool]$Success
+    [string]$Code
+    [string]$Message
+    [object]$Data
+    [string[]]$Warnings
+    [string[]]$Errors
+    [PhoenixPrivilegeLevel]$RequiredPrivilege
+    [bool]$RequiresRestart
+    [bool]$TimedOut
+    [bool]$Cancelled
+    [bool]$HasExitCode
+    [int]$ExitCode
+    [datetime]$Timestamp
+
+    PhoenixProviderResult() {
+
+        $this.ProviderName = ''
+        $this.Target = ''
+        $this.Code = ''
+        $this.Message = ''
+        $this.Warnings = @()
+        $this.Errors = @()
+        $this.RequiredPrivilege =
+            [PhoenixPrivilegeLevel]::User
+        $this.Timestamp = [datetime]::UtcNow
+    }
+}
+#endregion 00-Base\PhoenixProviderResult.ps1
 
 #region 00-Base\Package.ps1
 class Package {
@@ -793,6 +929,8 @@ class PhoenixProvider {
 [int]$Priority
 [bool]$Available
 [PhoenixPrivilegeLevel]$RequiredPrivilege
+[bool]$SupportsSearch
+[bool]$SupportsInventory
 [bool]$SupportsInstall
 [bool]$SupportsUpdate
 [bool]$SupportsRemove
@@ -804,6 +942,7 @@ class PhoenixProvider {
 [bool]$SupportsRepair
 [bool]$SupportsSilentRepair
 [bool]$SupportsInteractiveRepair
+[bool]$SupportsRestore
 [bool]$SupportsCleanup
 [bool]$CleanupAfterInstall
 [bool]$CleanupOnFailure
@@ -821,6 +960,8 @@ PhoenixProvider() {
         $this.Priority  = 0
         $this.Available = $false
 
+        $this.SupportsSearch       = $true
+        $this.SupportsInventory    = $true
         $this.SupportsInstall      = $true
         $this.SupportsUpdate       = $true
         $this.SupportsRemove       = $true
@@ -833,6 +974,7 @@ PhoenixProvider() {
         $this.SupportsRepair = $false
         $this.SupportsSilentRepair = $false
         $this.SupportsInteractiveRepair = $false
+        $this.SupportsRestore = $true
 
         $this.SupportsCleanup = $true
         $this.CleanupAfterInstall = $true
@@ -841,6 +983,67 @@ PhoenixProvider() {
     }
 
 #endregion 20-Providers\PhoenixProvider\PhoenixProvider.Header.ps1
+
+#region 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\GetCapability.ps1
+##########################################################
+## Method: GetCapability
+##########################################################
+
+[PhoenixProviderCapability] GetCapability() {
+
+    $capability = [PhoenixProviderCapability]::new()
+    $capability.ProviderName = $this.Name
+    $capability.ProviderVersion = $this.Version
+    $capability.Available = $this.Available
+    $capability.RequiredPrivilege = $this.RequiredPrivilege
+    $capability.SupportsSearch = $this.SupportsSearch
+    $capability.SupportsInventory = $this.SupportsInventory
+    $capability.SupportsInstall = $this.SupportsInstall
+    $capability.SupportsUpdate = $this.SupportsUpdate
+    $capability.SupportsRepair = $this.SupportsRepair
+    $capability.SupportsRemove = $this.SupportsRemove
+    $capability.SupportsExport = $this.SupportsExport
+    $capability.SupportsRestore = $this.SupportsRestore
+    $capability.CheckedAtUtc = [datetime]::UtcNow
+
+    if ($this.Available) {
+        $capability.Availability =
+            [PhoenixProviderAvailability]::Available
+        $capability.HealthMessage = 'Ready'
+    }
+    else {
+        $capability.Availability =
+            [PhoenixProviderAvailability]::Unavailable
+        $capability.HealthMessage =
+            'Executable or service was not detected.'
+    }
+
+    $operationNames =
+        [System.Collections.Generic.List[string]]::new()
+
+    foreach (
+        $operation in @(
+            [PhoenixProviderOperation]::Search
+            [PhoenixProviderOperation]::Inventory
+            [PhoenixProviderOperation]::Install
+            [PhoenixProviderOperation]::Update
+            [PhoenixProviderOperation]::Repair
+            [PhoenixProviderOperation]::Remove
+            [PhoenixProviderOperation]::Export
+            [PhoenixProviderOperation]::Restore
+        )
+    ) {
+        if ($this.SupportsOperation($operation)) {
+            $operationNames.Add($operation.ToString())
+        }
+    }
+
+    $capability.SupportedOperations =
+        $operationNames.ToArray()
+
+    return $capability
+}
+#endregion 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\GetCapability.ps1
 
 #region 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\InstallProvider.ps1
 ##########################################################
@@ -857,6 +1060,239 @@ PhoenixProvider() {
     }
 
 #endregion 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\InstallProvider.ps1
+
+#region 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\NormalizeData.ps1
+##########################################################
+## Method: NormalizeData
+##########################################################
+
+[PhoenixProviderResult] NormalizeData(
+    [object]$Data,
+    [PhoenixProviderOperation]$Operation,
+    [string]$Target
+) {
+
+    $sourceResult = [Result]::Success($Data)
+
+    return $this.NormalizeResult(
+        $sourceResult,
+        $Operation,
+        $Target
+    )
+}
+#endregion 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\NormalizeData.ps1
+
+#region 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\NormalizeResult.ps1
+##########################################################
+## Method: NormalizeResult
+##########################################################
+
+[PhoenixProviderResult] NormalizeResult(
+    [Result]$Result,
+    [PhoenixProviderOperation]$Operation,
+    [string]$Target
+) {
+
+    $normalized = [PhoenixProviderResult]::new()
+    $normalized.ProviderName = $this.Name
+    $normalized.Operation = $Operation
+    $normalized.Target = $Target
+    $normalized.RequiredPrivilege = $this.RequiredPrivilege
+
+    if ($null -eq $Result) {
+        $normalized.Success = $false
+        $normalized.Code = 'PHX_PROVIDER_RESULT_MISSING'
+        $normalized.Message =
+            'The provider returned no result.'
+        $normalized.Errors = @($normalized.Message)
+
+        return $normalized
+    }
+
+    $normalized.Success = $Result.Success
+    $normalized.Code = $Result.Code
+    $normalized.Message = $Result.Message
+    $normalized.Data = $Result.Data
+
+    if ($Result.Timestamp -gt [datetime]::MinValue) {
+        $normalized.Timestamp =
+            $Result.Timestamp.ToUniversalTime()
+    }
+
+    $warningItems =
+        [System.Collections.Generic.List[string]]::new()
+
+    foreach ($warning in @($Result.Warnings)) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$warning)) {
+            $warningItems.Add([string]$warning)
+        }
+    }
+
+    $errorItems =
+        [System.Collections.Generic.List[string]]::new()
+
+    foreach ($resultError in @($Result.Errors)) {
+        if (-not [string]::IsNullOrWhiteSpace([string]$resultError)) {
+            $errorItems.Add([string]$resultError)
+        }
+    }
+
+    if (
+        -not $Result.Success -and
+        $errorItems.Count -eq 0 -and
+        -not [string]::IsNullOrWhiteSpace($Result.Message)
+    ) {
+        $errorItems.Add($Result.Message)
+    }
+
+    $metadataCandidates =
+        [System.Collections.Generic.List[object]]::new()
+
+    $metadataCandidates.Add($Result)
+
+    if ($null -ne $Result.Data) {
+        foreach ($dataItem in @($Result.Data)) {
+            if ($null -ne $dataItem) {
+                $metadataCandidates.Add($dataItem)
+            }
+        }
+    }
+
+    foreach ($candidate in $metadataCandidates) {
+        $exitCodeProperty =
+            $candidate.PSObject.Properties['ExitCode']
+
+        if (
+            $null -ne $exitCodeProperty -and
+            $null -ne $exitCodeProperty.Value
+        ) {
+            $normalized.ExitCode =
+                [int]$exitCodeProperty.Value
+            $normalized.HasExitCode = $true
+        }
+
+        foreach (
+            $restartPropertyName in @(
+                'RequiresRestart'
+                'RebootRequired'
+                'RestartRequired'
+            )
+        ) {
+            $restartProperty =
+                $candidate.PSObject.Properties[
+                    $restartPropertyName
+                ]
+
+            if (
+                $null -ne $restartProperty -and
+                [bool]$restartProperty.Value
+            ) {
+                $normalized.RequiresRestart = $true
+            }
+        }
+
+        foreach (
+            $timeoutPropertyName in @(
+                'TimedOut'
+                'Timeout'
+            )
+        ) {
+            $timeoutProperty =
+                $candidate.PSObject.Properties[
+                    $timeoutPropertyName
+                ]
+
+            if (
+                $null -ne $timeoutProperty -and
+                [bool]$timeoutProperty.Value
+            ) {
+                $normalized.TimedOut = $true
+            }
+        }
+
+        foreach (
+            $cancelPropertyName in @(
+                'Cancelled'
+                'Canceled'
+            )
+        ) {
+            $cancelProperty =
+                $candidate.PSObject.Properties[
+                    $cancelPropertyName
+                ]
+
+            if (
+                $null -ne $cancelProperty -and
+                [bool]$cancelProperty.Value
+            ) {
+                $normalized.Cancelled = $true
+            }
+        }
+    }
+
+    $normalized.Warnings = $warningItems.ToArray()
+    $normalized.Errors = $errorItems.ToArray()
+
+    if ([string]::IsNullOrWhiteSpace($normalized.Code)) {
+        [string]$operationName =
+            $Operation.ToString().ToUpperInvariant()
+
+        $normalized.Code = if ($normalized.Success) {
+            "PHX_PROVIDER_$($operationName)_SUCCEEDED"
+        }
+        else {
+            "PHX_PROVIDER_$($operationName)_FAILED"
+        }
+    }
+
+    return $normalized
+}
+#endregion 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\NormalizeResult.ps1
+
+#region 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\SupportsOperation.ps1
+##########################################################
+## Method: SupportsOperation
+##########################################################
+
+[bool] SupportsOperation(
+    [PhoenixProviderOperation]$Operation
+) {
+
+    if ($Operation -eq [PhoenixProviderOperation]::Search) {
+        return $this.SupportsSearch
+    }
+
+    if ($Operation -eq [PhoenixProviderOperation]::Inventory) {
+        return $this.SupportsInventory
+    }
+
+    if ($Operation -eq [PhoenixProviderOperation]::Install) {
+        return $this.SupportsInstall
+    }
+
+    if ($Operation -eq [PhoenixProviderOperation]::Update) {
+        return $this.SupportsUpdate
+    }
+
+    if ($Operation -eq [PhoenixProviderOperation]::Repair) {
+        return $this.SupportsRepair
+    }
+
+    if ($Operation -eq [PhoenixProviderOperation]::Remove) {
+        return $this.SupportsRemove
+    }
+
+    if ($Operation -eq [PhoenixProviderOperation]::Export) {
+        return $this.SupportsExport
+    }
+
+    if ($Operation -eq [PhoenixProviderOperation]::Restore) {
+        return $this.SupportsRestore
+    }
+
+    return $false
+}
+#endregion 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\SupportsOperation.ps1
 
 #region 20-Providers\PhoenixProvider\Methods\10-ProviderManagement\TestAvailable.ps1
 ##########################################################

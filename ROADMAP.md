@@ -43,7 +43,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.9` - Background driver and restore jobs with cancellation
 - [x] `v0.1.10` - Activity Center live job display
 - [x] `v0.1.11` - Activity cancellation, retry, clearing, and result details
-- [ ] `v0.1.12` - Common provider capability and result contract
+- [x] `v0.1.12` - Common provider capability and result contract
 - [ ] `v0.1.13` - Complete WinGet behavior and UI verification
 - [ ] `v0.1.14` - Complete Chocolatey behavior and UI verification
 - [ ] `v0.1.15` - Implement Scoop and connect it to the UI
@@ -121,15 +121,15 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### Common provider behavior
 
-- [ ] Define a shared provider capability and availability contract.
-- [ ] Normalize search, inventory, install, update, repair, remove, export, and
+- [x] Define a shared provider capability and availability contract.
+- [x] Normalize search, inventory, install, update, repair, remove, export, and
       restore results.
-- [ ] Disable unsupported UI actions instead of presenting nonfunctional
+- [x] Disable unsupported UI actions instead of presenting nonfunctional
       controls.
-- [ ] Normalize privilege, reboot, timeout, cancellation, and exit-code
+- [x] Normalize privilege, reboot, timeout, cancellation, and exit-code
       reporting.
-- [ ] Add provider health and capability information to the Control Center.
-- [ ] Test every provider with mocked external commands or services.
+- [x] Add provider health and capability information to the Control Center.
+- [x] Test every provider with mocked external commands or services.
 
 #### WinGet
 

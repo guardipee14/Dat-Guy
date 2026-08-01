@@ -361,7 +361,11 @@ $OutputLines.Add('')
 $baseAndCoreFiles = @(
     '00-Base\PhoenixPrivilegeLevel.ps1'
     '00-Base\PhoenixInstallMode.ps1'
+    '00-Base\PhoenixProviderOperation.ps1'
+    '00-Base\PhoenixProviderAvailability.ps1'
     '00-Base\Result.ps1'
+    '00-Base\PhoenixProviderCapability.ps1'
+    '00-Base\PhoenixProviderResult.ps1'
     '00-Base\Package.ps1'
     '00-Base\Driver.ps1'
 

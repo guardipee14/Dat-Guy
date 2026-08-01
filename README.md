@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.11`
+**Current module version:** `0.1.12`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -28,6 +28,8 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Start, poll, wait for, or cancel restore work through the shared isolated background-job lifecycle.
 - Monitor queued, running, completed, cancelled, and failed Control Center operations in a live Activity grid.
 - Cancel, retry, clear, and inspect Activity jobs with result codes, warnings, errors, and restart details.
+- Inspect provider availability, health, privilege, and supported operations through one shared contract; unsupported application actions remain disabled.
+- Normalize provider results across search, inventory, install, update, repair, remove, export, and restore, including exit, restart, timeout, and cancellation metadata.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.

@@ -51,6 +51,13 @@ function Get-PhoenixControlCenterInventory {
         }
     }
 
+    $providerCapabilities = @{}
+
+    foreach ($provider in @($context.Providers)) {
+        $providerCapabilities[[string]$provider.Name] =
+            $provider.GetCapability()
+    }
+
     $hardware = [ordered]@{}
     $network = [ordered]@{}
     $operatingSystem = $null
@@ -102,6 +109,15 @@ function Get-PhoenixControlCenterInventory {
                     -Unique |
                 ForEach-Object {
 
+                    $providerCapability =
+                        $providerCapabilities[
+                            [string]$_.Provider
+                        ]
+
+                    [bool]$providerAvailable =
+                        $null -ne $providerCapability -and
+                        $providerCapability.Available
+
                     [pscustomobject]@{
                         IsSelected     = $false
                         Name           = $_.Name
@@ -111,6 +127,27 @@ function Get-PhoenixControlCenterInventory {
                         Source         = $_.Source
                         Architecture   = $_.Architecture
                         Installed      = [bool]$_.Installed
+                        ProviderAvailable = $providerAvailable
+                        SupportsUpdate = [bool](
+                            $providerAvailable -and
+                            $providerCapability.SupportsUpdate
+                        )
+                        SupportsRepair = [bool](
+                            $providerAvailable -and
+                            $providerCapability.SupportsRepair
+                        )
+                        SupportsRemove = [bool](
+                            $providerAvailable -and
+                            $providerCapability.SupportsRemove
+                        )
+                        ProviderHealth = if (
+                            $null -ne $providerCapability
+                        ) {
+                            $providerCapability.HealthMessage
+                        }
+                        else {
+                            'Provider is not registered.'
+                        }
                         Actionable     = [bool](
                             Test-PhoenixRestorePackage `
                                 -InputObject $_
@@ -225,18 +262,33 @@ function Get-PhoenixControlCenterInventory {
         $context.Providers |
             Sort-Object Priority -Descending |
             ForEach-Object {
+                $capability =
+                    $providerCapabilities[
+                        [string]$_.Name
+                    ]
+
                 [pscustomobject]@{
                     Name           = $_.Name
                     Version        = $_.Version
                     Available      = [bool]$_.Available
+                    Availability   =
+                        $capability.Availability.ToString()
                     Priority       = [int]$_.Priority
+                    Search         = [bool]$capability.SupportsSearch
+                    Inventory      = [bool]$capability.SupportsInventory
                     Install        = [bool]$_.SupportsInstall
                     Update         = [bool]$_.SupportsUpdate
                     Repair         = [bool]$_.SupportsRepair
                     Remove         = [bool]$_.SupportsRemove
+                    Export         = [bool]$capability.SupportsExport
+                    Restore        = [bool]$capability.SupportsRestore
+                    Operations     =
+                        $capability.SupportedOperations -join ', '
                     Privilege      = (
                         $_.RequiredPrivilege.ToString()
                     )
+                    Health         = $capability.HealthMessage
+                    CheckedAtUtc   = $capability.CheckedAtUtc
                 }
             }
     )

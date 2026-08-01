@@ -249,6 +249,8 @@ function Show-PhoenixDesktop {
         ApplicationReleaseUrl = ''
         DriverReleaseUrl = ''
         RefreshApplicationUpdates = $null
+        UpdateApplicationActions = $null
+        UpdateSearchActions = $null
         LastFailure     = $null
         RecoveryAction  = $null
         DispatcherFailureCount = 0
@@ -1919,6 +1921,13 @@ function Show-PhoenixDesktop {
                 $inventoryControls.DriverGrid.ItemsSource =
                     @($inventoryState.Inventory.Drivers)
 
+                $updateApplicationActions =
+                    $inventoryState.UpdateApplicationActions
+
+                if ($updateApplicationActions -is [scriptblock]) {
+                    & $updateApplicationActions
+                }
+
                 & $inventorySetStatus 'Inventory refresh completed.'
 
                 $refreshUpdatesCommand =
@@ -1956,11 +1965,24 @@ function Show-PhoenixDesktop {
             [bool]$All
         )
 
+        [string]$capabilityProperty =
+            if ($Action -eq 'Update') {
+                'SupportsUpdate'
+            }
+            elseif ($Action -eq 'Repair') {
+                'SupportsRepair'
+            }
+            else {
+                'SupportsRemove'
+            }
+
         $items = if ($All) {
             @(
                 $state.Inventory.Applications |
                     Where-Object {
                         $_.Actionable -and
+                        $_.ProviderAvailable -and
+                        [bool]$_.$capabilityProperty -and
                         (
                             $Action -ne 'Update' -or
                             $_.UpdateAvailable
@@ -1973,6 +1995,8 @@ function Show-PhoenixDesktop {
                 & $getCheckedItems $controls.ApplicationGrid |
                     Where-Object {
                         $_.Actionable -and
+                        $_.ProviderAvailable -and
+                        [bool]$_.$capabilityProperty -and
                         (
                             $Action -ne 'Update' -or
                             $_.UpdateAvailable
@@ -2153,6 +2177,13 @@ function Show-PhoenixDesktop {
 
                 $applicationUpdateControls.ApplicationGrid.Items.Refresh()
 
+                $updateApplicationActions =
+                    $applicationUpdateState.UpdateApplicationActions
+
+                if ($updateApplicationActions -is [scriptblock]) {
+                    & $updateApplicationActions
+                }
+
                 [int]$updateCount = @(
                     @($applicationUpdateState.Inventory.Applications) |
                         Where-Object UpdateAvailable
@@ -2167,6 +2198,121 @@ function Show-PhoenixDesktop {
     $state.RefreshApplicationUpdates =
         $refreshApplicationUpdates
 
+    $updateApplicationActions = {
+
+        $controls.ViewAppUpdateDetailsButton.IsEnabled =
+            $false
+        $controls.UpdateSelectedAppsButton.IsEnabled =
+            $false
+        $controls.UpdateAllAppsButton.IsEnabled =
+            $false
+        $controls.RepairSelectedAppsButton.IsEnabled =
+            $false
+        $controls.RepairAllAppsButton.IsEnabled =
+            $false
+        $controls.UninstallSelectedAppsButton.IsEnabled =
+            $false
+        $controls.SearchAppsButton.IsEnabled =
+            $false
+
+        if ($null -eq $state.Inventory) {
+            return
+        }
+
+        $providerRows = @($state.Inventory.Providers)
+        $applications = @($state.Inventory.Applications)
+
+        $controls.SearchAppsButton.IsEnabled = [bool](
+            @(
+                $providerRows |
+                    Where-Object {
+                        $_.Available -and $_.Search
+                    }
+            ).Count -gt 0
+        )
+
+        $controls.UpdateAllAppsButton.IsEnabled = [bool](
+            @(
+                $applications |
+                    Where-Object {
+                        $_.Actionable -and
+                        $_.ProviderAvailable -and
+                        $_.SupportsUpdate -and
+                        $_.UpdateAvailable
+                    }
+            ).Count -gt 0
+        )
+
+        $controls.RepairAllAppsButton.IsEnabled = [bool](
+            @(
+                $applications |
+                    Where-Object {
+                        $_.Actionable -and
+                        $_.ProviderAvailable -and
+                        $_.SupportsRepair
+                    }
+            ).Count -gt 0
+        )
+
+        $selectedApplication =
+            $controls.ApplicationGrid.SelectedItem
+
+        if (
+            $null -ne $selectedApplication -and
+            $selectedApplication.ProviderAvailable -and
+            $selectedApplication.SupportsUpdate -and
+            $selectedApplication.UpdateAvailable
+        ) {
+            $controls.ViewAppUpdateDetailsButton.IsEnabled =
+                $true
+        }
+
+        $selectedApplications = @(
+            & $getCheckedItems $controls.ApplicationGrid
+        )
+
+        if ($selectedApplications.Count -eq 0) {
+            return
+        }
+
+        $controls.UpdateSelectedAppsButton.IsEnabled = [bool](
+            @(
+                $selectedApplications |
+                    Where-Object {
+                        $_.Actionable -and
+                        $_.ProviderAvailable -and
+                        $_.SupportsUpdate -and
+                        $_.UpdateAvailable
+                    }
+            ).Count -eq $selectedApplications.Count
+        )
+
+        $controls.RepairSelectedAppsButton.IsEnabled = [bool](
+            @(
+                $selectedApplications |
+                    Where-Object {
+                        $_.Actionable -and
+                        $_.ProviderAvailable -and
+                        $_.SupportsRepair
+                    }
+            ).Count -eq $selectedApplications.Count
+        )
+
+        $controls.UninstallSelectedAppsButton.IsEnabled = [bool](
+            @(
+                $selectedApplications |
+                    Where-Object {
+                        $_.Actionable -and
+                        $_.ProviderAvailable -and
+                        $_.SupportsRemove
+                    }
+            ).Count -eq $selectedApplications.Count
+        )
+    }.GetNewClosure()
+
+    $state.UpdateApplicationActions =
+        $updateApplicationActions
+
     $showApplicationSelection = {
 
         $application =
@@ -2174,6 +2320,8 @@ function Show-PhoenixDesktop {
 
         $state.ApplicationReleaseUrl = ''
         $controls.OpenApplicationReleaseUrlButton.IsEnabled =
+            $false
+        $controls.ViewAppUpdateDetailsButton.IsEnabled =
             $false
 
         if ($null -eq $application) {
@@ -2189,6 +2337,8 @@ function Show-PhoenixDesktop {
                 "Installed: $($application.Version)"
                 "Available: $(if ($application.UpdateAvailable) { $application.AvailableVersion } else { 'No update found' })"
                 "Provider: $($application.Provider)"
+                "Provider health: $($application.ProviderHealth)"
+                "Supported actions: update=$($application.SupportsUpdate), repair=$($application.SupportsRepair), remove=$($application.SupportsRemove)"
                 "Metadata: $($application.MetadataStatus)"
                 ''
                 $(if (
@@ -2203,6 +2353,15 @@ function Show-PhoenixDesktop {
                 })
             ) -join [Environment]::NewLine
         )
+
+        if (
+            $application.ProviderAvailable -and
+            $application.SupportsUpdate -and
+            $application.UpdateAvailable
+        ) {
+            $controls.ViewAppUpdateDetailsButton.IsEnabled =
+                $true
+        }
 
         if (
             -not [string]::IsNullOrWhiteSpace(
@@ -2824,6 +2983,19 @@ function Show-PhoenixDesktop {
 
     $controls.ApplicationGrid.Add_SelectionChanged({
         & $showApplicationSelection
+        & $updateApplicationActions
+    }.GetNewClosure())
+
+    $controls.ApplicationGrid.Add_CurrentCellChanged({
+        & $updateApplicationActions
+    }.GetNewClosure())
+
+    $controls.SearchResultGrid.Add_SelectionChanged({
+        & $updateSearchActions
+    }.GetNewClosure())
+
+    $controls.SearchResultGrid.Add_CurrentCellChanged({
+        & $updateSearchActions
     }.GetNewClosure())
 
     $controls.OpenApplicationReleaseUrlButton.Add_Click({
@@ -2895,10 +3067,44 @@ function Show-PhoenixDesktop {
                                 -Name IsSelected `
                                 -Value $false
                     }
+
+                    $providerRow =
+                        @($searchState.Inventory.Providers) |
+                            Where-Object {
+                                $_.Name -eq $result.Provider
+                            } |
+                            Select-Object -First 1
+
+                    $result |
+                        Add-Member `
+                            -MemberType NoteProperty `
+                            -Name ProviderAvailable `
+                            -Value ([bool](
+                                $null -ne $providerRow -and
+                                $providerRow.Available
+                            )) `
+                            -Force
+
+                    $result |
+                        Add-Member `
+                            -MemberType NoteProperty `
+                            -Name SupportsInstall `
+                            -Value ([bool](
+                                $null -ne $providerRow -and
+                                $providerRow.Install
+                            )) `
+                            -Force
                 }
 
                 $searchControls.SearchResultGrid.ItemsSource =
                     @($searchState.SearchResult)
+
+                $updateSearchActions =
+                    $searchState.UpdateSearchActions
+
+                if ($updateSearchActions -is [scriptblock]) {
+                    & $updateSearchActions
+                }
 
                 & $searchSetStatus (
                     "Application search returned $($searchState.SearchResult.Count) result(s)."
@@ -2906,17 +3112,67 @@ function Show-PhoenixDesktop {
             }.GetNewClosure()
     }.GetNewClosure())
 
+    $updateSearchActions = {
+
+        $controls.InstallSelectedSearchButton.IsEnabled =
+            $false
+        $controls.InstallAllSearchButton.IsEnabled =
+            $false
+
+        $eligibleResults = @(
+            @($state.SearchResult) |
+                Where-Object {
+                    $_.ProviderAvailable -and
+                    $_.SupportsInstall
+                }
+        )
+
+        $controls.InstallAllSearchButton.IsEnabled = [bool](
+            $eligibleResults.Count -gt 0
+        )
+
+        $selectedResults = @(
+            & $getCheckedItems $controls.SearchResultGrid
+        )
+
+        if ($selectedResults.Count -eq 0) {
+            return
+        }
+
+        $controls.InstallSelectedSearchButton.IsEnabled = [bool](
+            @(
+                $selectedResults |
+                    Where-Object {
+                        $_.ProviderAvailable -and
+                        $_.SupportsInstall
+                    }
+            ).Count -eq $selectedResults.Count
+        )
+    }.GetNewClosure()
+
+    $state.UpdateSearchActions = $updateSearchActions
+
     $installSearchResults = {
         param(
             [bool]$All
         )
 
         $items = if ($All) {
-            @($state.SearchResult)
+            @(
+                $state.SearchResult |
+                    Where-Object {
+                        $_.ProviderAvailable -and
+                        $_.SupportsInstall
+                    }
+            )
         }
         else {
             @(
-                & $getCheckedItems $controls.SearchResultGrid
+                & $getCheckedItems $controls.SearchResultGrid |
+                    Where-Object {
+                        $_.ProviderAvailable -and
+                        $_.SupportsInstall
+                    }
             )
         }
 
