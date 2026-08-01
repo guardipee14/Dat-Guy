@@ -30,6 +30,8 @@ function Get-PhoenixOemDriverAdapter {
     return @(
         [DellOemDriverAdapter]::new()
         [HpOemDriverAdapter]::new()
+        [LenovoOemDriverAdapter]::new()
+        [IntelOemDriverAdapter]::new()
     )
 }
 

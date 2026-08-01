@@ -23,7 +23,7 @@ class PhoenixOemDriverAdapter {
         [string]$Manufacturer,
         [string[]]$HardwareIds
     ) {
-        [bool]$manufacturerMatch = $false
+        [bool]$manufacturerMatch = $this.Manufacturers.Count -eq 0
         foreach ($candidate in $this.Manufacturers) {
             if ($Manufacturer -like "*$candidate*") {
                 $manufacturerMatch = $true

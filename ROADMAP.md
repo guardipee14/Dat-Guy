@@ -57,7 +57,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
 - [x] `v0.1.24` - Common OEM driver-adapter framework
 - [x] `v0.1.25` - Dell and HP driver integration
-- [ ] `v0.1.26` - Lenovo and Intel driver integration
+- [x] `v0.1.26` - Lenovo and Intel driver integration
 - [ ] `v0.1.27` - AMD and NVIDIA driver integration
 - [ ] `v0.1.28` - Restore planning engine
 - [ ] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
@@ -224,8 +224,8 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Detect manufacturer and applicable hardware before enabling an adapter.
 - [x] Add Dell integration.
 - [x] Add HP integration.
-- [ ] Add Lenovo integration.
-- [ ] Add Intel integration.
+- [x] Add Lenovo integration.
+- [x] Add Intel integration.
 - [ ] Add AMD integration.
 - [ ] Add NVIDIA integration.
 - [x] Require approval before installing an OEM utility.

@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.25`
+**Current module version:** `0.1.26`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -41,7 +41,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Inventory and manage online Windows capabilities, optional features, and packages through DISM with administrator policy, stable result codes, and restart-aware UI actions.
 - Detect Windows Update/WSUS policy, discover applicable managed updates, and download/install them through Windows Update Agent with source, approval, HRESULT, applicability, and reboot details.
 - Select providers through a shared orchestration policy with explicit fallback, capability, elevation, protected-package safety, restore alternatives, and normalized CLI/UI results.
-- Use a common OEM driver-adapter contract with manufacturer/hardware applicability, utility approval, Windows Update fallback, version/release/support metadata, and isolated background operations, including Dell Command Update and HP Image Assistant adapters.
+- Use a common OEM driver-adapter contract with manufacturer/hardware applicability, utility approval, Windows Update fallback, version/release/support metadata, and isolated background operations, including Dell, HP, Lenovo, and Intel adapters.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.
@@ -116,7 +116,7 @@ Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended
 ## Current limitations
 
 - Phoenix is currently Windows-only and is under active development.
-- Driver installation supports Windows Update Agent, Dell Command Update, and HP Image Assistant; other vendor catalogs and offline driver packs are not implemented yet.
+- Driver installation supports Windows Update Agent and Dell, HP, Lenovo, and Intel utilities; AMD/NVIDIA catalogs and offline driver packs are not implemented yet.
 - Manifest restore reinstalls supported packages and Windows Update drivers; it does not yet restore application data, user profiles, Windows settings, or offline driver packages.
 - Package manifests record installed versions for reference, but restore currently installs the provider-current version instead of pinning an exact historical version.
 - Protected packages such as Microsoft Edge are not removed unless -ForceProtectedMigration is explicitly supplied.

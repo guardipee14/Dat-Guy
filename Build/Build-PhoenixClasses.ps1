@@ -378,6 +378,8 @@ $baseAndCoreFiles = @(
     '00-Base\PhoenixOemDriverAdapter.ps1'
     '00-Base\DellOemDriverAdapter.ps1'
     '00-Base\HpOemDriverAdapter.ps1'
+    '00-Base\LenovoOemDriverAdapter.ps1'
+    '00-Base\IntelOemDriverAdapter.ps1'
 
     '10-Core\PhoenixLogger.ps1'
     '10-Core\PhoenixConfiguration.ps1'

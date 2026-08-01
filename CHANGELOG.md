@@ -4,6 +4,18 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.26] - 2026-08-01
+
+### Added
+- Lenovo and Intel OEM driver adapters
+  - Integrate Lenovo System Update with manufacturer-gated scan and install
+    command paths.
+  - Integrate Intel Driver & Support Assistant with hardware-only applicability
+    through Intel PCI vendor identifiers on systems from any manufacturer.
+  - Normalize vendor success, failure, restart, approval, source, and support
+    metadata through the common OEM contract.
+  - Add registration, applicability, command-path, metadata, and approval tests.
+
 ## [0.1.25] - 2026-08-01
 
 ### Added
