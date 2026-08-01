@@ -90,6 +90,7 @@ function Show-PhoenixDesktop {
             'InventoryWarningsText'
             'ProviderGrid'
             'ApplicationGrid'
+            'ApplicationProviderFilter'
             'RefreshAppUpdatesButton'
             'ViewAppUpdateDetailsButton'
             'ApplicationDetailsText'
@@ -100,11 +101,13 @@ function Show-PhoenixDesktop {
             'RepairAllAppsButton'
             'UninstallSelectedAppsButton'
             'AppSearchText'
+            'SearchProviderFilter'
             'SearchAppsButton'
             'InstallSelectedSearchButton'
             'InstallAllSearchButton'
             'SearchResultGrid'
             'DriverGrid'
+            'OemAdapterGrid'
             'RepairSelectedDriversButton'
             'UninstallSelectedDriversButton'
             'RepairProblemDriversButton'
@@ -273,6 +276,7 @@ function Show-PhoenixDesktop {
         RefreshApplicationUpdates = $null
         UpdateApplicationActions = $null
         UpdateSearchActions = $null
+        ApplyApplicationFilter = $null
         LastFailure     = $null
         RecoveryAction  = $null
         DispatcherFailureCount = 0
@@ -1868,6 +1872,88 @@ function Show-PhoenixDesktop {
         }
     }.GetNewClosure()
 
+    $getProviderFilterValue = {
+        param([object]$ComboBox)
+
+        $selectedItem = $ComboBox.SelectedItem
+        if ($selectedItem -is [System.Windows.Controls.ComboBoxItem]) {
+            return [string]$selectedItem.Content
+        }
+        return [string]$selectedItem
+    }.GetNewClosure()
+
+    $applyApplicationFilter = {
+        if ($null -eq $state.Inventory) { return }
+
+        [string]$providerName =
+            & $getProviderFilterValue $controls.ApplicationProviderFilter
+        $visibleApplications = if (
+            [string]::IsNullOrWhiteSpace($providerName) -or
+            $providerName -eq 'All providers'
+        ) {
+            @($state.Inventory.Applications)
+        }
+        else {
+            @(
+                $state.Inventory.Applications |
+                    Where-Object Provider -IEQ $providerName
+            )
+        }
+
+        $controls.ApplicationGrid.ItemsSource = $null
+        $controls.ApplicationGrid.ItemsSource = @($visibleApplications)
+
+        $updateActions = $state.UpdateApplicationActions
+        if ($updateActions -is [scriptblock]) {
+            & $updateActions
+        }
+    }.GetNewClosure()
+
+    $state.ApplyApplicationFilter = $applyApplicationFilter
+
+    $populateProviderFilters = {
+        if ($null -eq $state.Inventory) { return }
+
+        [string]$applicationSelection =
+            & $getProviderFilterValue $controls.ApplicationProviderFilter
+        [string]$searchSelection =
+            & $getProviderFilterValue $controls.SearchProviderFilter
+
+        $applicationProviders = @(
+            $state.Inventory.Applications.Provider |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+                Sort-Object -Unique
+        )
+        $searchProviders = @(
+            $state.Inventory.Providers |
+                Where-Object { $_.Available -and $_.Search } |
+                ForEach-Object Name |
+                Sort-Object -Unique
+        )
+
+        foreach ($filter in @(
+            [pscustomobject]@{
+                Control = $controls.ApplicationProviderFilter
+                Values = $applicationProviders
+                Selected = $applicationSelection
+            }
+            [pscustomobject]@{
+                Control = $controls.SearchProviderFilter
+                Values = $searchProviders
+                Selected = $searchSelection
+            }
+        )) {
+            $filter.Control.Items.Clear()
+            [void]$filter.Control.Items.Add('All providers')
+            foreach ($providerName in @($filter.Values)) {
+                [void]$filter.Control.Items.Add([string]$providerName)
+            }
+            $filter.Control.SelectedItem = if (
+                [string]$filter.Selected -in @($filter.Control.Items)
+            ) { [string]$filter.Selected } else { 'All providers' }
+        }
+    }.GetNewClosure()
+
     $refreshInventory = {
 
         $inventoryState = $state
@@ -1964,6 +2050,7 @@ function Show-PhoenixDesktop {
                         "Actionable apps    : $actionableCount"
                         "Installed drivers  : $(@($inventoryState.Inventory.Drivers).Count)"
                         "Problem drivers    : $problemDriverCount"
+                        "OEM sources        : $(@($inventoryState.Inventory.OemAdapters).Count)"
                         "Providers          : $(@($inventoryState.Inventory.Providers).Count)"
                         "Collected (UTC)     : $($inventoryState.Inventory.CollectedAtUtc)"
                     ) -join [Environment]::NewLine
@@ -1976,11 +2063,14 @@ function Show-PhoenixDesktop {
                 $inventoryControls.ProviderGrid.ItemsSource =
                     @($inventoryState.Inventory.Providers)
 
-                $inventoryControls.ApplicationGrid.ItemsSource =
-                    @($inventoryState.Inventory.Applications)
-
                 $inventoryControls.DriverGrid.ItemsSource =
                     @($inventoryState.Inventory.Drivers)
+
+                $inventoryControls.OemAdapterGrid.ItemsSource =
+                    @($inventoryState.Inventory.OemAdapters)
+
+                & $populateProviderFilters
+                & $applyApplicationFilter
 
                 $updateApplicationActions =
                     $inventoryState.UpdateApplicationActions
@@ -2398,6 +2488,8 @@ function Show-PhoenixDesktop {
                 "Installed: $($application.Version)"
                 "Available: $(if ($application.UpdateAvailable) { $application.AvailableVersion } else { 'No update found' })"
                 "Provider: $($application.Provider)"
+                "Source: $($application.Source)"
+                "Provider alternatives: $($application.ProviderAlternatives)"
                 "Provider health: $($application.ProviderHealth)"
                 "Supported actions: update=$($application.SupportsUpdate), repair=$($application.SupportsRepair), remove=$($application.SupportsRemove)"
                 "Metadata: $($application.MetadataStatus)"
@@ -3389,6 +3481,19 @@ function Show-PhoenixDesktop {
                 -RetryAction $refreshApplicationUpdates
     }.GetNewClosure())
 
+    $controls.ApplicationProviderFilter.Add_SelectionChanged({
+        & $applyApplicationFilter
+    }.GetNewClosure())
+
+    $controls.SearchProviderFilter.Add_SelectionChanged({
+        $state.SearchResult = @()
+        $controls.SearchResultGrid.ItemsSource = $null
+        $updateActions = $state.UpdateSearchActions
+        if ($updateActions -is [scriptblock]) {
+            & $updateActions
+        }
+    }.GetNewClosure())
+
     $controls.ViewAppUpdateDetailsButton.Add_Click({
         $null =
             & $invokeSafeUiAction `
@@ -3455,6 +3560,27 @@ function Show-PhoenixDesktop {
             return
         }
 
+        [string]$selectedProvider =
+            & $getProviderFilterValue $controls.SearchProviderFilter
+        $searchProviders = if (
+            [string]::IsNullOrWhiteSpace($selectedProvider) -or
+            $selectedProvider -eq 'All providers'
+        ) {
+            @(
+                $state.Inventory.Providers |
+                    Where-Object { $_.Available -and $_.Search } |
+                    ForEach-Object Name
+            )
+        }
+        else { @($selectedProvider) }
+
+        if ($searchProviders.Count -eq 0) { return }
+
+        [string]$providerDescription = if ($searchProviders.Count -eq 1) {
+            [string]$searchProviders[0]
+        }
+        else { 'all available providers' }
+
         $searchState = $state
         $searchControls = $controls
         $searchSetStatus = $setStatus
@@ -3463,9 +3589,10 @@ function Show-PhoenixDesktop {
             -Action 'SearchPackages' `
             -Parameters ([pscustomobject]@{
                 Query = $query
+                Provider = @($searchProviders)
             }) `
             -Description (
-                "Searching WinGet and Chocolatey for '$query'..."
+                "Searching $providerDescription for '$query'..."
             ) `
             -Completed {
                 param($results)
@@ -3743,6 +3870,7 @@ function Show-PhoenixDesktop {
                             else {
                                 'See update title'
                             }
+                            Source = 'Windows Update'
                             DriverVersionDate = $update.DriverVersionDate
                             Description = $update.Description
                             ReleaseNotes = $update.ReleaseNotes

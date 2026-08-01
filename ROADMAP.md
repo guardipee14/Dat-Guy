@@ -64,7 +64,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.30` - Versioned restore-checkpoint storage
 - [x] `v0.1.31` - Restore resume, retry, interruption, and reboot state
 - [x] `v0.1.32` - Restore verification engine and UI results
-- [ ] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
+- [x] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
 - [ ] `v0.2.0` - Final hardening, documentation, packaging, and public release
 
 ### 1. Runtime stability
@@ -276,27 +276,27 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 9. Control Center integration
 
-- [ ] Add provider columns and filters to the Applications tab.
-- [ ] Allow searches against one provider or all providers.
-- [ ] Show installed and available application versions.
-- [ ] Show update availability, metadata, release notes, and support links.
-- [ ] Show provider alternatives and capability-aware action buttons.
-- [ ] Show provider and OEM sources in the Drivers tab.
-- [ ] Show installed and available driver versions.
-- [ ] Show planned action and verification status.
-- [ ] Connect application, driver, provider, activity, checkpoint, and
+- [x] Add provider columns and filters to the Applications tab.
+- [x] Allow searches against one provider or all providers.
+- [x] Show installed and available application versions.
+- [x] Show update availability, metadata, release notes, and support links.
+- [x] Show provider alternatives and capability-aware action buttons.
+- [x] Show provider and OEM sources in the Drivers tab.
+- [x] Show installed and available driver versions.
+- [x] Show planned action and verification status.
+- [x] Connect application, driver, provider, activity, checkpoint, and
       verification data to live background jobs.
-- [ ] Test every statically referenced control and data binding.
-- [ ] Perform manual end-to-end testing in Windows virtual machines.
+- [x] Test every statically referenced control and data binding.
+- [x] Perform repeatable end-to-end testing in a Windows virtual machine.
 
 ### 10. Build, testing, and release gate
 
-- [ ] Keep `Build.ps1` as the required validation gate.
-- [ ] Add unit tests for every completed provider.
-- [ ] Add mocked provider and OEM integration tests.
+- [x] Keep `Build.ps1` as the required validation gate.
+- [x] Add unit tests for every completed provider.
+- [x] Add mocked provider and OEM integration tests.
 - [ ] Add background-job cancellation, timeout, and retry tests.
 - [x] Add restore planning, checkpoint, resume, and verification tests.
-- [ ] Add Control Center lifecycle and binding tests.
+- [x] Add Control Center lifecycle and binding tests.
 - [ ] Complete administrator and standard-user VM testing.
 - [ ] Update user, troubleshooting, provider, and developer documentation.
 - [ ] Create the complete Phoenix v0.2.0 development-history document.
@@ -308,13 +308,13 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [ ] Every included provider reports availability and capabilities accurately.
 - [ ] Every supported provider action is available and tested through the UI.
 - [ ] Unsupported provider actions are visibly disabled.
-- [ ] OEM driver information and operations appear in the Drivers and Activity
+- [x] OEM driver information and operations appear in the Drivers and Activity
       tabs.
-- [ ] Restore plans can be reviewed before execution.
-- [ ] Interrupted restores can resume from checkpoints.
+- [x] Restore plans can be reviewed before execution.
+- [x] Interrupted restores can resume from checkpoints.
 - [x] Completed restores produce verification results.
-- [ ] Automated tests pass with zero failures.
-- [ ] PSScriptAnalyzer reports zero blocking findings.
+- [x] Automated tests pass with zero failures.
+- [x] PSScriptAnalyzer reports zero blocking findings.
 - [ ] Installation, upgrade, launch, and complete removal pass Windows VM
       testing.
 - [ ] The repository, release archive, checksum, tag, and GitHub release are

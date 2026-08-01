@@ -686,6 +686,10 @@
                             Style="{StaticResource CardBorder}"
                             Margin="0,0,0,12">
                             <WrapPanel>
+                                <TextBlock Text="Provider" VerticalAlignment="Center" Margin="4" />
+                                <ComboBox x:Name="ApplicationProviderFilter" MinWidth="150">
+                                    <ComboBoxItem Content="All providers" IsSelected="True" />
+                                </ComboBox>
                                 <Button x:Name="RefreshAppUpdatesButton" Style="{StaticResource ModernButton}" Content="Check for updates" />
                                 <Button x:Name="ViewAppUpdateDetailsButton" Style="{StaticResource SecondaryButton}" Content="Load update details" IsEnabled="False" />
                                 <Button x:Name="UpdateSelectedAppsButton" Style="{StaticResource ModernButton}" Content="Update selected" IsEnabled="False" />
@@ -707,6 +711,8 @@
                                 <DataGridTextColumn Header="Available" Binding="{Binding AvailableVersion}" Width="110" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Update" Binding="{Binding UpdateStatus}" Width="125" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="110" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="120" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Alternatives" Binding="{Binding ProviderAlternatives}" Width="180" IsReadOnly="True" />
                                 <DataGridCheckBoxColumn Header="Actionable" Binding="{Binding Actionable}" Width="85" IsReadOnly="True" />
                             </DataGrid.Columns>
                         </DataGrid>
@@ -746,26 +752,34 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBox
                                     Grid.Column="0"
                                     x:Name="AppSearchText"
-                                    ToolTip="Search WinGet and Chocolatey"
+                                    ToolTip="Search available application providers"
                                     MinWidth="280" />
-                                <Button
+                                <ComboBox
                                     Grid.Column="1"
+                                    x:Name="SearchProviderFilter"
+                                    MinWidth="155"
+                                    ToolTip="Search one provider or every searchable provider">
+                                    <ComboBoxItem Content="All providers" IsSelected="True" />
+                                </ComboBox>
+                                <Button
+                                    Grid.Column="2"
                                     x:Name="SearchAppsButton"
                                     Style="{StaticResource ModernButton}"
                                     Content="Search"
                                     IsEnabled="False" />
                                 <Button
-                                    Grid.Column="2"
+                                    Grid.Column="3"
                                     x:Name="InstallSelectedSearchButton"
                                     Style="{StaticResource ModernButton}"
                                     Content="Install selected"
                                     IsEnabled="False" />
                                 <Button
-                                    Grid.Column="3"
+                                    Grid.Column="4"
                                     x:Name="InstallAllSearchButton"
                                     Style="{StaticResource SecondaryButton}"
                                     Content="Install all results"
@@ -805,11 +819,33 @@
                             Grid.Row="1"
                             Style="{StaticResource CardBorder}"
                             Margin="0,0,0,12">
-                            <WrapPanel>
-                                <Button x:Name="RepairSelectedDriversButton" Style="{StaticResource SecondaryButton}" Content="Repair selected" />
-                                <Button x:Name="UninstallSelectedDriversButton" Style="{StaticResource DangerButton}" Content="Uninstall selected" />
-                                <Button x:Name="RepairProblemDriversButton" Style="{StaticResource DangerButton}" Content="Repair problem drivers" />
-                            </WrapPanel>
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <WrapPanel Grid.Row="0">
+                                    <Button x:Name="RepairSelectedDriversButton" Style="{StaticResource SecondaryButton}" Content="Repair selected" />
+                                    <Button x:Name="UninstallSelectedDriversButton" Style="{StaticResource DangerButton}" Content="Uninstall selected" />
+                                    <Button x:Name="RepairProblemDriversButton" Style="{StaticResource DangerButton}" Content="Repair problem drivers" />
+                                </WrapPanel>
+                                <DataGrid
+                                    Grid.Row="1"
+                                    x:Name="OemAdapterGrid"
+                                    Margin="0,8,0,0"
+                                    MinHeight="95"
+                                    MaxHeight="145"
+                                    IsReadOnly="True"
+                                    AutoGenerateColumns="False">
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn Header="OEM source" Binding="{Binding Name}" Width="105" />
+                                        <DataGridCheckBoxColumn Header="Applicable" Binding="{Binding Applicable}" Width="75" />
+                                        <DataGridTextColumn Header="Utility" Binding="{Binding UtilityName}" Width="2*" />
+                                        <DataGridCheckBoxColumn Header="Available" Binding="{Binding UtilityAvailable}" Width="75" />
+                                        <DataGridCheckBoxColumn Header="Approval" Binding="{Binding RequiresUtilityApproval}" Width="75" />
+                                    </DataGrid.Columns>
+                                </DataGrid>
+                            </Grid>
                         </Border>
                         <DataGrid
                             Grid.Row="2"
@@ -819,6 +855,7 @@
                                 <DataGridCheckBoxColumn Header="Select" Binding="{Binding IsSelected, Mode=TwoWay}" Width="60" />
                                 <DataGridTextColumn Header="Device" Binding="{Binding Name}" Width="2*" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Manufacturer" Binding="{Binding Manufacturer}" Width="160" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="150" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="130" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Class" Binding="{Binding Class}" Width="120" IsReadOnly="True" />
                                 <DataGridTextColumn Header="INF" Binding="{Binding InfName}" Width="100" IsReadOnly="True" />
@@ -847,6 +884,7 @@
                                 <DataGridTextColumn Header="Class" Binding="{Binding DriverClass}" Width="110" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Installed" Binding="{Binding InstalledVersion}" Width="105" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Available" Binding="{Binding AvailableVersion}" Width="105" IsReadOnly="True" />
+                                <DataGridTextColumn Header="Source" Binding="{Binding Source}" Width="115" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Published" Binding="{Binding PublishedDisplay}" Width="125" IsReadOnly="True" />
                                 <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="110" IsReadOnly="True" />
                             </DataGrid.Columns>

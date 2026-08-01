@@ -4,6 +4,25 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.33] - 2026-08-01
+
+### Added
+- complete Control Center data integration and Windows VM smoke coverage
+  - Filter installed applications by provider and search either one selected
+    provider or every available searchable provider.
+  - Display application source and provider alternatives while retaining live
+    installed/available versions, update metadata, release notes, support
+    links, and capability-aware actions.
+  - Bind driver provider, Windows Update source, installed/available versions,
+    and the six OEM adapter status rows directly into the Drivers page.
+  - Add WPF integration tests that resolve every runtime control, verify the
+    shipped grid bindings, and trace each live data source to its isolated
+    worker action.
+  - Add a repeatable STA Windows VM smoke gate that starts Phoenix without
+    provider installation, collects live inventory, loads and lays out all six
+    Control Center pages, validates bindings and privilege behavior, and emits
+    an optional JSON report.
+
 ## [0.1.32] - 2026-08-01
 
 ### Added

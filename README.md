@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.32`
+**Current module version:** `0.1.33`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -27,6 +27,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Queue application install, update, repair, and removal operations in FIFO order when another Control Center operation is active.
 - Start, poll, wait for, or cancel restore work through the shared isolated background-job lifecycle.
 - Monitor queued, running, completed, cancelled, and failed Control Center operations in a live Activity grid.
+- Filter installed applications by provider, search one provider or every available provider, and review source, installed/available versions, alternatives, update metadata, release notes, support links, and capability-aware actions.
 - Cancel, retry, clear, and inspect Activity jobs with result codes, warnings, errors, and restart details.
 - Inspect provider availability, health, privilege, and supported operations through one shared contract; unsupported application actions remain disabled.
 - Normalize provider results across search, inventory, install, update, repair, remove, export, and restore, including exit, restart, timeout, and cancellation metadata.
@@ -42,11 +43,13 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Detect Windows Update/WSUS policy, discover applicable managed updates, and download/install them through Windows Update Agent with source, approval, HRESULT, applicability, and reboot details.
 - Select providers through a shared orchestration policy with explicit fallback, capability, elevation, protected-package safety, restore alternatives, and normalized CLI/UI results.
 - Use a common OEM driver-adapter contract with manufacturer/hardware applicability, utility approval, Windows Update fallback, version/release/support metadata, and isolated background operations for Dell, HP, Lenovo, Intel, AMD, and NVIDIA.
+- Inspect installed driver providers, Windows Update sources and versions, plus live applicability and utility status for all six OEM adapters directly in the Drivers page.
 - Build a non-mutating restore plan before execution with per-record actions, installed/requested/available versions, provider alternatives, elevation, safety, dependency, and restart metadata.
 - Review restore plans in a dedicated background-powered Control Center page with selection, type/provider/action filters, provider alternatives, and atomic save/reload support.
 - Persist restore sessions in versioned checkpoints with manifest/computer identity, immutable history snapshots, atomic current state, per-operation status, retry, timestamp, result, and reboot fields.
 - Execute reviewed plans with a checkpoint before and after each operation, resume without repeating completed work, retry eligible failures, recover interrupted records, reject stale manifests, and preserve restart-pending state.
 - Verify completed restores by rescanning applications and drivers, classifying per-record outcomes, preserving provider/version/failure details, and showing complete, partial, failed, or restart-pending results in the Control Center.
+- Run the repeatable STA Windows VM/WPF smoke gate in `Build\Invoke-PhoenixWindowsVmSmoke.ps1`; see `Docs\Windows-VM-Testing.md` for the standard and administrator test matrix.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.

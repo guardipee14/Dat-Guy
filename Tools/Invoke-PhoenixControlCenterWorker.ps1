@@ -182,8 +182,16 @@ try {
             & $phoenixModule {
                 param($workerParameters)
 
-                Search-PhoenixControlCenterPackage `
-                    -Query $workerParameters.Query
+                $searchParameters = @{
+                    Query = $workerParameters.Query
+                }
+                if (
+                    $null -ne $workerParameters.PSObject.Properties['Provider'] -and
+                    @($workerParameters.Provider).Count -gt 0
+                ) {
+                    $searchParameters.Provider = @($workerParameters.Provider)
+                }
+                Search-PhoenixControlCenterPackage @searchParameters
             } $request.Parameters
         }
 
