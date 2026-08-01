@@ -52,7 +52,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.18` - Implement the GitHub Releases provider
 - [x] `v0.1.19` - Implement the PowerShell Gallery provider
 - [x] `v0.1.20` - Implement the NuGet provider
-- [ ] `v0.1.21` - Implement online DISM capability and package management
+- [x] `v0.1.21` - Implement online DISM capability and package management
 - [ ] `v0.1.22` - Implement WSUS policy, discovery, and installation support
 - [ ] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
 - [ ] `v0.1.24` - Common OEM driver-adapter framework
@@ -197,11 +197,11 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### DISM
 
-- [ ] Detect applicable online Windows capabilities, features, and packages.
-- [ ] Implement supported enable, install, disable, and removal operations.
-- [ ] Report restart requirements and DISM result codes.
-- [ ] Add capability-aware DISM actions to the Applications tab.
-- [ ] Keep offline Windows-image servicing outside the v0.2.0 scope.
+- [x] Detect applicable online Windows capabilities, features, and packages.
+- [x] Implement supported enable, install, disable, and removal operations.
+- [x] Report restart requirements and DISM result codes.
+- [x] Add capability-aware DISM actions to the Applications tab.
+- [x] Keep offline Windows-image servicing outside the v0.2.0 scope.
 
 #### WSUS
 

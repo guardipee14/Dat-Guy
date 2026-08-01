@@ -39,7 +39,8 @@ function Remove-PhoenixPackage {
             'MSI',
             'EXE',
             'PowerShell Gallery',
-            'NuGet'
+            'NuGet',
+            'DISM'
         )]
         [string]$Provider
     )

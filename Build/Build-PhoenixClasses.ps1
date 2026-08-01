@@ -371,6 +371,7 @@ $baseAndCoreFiles = @(
     '00-Base\GitHubReleasePackageDefinition.ps1'
     '00-Base\PowerShellGalleryPackageDefinition.ps1'
     '00-Base\NuGetPackageDefinition.ps1'
+    '00-Base\DISMPackageDefinition.ps1'
     '00-Base\Driver.ps1'
 
     '10-Core\PhoenixLogger.ps1'
@@ -395,6 +396,7 @@ $partOneProviders = @(
     'GitHubProvider'
     'PowerShellGalleryProvider'
     'NuGetProvider'
+    'DISMProvider'
 )
 
 foreach ($providerName in $partOneProviders) {

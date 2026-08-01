@@ -40,7 +40,8 @@ function Install-PhoenixPackage {
         'EXE',
         'GitHub Releases',
         'PowerShell Gallery',
-        'NuGet'
+        'NuGet',
+        'DISM'
     )]
     [string]$Provider,
 

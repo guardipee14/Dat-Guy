@@ -4,6 +4,19 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.21] - 2026-08-01
+
+### Added
+- online DISM servicing provider
+  - Detect installed and applicable Windows capabilities, optional features,
+    and packages in the running Windows image.
+  - Enable or install and disable or remove supported servicing records with
+    administrator policy and local-source validation.
+  - Normalize success, failure, HRESULT, and restart-required results.
+  - Register DISM inventory, search, health, and capability-aware actions in
+    the Applications tab while explicitly excluding offline images.
+  - Add online-scope, command-path, result, safety, and UI tests.
+
 ## [0.1.20] - 2026-08-01
 
 ### Added
