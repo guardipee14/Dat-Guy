@@ -6,8 +6,21 @@ function Start-Phoenix {
         [switch]$Resume,
 
         [Parameter()]
-        [switch]$Force
+        [switch]$Force,
+
+        [Parameter(DontShow)]
+        [switch]$SkipProviderBootstrap,
+
+        [Parameter(DontShow)]
+        [switch]$EnsureProviderBootstrap
     )
+
+    if ($SkipProviderBootstrap -and $EnsureProviderBootstrap) {
+        throw (
+            'Provider bootstrap cannot be skipped and ensured ' +
+            'during the same Phoenix start.'
+        )
+    }
 
     $existingContext =
         Get-PhoenixContext
@@ -39,26 +52,35 @@ function Start-Phoenix {
         $Force -or
         -not $hadReadyContext
 
-    if (-not $createdContext) {
+    if (
+        -not $createdContext -and
+        -not $EnsureProviderBootstrap
+    ) {
         return
     }
 
-    try {
-        Install-MissingProviders `
-            -Context $context `
-            -ErrorAction Stop
+    if (-not $SkipProviderBootstrap) {
+        try {
+            Install-MissingProviders `
+                -Context $context `
+                -ErrorAction Stop
+        }
+        catch {
+            [string]$providerWarning = (
+                'Provider bootstrap did not complete: {0}' -f
+                $_.Exception.Message
+            )
+
+            $context.InitializationWarnings.Add(
+                $providerWarning
+            )
+
+            Write-Warning $providerWarning
+        }
     }
-    catch {
-        [string]$providerWarning = (
-            'Provider bootstrap did not complete: {0}' -f
-            $_.Exception.Message
-        )
 
-        $context.InitializationWarnings.Add(
-            $providerWarning
-        )
-
-        Write-Warning $providerWarning
+    if (-not $createdContext) {
+        return
     }
 
     if ($Resume) {
@@ -70,6 +92,11 @@ function Start-Phoenix {
 
         Write-PhoenixLog `
             -Level Info `
-            -Message 'Phoenix started.'
+            -Message $(if ($SkipProviderBootstrap) {
+                'Phoenix started with provider bootstrap deferred.'
+            }
+            else {
+                'Phoenix started.'
+            })
     }
 }

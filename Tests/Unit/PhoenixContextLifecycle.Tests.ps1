@@ -92,6 +92,55 @@ Describe 'Phoenix context lifecycle' -Tag @(
         }
     }
 
+    It 'runs provider bootstrap during normal startup' {
+        InModuleScope Phoenix {
+            $script:providerBootstrapCount = 0
+
+            Mock Install-MissingProviders {
+                $script:providerBootstrapCount++
+            }
+
+            $null = Start-Phoenix
+
+            $script:providerBootstrapCount |
+                Should-Be 1
+        }
+    }
+
+    It 'can defer provider bootstrap for desktop startup' {
+        InModuleScope Phoenix {
+            $script:providerBootstrapCount = 0
+
+            Mock Install-MissingProviders {
+                $script:providerBootstrapCount++
+            }
+
+            $null =
+                Start-Phoenix `
+                    -SkipProviderBootstrap
+
+            $context =
+                Get-PhoenixContext `
+                    -RequireInitialized
+
+            $context.LifecycleState |
+                Should-Be 'Ready'
+
+            $context.Providers.Count |
+                Should-BeGreaterThan 0
+
+            $script:providerBootstrapCount |
+                Should-Be 0
+
+            $null =
+                Start-Phoenix `
+                    -EnsureProviderBootstrap
+
+            $script:providerBootstrapCount |
+                Should-Be 1
+        }
+    }
+
     It 'reuses one context during repeated starts' {
         InModuleScope Phoenix {
             $null = Start-Phoenix

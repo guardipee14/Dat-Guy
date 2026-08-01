@@ -4,6 +4,21 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-08-01
+
+### Changed
+- keep fresh Control Center startup responsive during provider initialization
+  - Defer missing-provider availability and installation checks when the
+    desktop creates its initial Phoenix context.
+  - Run provider bootstrap inside the existing isolated inventory worker
+    before inventory collection begins.
+  - Synchronize worker-reported provider availability back into the desktop
+    context after inventory completes.
+  - Preserve synchronous provider bootstrap for console and command-line
+    startup.
+  - Add lifecycle and Control Center regression coverage for the deferred
+    desktop path.
+
 ## [0.1.6] - 2026-07-31
 
 ### Added

@@ -97,6 +97,9 @@ function Open-Phoenix {
 
     $null =
         Resolve-PhoenixContext `
+            -SkipProviderBootstrap:(
+                $resolvedMode -eq 'Desktop'
+            ) `
             -ErrorAction Stop
 
     Write-PhoenixLog `
@@ -104,6 +107,15 @@ function Open-Phoenix {
         -Message (
             "Opening Phoenix control center in $resolvedMode mode."
         )
+
+    $showConsoleFallback = {
+        $null =
+            Start-Phoenix `
+                -EnsureProviderBootstrap `
+                -ErrorAction Stop
+
+        Show-PhoenixConsole
+    }
 
     switch ($resolvedMode) {
         'Desktop' {
@@ -164,7 +176,7 @@ function Open-Phoenix {
                                 'Opening the console interface instead.'
                             )
 
-                            Show-PhoenixConsole
+                            & $showConsoleFallback
                             return
                         }
 
@@ -192,12 +204,12 @@ function Open-Phoenix {
                                 continue
                             }
 
-                            Show-PhoenixConsole
+                            & $showConsoleFallback
                             return
                         }
 
                         'Console' {
-                            Show-PhoenixConsole
+                            & $showConsoleFallback
                             return
                         }
 

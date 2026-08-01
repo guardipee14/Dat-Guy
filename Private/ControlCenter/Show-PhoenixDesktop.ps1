@@ -241,6 +241,9 @@ function Show-PhoenixDesktop {
         DispatcherFailureCount = 0
     }
 
+    $getContextCommand =
+        ${function:Get-PhoenixContext}
+
     $getInventoryCommand =
         ${function:Get-PhoenixControlCenterInventory}
 
@@ -1377,6 +1380,7 @@ function Show-PhoenixDesktop {
         $inventoryState = $state
         $inventoryControls = $controls
         $inventorySetStatus = $setStatus
+        $inventoryGetContext = $getContextCommand
 
         & $startOperation `
             -Action 'Inventory' `
@@ -1388,6 +1392,40 @@ function Show-PhoenixDesktop {
                 param($inventory)
 
                 $inventoryState.Inventory = $inventory
+
+                $context =
+                    & $inventoryGetContext `
+                        -RequireInitialized
+
+                foreach (
+                    $providerStatus in @(
+                        $inventoryState.Inventory.Providers
+                    )
+                ) {
+                    $provider =
+                        $context.Providers |
+                            Where-Object {
+                                $_.Name -eq $providerStatus.Name
+                            } |
+                            Select-Object -First 1
+
+                    if ($null -eq $provider) {
+                        continue
+                    }
+
+                    $provider.Available =
+                        [bool]$providerStatus.Available
+
+                    if (
+                        -not [string]::IsNullOrWhiteSpace(
+                            [string]$providerStatus.Version
+                        )
+                    ) {
+                        $provider.Version =
+                            [string]$providerStatus.Version
+                    }
+                }
+
                 $summary = $inventoryState.Inventory.Summary
 
                 $inventoryControls.HeaderSubtitle.Text = (

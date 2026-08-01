@@ -578,6 +578,80 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
     }
 
+    It 'defers provider bootstrap from desktop startup to a worker' {
+
+        [string]$openSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Public\Open-Phoenix.ps1'
+                ) `
+                -Raw
+
+        [string]$resolveSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\Core\Resolve-PhoenixContext.ps1'
+                ) `
+                -Raw
+
+        [string]$startSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Public\Start-Phoenix.ps1'
+                ) `
+                -Raw
+
+        [string]$workerSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Tools\Invoke-PhoenixControlCenterWorker.ps1'
+                ) `
+                -Raw
+
+        $openSource.Contains(
+            '-SkipProviderBootstrap:('
+        ) |
+            Should-BeTrue
+
+        $openSource.Contains(
+            '-EnsureProviderBootstrap'
+        ) |
+            Should-BeTrue
+
+        $resolveSource.Contains(
+            '-SkipProviderBootstrap:$SkipProviderBootstrap'
+        ) |
+            Should-BeTrue
+
+        $startSource.Contains(
+            'if (-not $SkipProviderBootstrap)'
+        ) |
+            Should-BeTrue
+
+        $workerSource.Contains(
+            'Start-Phoenix `'
+        ) |
+            Should-BeTrue
+
+        $workerSource.Contains(
+            "'Inventory'"
+        ) |
+            Should-BeTrue
+
+        $workerSource.Contains(
+            "'SearchPackages'"
+        ) |
+            Should-BeTrue
+    }
+
     It 'does not synchronously invoke the dispatcher from timer callbacks' {
 
         [string]$desktopSource =

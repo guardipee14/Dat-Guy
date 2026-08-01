@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.6`
+**Current module version:** `0.1.7`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -23,6 +23,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Create a versioned JSON restore manifest containing Phoenix metadata, hardware and network inventory, drivers, packages, and provider capabilities.
 - Restore drivers first and reinstall missing WinGet or Chocolatey packages from a versioned Phoenix manifest, with preview, provider filtering, progress, and structured results.
 - Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.
+- Keep the desktop responsive while provider checks, inventory, searches, application operations, and driver operations run in isolated workers.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.
@@ -55,7 +56,7 @@ Import-Module .\Phoenix.psd1 -Force
 Start-Phoenix
 ```
 
-Phoenix first recovers required runtime directories and configuration, then initializes its context, logging, WinGet provider, Chocolatey provider, and missing-provider checks. Repeated calls reuse the active context; use `Start-Phoenix -Force` only when a new context generation is required.
+Phoenix first recovers required runtime directories and configuration, then initializes its context, logging, WinGet provider, Chocolatey provider, and missing-provider checks. The desktop defers provider checks to its initial background inventory worker so the interface can render first. Repeated calls reuse the active context; use `Start-Phoenix -Force` only when a new context generation is required.
 
 ## Common examples
 

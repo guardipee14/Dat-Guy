@@ -38,7 +38,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.4` - Automatic directory, configuration, and runtime recovery
 - [x] `v0.1.5` - Control Center exception isolation and desktop recovery
 - [x] `v0.1.6` - Shared background-job contract
-- [ ] `v0.1.7` - Background inventory, provider initialization, and searches
+- [x] `v0.1.7` - Background inventory, provider initialization, and searches
 - [ ] `v0.1.8` - Background application operation queue
 - [ ] `v0.1.9` - Background driver and restore jobs with cancellation
 - [ ] `v0.1.10` - Activity Center live job display
@@ -84,7 +84,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 - [x] Define a common Phoenix background-job contract.
 - [x] Move inventory collection off the WPF interface thread.
-- [ ] Move provider initialization off the desktop startup path.
+- [x] Move provider initialization off the desktop startup path.
 - [x] Move package searches off the WPF interface thread.
 - [x] Move application operations off the WPF interface thread.
 - [x] Move driver operations off the WPF interface thread.

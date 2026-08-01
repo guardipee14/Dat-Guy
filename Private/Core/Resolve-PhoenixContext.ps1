@@ -2,7 +2,10 @@ function Resolve-PhoenixContext {
 
     [CmdletBinding()]
     [OutputType([PhoenixContext])]
-    param()
+    param(
+        [Parameter()]
+        [switch]$SkipProviderBootstrap
+    )
 
     $context =
         Get-PhoenixContext
@@ -15,6 +18,7 @@ function Resolve-PhoenixContext {
     ) {
         $null =
             Start-Phoenix `
+                -SkipProviderBootstrap:$SkipProviderBootstrap `
                 -ErrorAction Stop
 
         $context =
