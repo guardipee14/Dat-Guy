@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.14`
+**Current module version:** `0.1.15`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -32,6 +32,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Normalize provider results across search, inventory, install, update, repair, remove, export, and restore, including exit, restart, timeout, and cancellation metadata.
 - Use complete WinGet search, inventory, silent or interactive install, update, repair, removal, metadata, exit-code, and restart-aware UI flows.
 - Use Chocolatey search, inventory, install, update, repair, removal, metadata, privilege, exit-code, and reboot-aware results through the common provider contract.
+- Discover and manage Scoop applications with user-scope search, inventory, install, update, removal, export, restore, provider health, and Control Center support.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.

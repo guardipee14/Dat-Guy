@@ -126,13 +126,27 @@ Describe 'Test-PhoenixRestorePackage' -Tag @(
             Should-BeFalse
     }
 
-    It 'rejects an unsupported provider' {
+    It 'accepts a Scoop package' {
 
         $package = [pscustomobject]@{
             Name     = 'Example Application'
             Id       = 'example'
             Provider = 'Scoop'
             Source   = 'main'
+        }
+
+        Test-PhoenixRestorePackage `
+            -InputObject $package |
+            Should-BeTrue
+    }
+
+    It 'rejects an unsupported provider' {
+
+        $package = [pscustomobject]@{
+            Name     = 'Example Application'
+            Id       = 'example'
+            Provider = 'UnknownProvider'
+            Source   = 'unknown'
         }
 
         Test-PhoenixRestorePackage `

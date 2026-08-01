@@ -385,6 +385,7 @@ $partOneProviders = @(
     'PhoenixProvider'
     'WinGetProvider'
     'ChocolateyProvider'
+    'ScoopProvider'
 )
 
 foreach ($providerName in $partOneProviders) {

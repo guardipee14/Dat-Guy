@@ -46,7 +46,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.12` - Common provider capability and result contract
 - [x] `v0.1.13` - Complete WinGet behavior and UI verification
 - [x] `v0.1.14` - Complete Chocolatey behavior and UI verification
-- [ ] `v0.1.15` - Implement Scoop and connect it to the UI
+- [x] `v0.1.15` - Implement Scoop and connect it to the UI
 - [ ] `v0.1.16` - Implement MSI packages and connect them to the UI
 - [ ] `v0.1.17` - Implement EXE package definitions and UI operations
 - [ ] `v0.1.18` - Implement the GitHub Releases provider
@@ -147,11 +147,11 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### Scoop
 
-- [ ] Implement availability and installation checks.
-- [ ] Implement search and installed-package inventory.
-- [ ] Implement install, update, and uninstall.
-- [ ] Implement export and restore support.
-- [ ] Add Scoop selection, status, and results to the Applications tab.
+- [x] Implement availability and installation checks.
+- [x] Implement search and installed-package inventory.
+- [x] Implement install, update, and uninstall.
+- [x] Implement export and restore support.
+- [x] Add Scoop selection, status, and results to the Applications tab.
 
 #### MSI
 

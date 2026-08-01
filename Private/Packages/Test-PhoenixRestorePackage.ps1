@@ -45,7 +45,7 @@ function Test-PhoenixRestorePackage {
             return $false
         }
 
-        if ($provider -ieq 'Chocolatey') {
+        if ($provider -iin @('Chocolatey', 'Scoop')) {
             return $true
         }
 

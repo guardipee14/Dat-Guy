@@ -10,11 +10,13 @@ function Search-PhoenixControlCenterPackage {
         [Parameter()]
         [ValidateSet(
             'WinGet',
-            'Chocolatey'
+            'Chocolatey',
+            'Scoop'
         )]
         [string[]]$Provider = @(
             'WinGet',
-            'Chocolatey'
+            'Chocolatey',
+            'Scoop'
         )
     )
 

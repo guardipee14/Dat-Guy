@@ -4,6 +4,20 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-08-01
+
+### Added
+- Scoop provider integration
+  - Detect Scoop without requiring administrator privileges.
+  - Implement JSON-backed installed inventory, search, install, update, and
+    removal with normalized Phoenix results.
+  - Export Scoop state and restore typed package selections.
+  - Require explicit user installation of Scoop instead of silently running a
+    remote bootstrap script.
+  - Register Scoop in provider initialization, application search, inventory,
+    restore eligibility, health, and capability-aware UI actions.
+  - Add Scoop contract and integration tests.
+
 ## [0.1.14] - 2026-08-01
 
 ### Added
