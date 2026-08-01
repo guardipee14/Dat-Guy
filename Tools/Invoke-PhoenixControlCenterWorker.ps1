@@ -320,6 +320,32 @@ try {
                 -ReinstallInstalled:([bool]$request.Parameters.ReinstallInstalled)
         }
 
+        'RestorePlanExecute' {
+            Write-PhoenixWorkerProgress `
+                -Percent 5 `
+                -Message 'Starting checkpointed restore execution...'
+
+            if (-not [string]::IsNullOrWhiteSpace(
+                [string]$request.Parameters.SessionId
+            )) {
+                Resume-PhoenixRestore `
+                    -SessionId ([string]$request.Parameters.SessionId) `
+                    -CheckpointRoot ([string]$request.Parameters.CheckpointRoot) `
+                    -RetryFailed:([bool]$request.Parameters.RetryFailed) `
+                    -StopOnError:([bool]$request.Parameters.StopOnError) `
+                    -Unattended `
+                    -Confirm:$false
+            }
+            else {
+                Invoke-PhoenixRestorePlan `
+                    -Plan $request.Parameters.Plan `
+                    -CheckpointRoot ([string]$request.Parameters.CheckpointRoot) `
+                    -StopOnError:([bool]$request.Parameters.StopOnError) `
+                    -Unattended `
+                    -Confirm:$false
+            }
+        }
+
         default {
             throw (
                 "Unsupported Control Center worker action '$($request.Action)'."

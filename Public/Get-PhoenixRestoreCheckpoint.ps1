@@ -13,7 +13,10 @@ function Get-PhoenixRestoreCheckpoint {
         [string]$CheckpointRoot = '',
 
         [Parameter()]
-        [switch]$AllowDifferentComputer
+        [switch]$AllowDifferentComputer,
+
+        [Parameter()]
+        [switch]$AllowStaleManifest
     )
 
     [guid]$sessionGuid = [guid]::Empty
@@ -42,6 +45,21 @@ function Get-PhoenixRestoreCheckpoint {
     ) {
         throw 'The checkpoint belongs to a different computer.'
     }
+    if (
+        -not $AllowStaleManifest -and
+        -not [string]::IsNullOrWhiteSpace([string]$raw.ManifestPath) -and
+        (Test-Path -LiteralPath ([string]$raw.ManifestPath) -PathType Leaf)
+    ) {
+        [string]$currentHash = (
+            Get-FileHash -LiteralPath ([string]$raw.ManifestPath) -Algorithm SHA256
+        ).Hash.ToLowerInvariant()
+        if (
+            -not [string]::IsNullOrWhiteSpace([string]$raw.ManifestSha256) -and
+            $currentHash -ne [string]$raw.ManifestSha256
+        ) {
+            throw 'The restore manifest changed after this checkpoint was created.'
+        }
+    }
     $checkpoint = [PhoenixRestoreCheckpoint]::new()
     foreach ($property in @(
         'SchemaVersion','SessionId','PlanId','ManifestId','ManifestPath',
@@ -51,6 +69,7 @@ function Get-PhoenixRestoreCheckpoint {
     $checkpoint.CreatedAtUtc = [datetime]$raw.CreatedAtUtc
     $checkpoint.UpdatedAtUtc = [datetime]$raw.UpdatedAtUtc
     $checkpoint.StoragePath = $path
+    $checkpoint.PlanSnapshot = $raw.PlanSnapshot
     $records = [Collections.Generic.List[PhoenixRestoreCheckpointRecord]]::new()
     foreach ($rawRecord in @($raw.Records)) {
         $record = [PhoenixRestoreCheckpointRecord]::new()

@@ -4,6 +4,24 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.31] - 2026-08-01
+
+### Added
+- checkpointed restore execution and resume
+  - Save checkpoint state before and after every selected application or driver
+    operation.
+  - Resume pending work without repeating completed or skipped records and
+    convert abandoned running records into explicit retryable work.
+  - Retry only eligible failures, retain attempt/result/error details, and
+    support deterministic interruption testing.
+  - Reject changed manifests and foreign or incompatible checkpoints by
+    default.
+  - Preserve aggregate and per-operation reboot state, display checkpoint
+    status in the Restore Plan page, and run execution/resume in the isolated
+    background worker.
+  - Add progress, skip, retry, interruption, stale-manifest, reboot, UI, worker,
+    and export tests.
+
 ## [0.1.30] - 2026-08-01
 
 ### Added

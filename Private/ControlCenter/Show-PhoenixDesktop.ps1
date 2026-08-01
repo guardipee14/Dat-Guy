@@ -128,6 +128,8 @@ function Show-PhoenixDesktop {
             'RestorePlanSummaryText'
             'RestoreProviderCombo'
             'ApplyRestoreProviderButton'
+            'ExecuteRestorePlanButton'
+            'ResumeRestoreButton'
             'ActivityGrid'
             'ActivityCancelButton'
             'ActivityRetryButton'
@@ -251,6 +253,7 @@ function Show-PhoenixDesktop {
         DriverUpdate = @()
         RestorePlan   = $null
         RestorePlanPath = ''
+        RestoreSessionId = ''
         UiConfiguration = $uiConfiguration
         EditMode       = $false
         Themes         = @()
@@ -1065,6 +1068,21 @@ function Show-PhoenixDesktop {
                     $target = Split-Path `
                         -Path ([string]$parameters.ManifestPath) `
                         -Leaf
+                }
+            }
+
+            'RestorePlanExecute' {
+                $provider = 'Phoenix checkpointed restore'
+                if (
+                    $null -ne $parameters -and
+                    -not [string]::IsNullOrWhiteSpace(
+                        [string]$parameters.SessionId
+                    )
+                ) {
+                    $target = "Session $($parameters.SessionId)"
+                }
+                else {
+                    $target = 'Selected restore plan records'
                 }
             }
 
@@ -2640,6 +2658,9 @@ function Show-PhoenixDesktop {
             $blockedCount
         )
         $controls.SaveRestorePlanButton.IsEnabled = $true
+        $controls.ExecuteRestorePlanButton.IsEnabled = $selectedCount -gt 0
+        $controls.ResumeRestoreButton.IsEnabled =
+            -not [string]::IsNullOrWhiteSpace($state.RestoreSessionId)
         & $updateRestoreProviderChoices
     }.GetNewClosure()
 
@@ -2798,6 +2819,75 @@ function Show-PhoenixDesktop {
         $controls.RestorePlanGrid.Items.Refresh()
         & $refreshRestorePlanGrid
         & $setStatus "Selected '$providerName' for '$($record.Name)'."
+    }.GetNewClosure())
+
+    $completeRestoreExecution = {
+        param([object]$Result)
+        if (
+            $null -ne $Result -and
+            $null -ne $Result.Data -and
+            $null -ne $Result.Data.Checkpoint
+        ) {
+            $checkpoint = $Result.Data.Checkpoint
+            $state.RestoreSessionId = [string]$checkpoint.SessionId
+            $controls.RestorePlanSummaryText.Text = (
+                'Checkpoint {0} | {1} | sequence {2} | reboot: {3}' -f
+                $checkpoint.SessionId,
+                $checkpoint.Status,
+                $checkpoint.Sequence,
+                $checkpoint.RebootRequired
+            )
+            $controls.ResumeRestoreButton.IsEnabled =
+                [string]$checkpoint.Status -in @('Interrupted','Partial','RestartPending')
+            & $setStatus ([string]$Result.Message)
+        }
+        else {
+            & $setStatus 'Restore execution returned no checkpoint state.'
+        }
+    }.GetNewClosure()
+
+    $controls.ExecuteRestorePlanButton.Add_Click({
+        if ($null -eq $state.RestorePlan) { return }
+        [int]$selectedCount = @(
+            $state.RestorePlan.Records | Where-Object Selected
+        ).Count
+        if ($selectedCount -eq 0) { return }
+        $choice = [System.Windows.MessageBox]::Show(
+            $window,
+            "Execute $selectedCount selected restore operations? A checkpoint will be created first.",
+            'Execute Phoenix restore plan',
+            [System.Windows.MessageBoxButton]::YesNo,
+            [System.Windows.MessageBoxImage]::Warning
+        )
+        if ($choice -ne [System.Windows.MessageBoxResult]::Yes) { return }
+        $completion = $completeRestoreExecution
+        & $startOperation `
+            -Action 'RestorePlanExecute' `
+            -Parameters ([pscustomobject]@{
+                Plan = $state.RestorePlan
+                SessionId = ''
+                CheckpointRoot = ''
+                RetryFailed = $false
+                StopOnError = $false
+            }) `
+            -Description "Executing $selectedCount checkpointed restore operations..." `
+            -Completed $completion
+    }.GetNewClosure())
+
+    $controls.ResumeRestoreButton.Add_Click({
+        if ([string]::IsNullOrWhiteSpace($state.RestoreSessionId)) { return }
+        $completion = $completeRestoreExecution
+        & $startOperation `
+            -Action 'RestorePlanExecute' `
+            -Parameters ([pscustomobject]@{
+                Plan = $null
+                SessionId = $state.RestoreSessionId
+                CheckpointRoot = ''
+                RetryFailed = $true
+                StopOnError = $false
+            }) `
+            -Description "Resuming restore session $($state.RestoreSessionId)..." `
+            -Completed $completion
     }.GetNewClosure())
 
     foreach ($pageName in $pageMap.Keys) {

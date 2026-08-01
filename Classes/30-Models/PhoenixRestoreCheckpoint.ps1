@@ -35,6 +35,7 @@ class PhoenixRestoreCheckpoint {
     [string]$Status
     [bool]$RebootRequired
     [string]$PhoenixVersion
+    [object]$PlanSnapshot
     [PhoenixRestoreCheckpointRecord[]]$Records
     [string]$StoragePath
 

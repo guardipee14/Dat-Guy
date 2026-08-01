@@ -62,7 +62,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.28` - Restore planning engine
 - [x] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
 - [x] `v0.1.30` - Versioned restore-checkpoint storage
-- [ ] `v0.1.31` - Restore resume, retry, interruption, and reboot state
+- [x] `v0.1.31` - Restore resume, retry, interruption, and reboot state
 - [ ] `v0.1.32` - Restore verification engine and UI results
 - [ ] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
 - [ ] `v0.2.0` - Final hardening, documentation, packaging, and public release
@@ -255,13 +255,13 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 - [x] Define a versioned checkpoint schema.
 - [x] Assign restore-session and operation identifiers.
-- [ ] Save progress after every meaningful restore action.
-- [ ] Record completed, pending, skipped, failed, and retryable records.
+- [x] Save progress after every meaningful restore action.
+- [x] Record completed, pending, skipped, failed, and retryable records.
 - [x] Record manifest identity, computer identity, timestamps, and reboot state.
-- [ ] Resume without repeating successful work.
-- [ ] Detect incompatible or stale checkpoints safely.
-- [ ] Display checkpoint and resume status in the Control Center.
-- [ ] Add interruption, failure, retry, and resume regression tests.
+- [x] Resume without repeating successful work.
+- [x] Detect incompatible or stale checkpoints safely.
+- [x] Display checkpoint and resume status in the Control Center.
+- [x] Add interruption, failure, retry, and resume regression tests.
 
 ### 8. Restore verification
 

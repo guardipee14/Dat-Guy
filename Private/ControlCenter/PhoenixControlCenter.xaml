@@ -985,6 +985,8 @@
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock
                                     x:Name="RestorePlanSummaryText"
@@ -1001,6 +1003,18 @@
                                     x:Name="ApplyRestoreProviderButton"
                                     Style="{StaticResource ModernButton}"
                                     Content="Use provider"
+                                    IsEnabled="False" />
+                                <Button
+                                    Grid.Column="3"
+                                    x:Name="ExecuteRestorePlanButton"
+                                    Style="{StaticResource ModernButton}"
+                                    Content="Execute selected"
+                                    IsEnabled="False" />
+                                <Button
+                                    Grid.Column="4"
+                                    x:Name="ResumeRestoreButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Resume / retry"
                                     IsEnabled="False" />
                             </Grid>
                         </Border>

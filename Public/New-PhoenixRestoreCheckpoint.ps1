@@ -5,7 +5,7 @@ function New-PhoenixRestoreCheckpoint {
     [OutputType([PhoenixRestoreCheckpoint])]
     param(
         [Parameter(Mandatory, ValueFromPipeline)]
-        [PhoenixRestorePlan]$Plan,
+        [object]$Plan,
 
         [Parameter()]
         [AllowEmptyString()]
@@ -15,6 +15,7 @@ function New-PhoenixRestoreCheckpoint {
     process {
         $checkpoint = [PhoenixRestoreCheckpoint]::new()
         $checkpoint.PlanId = $Plan.PlanId
+        $checkpoint.PlanSnapshot = $Plan
         $checkpoint.ManifestId = $Plan.ManifestId
         $checkpoint.ManifestPath = $Plan.ManifestPath
         if (Test-Path -LiteralPath $Plan.ManifestPath -PathType Leaf) {

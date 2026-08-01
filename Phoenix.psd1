@@ -12,7 +12,7 @@
 RootModule = 'Phoenix.psm1'
 
 # Version number of this module.
-    ModuleVersion = '0.1.30'
+    ModuleVersion = '0.1.31'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -77,11 +77,13 @@ FunctionsToExport = @(
     'Get-PhoenixProviders'
     'Install-PhoenixPackage'
     'Import-PhoenixRestorePlan'
+    'Invoke-PhoenixRestorePlan'
     'New-PhoenixRestorePlan'
     'New-PhoenixRestoreCheckpoint'
     'Repair-PhoenixPackage'
     'Receive-PhoenixJob'
     'Restore-Phoenix'
+    'Resume-PhoenixRestore'
     'Save-PhoenixRestorePlan'
     'Save-PhoenixRestoreCheckpoint'
     'Start-Phoenix'
