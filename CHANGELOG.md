@@ -4,6 +4,18 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-08-01
+
+### Added
+- complete WinGet application behavior
+  - Add the missing interactive installation implementation.
+  - De-duplicate search and installed-package correlation keys.
+  - Preserve provider, operation, target, exit-code, and restart metadata on
+    shared Phoenix results for install, update, repair, and removal.
+  - Treat successful WinGet restart exit codes as successful operations that
+    require a restart.
+  - Add WinGet capability, normalized-result, method, and UI-path tests.
+
 ## [0.1.12] - 2026-08-01
 
 ### Added

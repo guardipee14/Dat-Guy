@@ -42,6 +42,9 @@ WinGetProvider() {
 [Package[]] GetInstalledPackages() {
 
     $packages = [System.Collections.Generic.List[Package]]::new()
+    $seenPackageKeys = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::OrdinalIgnoreCase
+    )
 
     if (-not $this.TestAvailable()) {
         return $packages.ToArray()
@@ -150,7 +153,10 @@ WinGetProvider() {
 
             if (
                 [string]::IsNullOrWhiteSpace($name) -or
-                [string]::IsNullOrWhiteSpace($id)
+                [string]::IsNullOrWhiteSpace($id) -or
+                -not $seenPackageKeys.Add(
+                    "$id|$source"
+                )
             ) {
 
                 continue
@@ -256,6 +262,112 @@ hidden [string[]] ParseWingetTableRow(
 
 #endregion 20-Providers\WinGetProvider\Methods\Helpers\ParseWingetTableRow.ps1
 
+#region 20-Providers\WinGetProvider\Methods\InstallPackageInteractive.ps1
+##########################################################
+## Method: InstallPackageInteractive
+##########################################################
+
+[Result] InstallPackageInteractive([Package]$Package) {
+
+    if ($null -eq $Package -or [string]::IsNullOrWhiteSpace($Package.Id)) {
+        return $this.NewFailure(
+            'A package with an ID is required.',
+            'PHX_INVALID_PACKAGE'
+        )
+    }
+
+    if (-not $this.TestAvailable()) {
+        return $this.NewFailure(
+            'WinGet is not available.',
+            'PHX_PROVIDER_UNAVAILABLE'
+        )
+    }
+
+    try {
+        $command = Get-Command winget.exe -ErrorAction SilentlyContinue
+
+        if ($null -eq $command) {
+            return $this.NewFailure(
+                'winget.exe could not be located.',
+                'PHX_PROVIDER_UNAVAILABLE'
+            )
+        }
+
+        $wingetOutput = @()
+
+        & $command.Source `
+            install `
+            --id $Package.Id `
+            --exact `
+            --source winget `
+            --interactive `
+            --accept-package-agreements `
+            --accept-source-agreements `
+            --no-upgrade `
+            2>&1 |
+            Tee-Object -Variable wingetOutput |
+            Out-Host
+
+        [int]$exitCode = $LASTEXITCODE
+        [bool]$alreadyInstalled =
+            $exitCode -eq -1978335135
+        [bool]$rebootRequired =
+            $exitCode -in @(1641, 3010)
+
+        $result = if (
+            $exitCode -eq 0 -or
+            $alreadyInstalled -or
+            $rebootRequired
+        ) {
+            [Result]::Success()
+        }
+        else {
+            [Result]::Failure(
+                "Interactive WinGet installation failed with exit code $exitCode."
+            )
+        }
+
+        $result.Provider = $this.Name
+        $result.Operation = 'Install'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired = $rebootRequired
+        $result.Data = $Package
+
+        if ($result.Success) {
+            $Package.Installed = $true
+            $result.Code = if ($alreadyInstalled) {
+                'PHX_ALREADY_INSTALLED'
+            }
+            elseif ($rebootRequired) {
+                'PHX_INSTALLED_RESTART_REQUIRED'
+            }
+            else {
+                'PHX_INSTALLED_INTERACTIVE'
+            }
+            $result.Message =
+                "Installed '$($Package.Id)' interactively."
+        }
+        else {
+            $result.Code = 'PHX_INSTALL_FAILED'
+            $result.Errors = @(
+                $wingetOutput |
+                    ForEach-Object { $_.ToString() }
+            )
+        }
+
+        return $result
+    }
+    catch {
+        return $this.NewFailure(
+            "Interactive WinGet installation failed: $($_.Exception.Message)",
+            'PHX_INSTALL_FAILED'
+        )
+    }
+}
+#endregion 20-Providers\WinGetProvider\Methods\InstallPackageInteractive.ps1
+
 #region 20-Providers\WinGetProvider\Methods\InstallPackageSilent.ps1
 ##########################################################
 ## Method: InstallPackageSilent
@@ -313,16 +425,30 @@ hidden [string[]] ParseWingetTableRow(
             $result.Message = (
                 "'$($Package.Id)' is already installed."
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Install'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
 
             return $result
         }
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -ne 0 -and $exitCode -notin @(1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Silent WinGet installation failed with exit code $exitCode.",
                 'PHX_INSTALL_FAILED'
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Install'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
+
+            return $result
         }
 
         $Package.Installed = $true
@@ -332,6 +458,18 @@ hidden [string[]] ParseWingetTableRow(
         $result.Message = (
             "Installed '$($Package.Id)' silently."
         )
+        $result.Provider = $this.Name
+        $result.Operation = 'Install'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired =
+            $exitCode -in @(1641, 3010)
+        $result.Data = $Package
+
+        if ($result.RebootRequired) {
+            $result.Code = 'PHX_INSTALLED_RESTART_REQUIRED'
+        }
 
         return $result
     }
@@ -424,10 +562,18 @@ hidden [string[]] ParseWingetTableRow(
 
         if ($exitCode -ne 0) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "WinGet removal failed with exit code $exitCode.",
                 'PHX_REMOVE_FAILED'
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Remove'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
+
+            return $result
         }
 
         $Package.Installed = $false
@@ -437,6 +583,12 @@ hidden [string[]] ParseWingetTableRow(
         )
 
         $result.Code = 'PHX_REMOVED'
+        $result.Provider = $this.Name
+        $result.Operation = 'Remove'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.Data = $Package
 
         return $result
     }
@@ -496,12 +648,20 @@ hidden [string[]] ParseWingetTableRow(
 
         [int]$exitCode = $LASTEXITCODE
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -ne 0 -and $exitCode -notin @(1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Interactive WinGet repair failed with exit code $exitCode.",
                 'PHX_REPAIR_FAILED'
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Repair'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
+
+            return $result
         }
 
         $result = [Result]::Success(
@@ -509,6 +669,18 @@ hidden [string[]] ParseWingetTableRow(
         )
 
         $result.Code = 'PHX_REPAIRED_INTERACTIVE'
+        $result.Provider = $this.Name
+        $result.Operation = 'Repair'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired =
+            $exitCode -in @(1641, 3010)
+        $result.Data = $Package
+
+        if ($result.RebootRequired) {
+            $result.Code = 'PHX_REPAIRED_RESTART_REQUIRED'
+        }
 
         return $result
     }
@@ -570,12 +742,20 @@ hidden [string[]] ParseWingetTableRow(
 
         [int]$exitCode = $LASTEXITCODE
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -ne 0 -and $exitCode -notin @(1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "WinGet repair failed with exit code $exitCode.",
                 'PHX_REPAIR_FAILED'
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Repair'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
+
+            return $result
         }
 
         $result = [Result]::Success(
@@ -583,6 +763,18 @@ hidden [string[]] ParseWingetTableRow(
         )
 
         $result.Code = 'PHX_REPAIRED'
+        $result.Provider = $this.Name
+        $result.Operation = 'Repair'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired =
+            $exitCode -in @(1641, 3010)
+        $result.Data = $Package
+
+        if ($result.RebootRequired) {
+            $result.Code = 'PHX_REPAIRED_RESTART_REQUIRED'
+        }
 
         return $result
     }
@@ -606,6 +798,9 @@ hidden [string[]] ParseWingetTableRow(
 [Package[]] SearchPackage([string]$Name) {
 
     $packages = [System.Collections.Generic.List[Package]]::new()
+    $seenPackageIds = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::OrdinalIgnoreCase
+    )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
         return $packages.ToArray()
@@ -724,7 +919,8 @@ hidden [string[]] ParseWingetTableRow(
 
             if (
                 [string]::IsNullOrWhiteSpace($name) -or
-                [string]::IsNullOrWhiteSpace($id)
+                [string]::IsNullOrWhiteSpace($id) -or
+                -not $seenPackageIds.Add($id)
             ) {
 
                 continue
@@ -862,6 +1058,11 @@ if (
         "$($Package.Id) requires an uninstall and reinstall migration."
     )
     $result.Data = $Package
+    $result.Provider = $this.Name
+    $result.Operation = 'Update'
+    $result.Target = $Package.Id
+    $result.HasExitCode = $true
+    $result.ExitCode = $exitCode
     $result.Errors = @(
         $wingetOutput |
             ForEach-Object {
@@ -881,11 +1082,16 @@ if ($exitCode -eq -1978335189) {
         "$($Package.Id) is already current."
     )
     $result.Data = $Package
+    $result.Provider = $this.Name
+    $result.Operation = 'Update'
+    $result.Target = $Package.Id
+    $result.HasExitCode = $true
+    $result.ExitCode = $exitCode
 
     return $result
 }
 
-if ($exitCode -ne 0) {
+if ($exitCode -ne 0 -and $exitCode -notin @(1641, 3010)) {
 
     [Result]$result = [Result]::Failure(
         "WinGet update failed with exit code $exitCode."
@@ -893,6 +1099,11 @@ if ($exitCode -ne 0) {
 
     $result.Code = 'PHX_UPDATE_FAILED'
     $result.Data = $Package
+    $result.Provider = $this.Name
+    $result.Operation = 'Update'
+    $result.Target = $Package.Id
+    $result.HasExitCode = $true
+    $result.ExitCode = $exitCode
     $result.Errors = @(
         $wingetOutput |
             ForEach-Object {
@@ -912,6 +1123,13 @@ if ($exitCode -ne 0) {
             "Updated $($Package.Id) successfully."
         )
         $result.Data = $Package
+        $result.Provider = $this.Name
+        $result.Operation = 'Update'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired =
+            $exitCode -in @(1641, 3010)
 
         return $result
     }

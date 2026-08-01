@@ -12,6 +12,22 @@ class Result {
 
     [object[]]$Errors
 
+    [string]$Provider
+
+    [string]$Operation
+
+    [string]$Target
+
+    [bool]$HasExitCode
+
+    [int]$ExitCode
+
+    [bool]$RebootRequired
+
+    [bool]$TimedOut
+
+    [bool]$Cancelled
+
     [datetime]$Timestamp
 
     Result() {
@@ -19,6 +35,9 @@ class Result {
         $this.Timestamp = Get-Date
         $this.Warnings = @()
         $this.Errors = @()
+        $this.Provider = ''
+        $this.Operation = ''
+        $this.Target = ''
 
     }
 

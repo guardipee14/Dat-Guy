@@ -60,10 +60,18 @@
 
         if ($exitCode -ne 0) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "WinGet removal failed with exit code $exitCode.",
                 'PHX_REMOVE_FAILED'
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Remove'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
+
+            return $result
         }
 
         $Package.Installed = $false
@@ -73,6 +81,12 @@
         )
 
         $result.Code = 'PHX_REMOVED'
+        $result.Provider = $this.Name
+        $result.Operation = 'Remove'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.Data = $Package
 
         return $result
     }

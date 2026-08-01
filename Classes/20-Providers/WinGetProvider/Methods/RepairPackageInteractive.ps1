@@ -43,12 +43,20 @@
 
         [int]$exitCode = $LASTEXITCODE
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -ne 0 -and $exitCode -notin @(1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Interactive WinGet repair failed with exit code $exitCode.",
                 'PHX_REPAIR_FAILED'
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Repair'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
+
+            return $result
         }
 
         $result = [Result]::Success(
@@ -56,6 +64,18 @@
         )
 
         $result.Code = 'PHX_REPAIRED_INTERACTIVE'
+        $result.Provider = $this.Name
+        $result.Operation = 'Repair'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired =
+            $exitCode -in @(1641, 3010)
+        $result.Data = $Package
+
+        if ($result.RebootRequired) {
+            $result.Code = 'PHX_REPAIRED_RESTART_REQUIRED'
+        }
 
         return $result
     }

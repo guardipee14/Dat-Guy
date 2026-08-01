@@ -44,7 +44,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.10` - Activity Center live job display
 - [x] `v0.1.11` - Activity cancellation, retry, clearing, and result details
 - [x] `v0.1.12` - Common provider capability and result contract
-- [ ] `v0.1.13` - Complete WinGet behavior and UI verification
+- [x] `v0.1.13` - Complete WinGet behavior and UI verification
 - [ ] `v0.1.14` - Complete Chocolatey behavior and UI verification
 - [ ] `v0.1.15` - Implement Scoop and connect it to the UI
 - [ ] `v0.1.16` - Implement MSI packages and connect them to the UI
@@ -133,10 +133,10 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### WinGet
 
-- [ ] Strengthen search and installed-package correlation.
-- [ ] Strengthen install, update, repair, and uninstall handling.
-- [ ] Normalize metadata, release details, reboot results, and error codes.
-- [ ] Verify all supported WinGet actions from the Applications tab.
+- [x] Strengthen search and installed-package correlation.
+- [x] Strengthen install, update, repair, and uninstall handling.
+- [x] Normalize metadata, release details, reboot results, and error codes.
+- [x] Verify all supported WinGet actions from the Applications tab.
 
 #### Chocolatey
 

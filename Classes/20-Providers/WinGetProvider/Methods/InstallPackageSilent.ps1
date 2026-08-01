@@ -54,16 +54,30 @@
             $result.Message = (
                 "'$($Package.Id)' is already installed."
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Install'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
 
             return $result
         }
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -ne 0 -and $exitCode -notin @(1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Silent WinGet installation failed with exit code $exitCode.",
                 'PHX_INSTALL_FAILED'
             )
+            $result.Provider = $this.Name
+            $result.Operation = 'Install'
+            $result.Target = $Package.Id
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data = $Package
+
+            return $result
         }
 
         $Package.Installed = $true
@@ -73,6 +87,18 @@
         $result.Message = (
             "Installed '$($Package.Id)' silently."
         )
+        $result.Provider = $this.Name
+        $result.Operation = 'Install'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired =
+            $exitCode -in @(1641, 3010)
+        $result.Data = $Package
+
+        if ($result.RebootRequired) {
+            $result.Code = 'PHX_INSTALLED_RESTART_REQUIRED'
+        }
 
         return $result
     }

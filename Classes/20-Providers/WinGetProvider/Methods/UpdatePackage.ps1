@@ -87,6 +87,11 @@ if (
         "$($Package.Id) requires an uninstall and reinstall migration."
     )
     $result.Data = $Package
+    $result.Provider = $this.Name
+    $result.Operation = 'Update'
+    $result.Target = $Package.Id
+    $result.HasExitCode = $true
+    $result.ExitCode = $exitCode
     $result.Errors = @(
         $wingetOutput |
             ForEach-Object {
@@ -106,11 +111,16 @@ if ($exitCode -eq -1978335189) {
         "$($Package.Id) is already current."
     )
     $result.Data = $Package
+    $result.Provider = $this.Name
+    $result.Operation = 'Update'
+    $result.Target = $Package.Id
+    $result.HasExitCode = $true
+    $result.ExitCode = $exitCode
 
     return $result
 }
 
-if ($exitCode -ne 0) {
+if ($exitCode -ne 0 -and $exitCode -notin @(1641, 3010)) {
 
     [Result]$result = [Result]::Failure(
         "WinGet update failed with exit code $exitCode."
@@ -118,6 +128,11 @@ if ($exitCode -ne 0) {
 
     $result.Code = 'PHX_UPDATE_FAILED'
     $result.Data = $Package
+    $result.Provider = $this.Name
+    $result.Operation = 'Update'
+    $result.Target = $Package.Id
+    $result.HasExitCode = $true
+    $result.ExitCode = $exitCode
     $result.Errors = @(
         $wingetOutput |
             ForEach-Object {
@@ -137,6 +152,13 @@ if ($exitCode -ne 0) {
             "Updated $($Package.Id) successfully."
         )
         $result.Data = $Package
+        $result.Provider = $this.Name
+        $result.Operation = 'Update'
+        $result.Target = $Package.Id
+        $result.HasExitCode = $true
+        $result.ExitCode = $exitCode
+        $result.RebootRequired =
+            $exitCode -in @(1641, 3010)
 
         return $result
     }

@@ -6,6 +6,9 @@
 [Package[]] SearchPackage([string]$Name) {
 
     $packages = [System.Collections.Generic.List[Package]]::new()
+    $seenPackageIds = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::OrdinalIgnoreCase
+    )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
         return $packages.ToArray()
@@ -124,7 +127,8 @@
 
             if (
                 [string]::IsNullOrWhiteSpace($name) -or
-                [string]::IsNullOrWhiteSpace($id)
+                [string]::IsNullOrWhiteSpace($id) -or
+                -not $seenPackageIds.Add($id)
             ) {
 
                 continue

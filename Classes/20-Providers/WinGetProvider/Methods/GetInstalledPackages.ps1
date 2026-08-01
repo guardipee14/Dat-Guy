@@ -6,6 +6,9 @@
 [Package[]] GetInstalledPackages() {
 
     $packages = [System.Collections.Generic.List[Package]]::new()
+    $seenPackageKeys = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::OrdinalIgnoreCase
+    )
 
     if (-not $this.TestAvailable()) {
         return $packages.ToArray()
@@ -114,7 +117,10 @@
 
             if (
                 [string]::IsNullOrWhiteSpace($name) -or
-                [string]::IsNullOrWhiteSpace($id)
+                [string]::IsNullOrWhiteSpace($id) -or
+                -not $seenPackageKeys.Add(
+                    "$id|$source"
+                )
             ) {
 
                 continue
