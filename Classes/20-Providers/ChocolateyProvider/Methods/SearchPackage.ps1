@@ -6,6 +6,9 @@
 [Package[]] SearchPackage([string]$Name) {
 
     $packages = [System.Collections.Generic.List[Package]]::new()
+    $seenPackageIds = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::OrdinalIgnoreCase
+    )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
         return $packages.ToArray()
@@ -49,6 +52,10 @@
             $parts = $line -split '\|', 2
 
             if ($parts.Count -lt 2) {
+                continue
+            }
+
+            if (-not $seenPackageIds.Add($parts[0].Trim())) {
                 continue
             }
 

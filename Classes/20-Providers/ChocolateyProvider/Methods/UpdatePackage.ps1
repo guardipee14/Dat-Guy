@@ -81,7 +81,12 @@
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Update',
+                $exitCode
+            )
         }
 
         if ($exitCode -in @(1641, 3010)) {
@@ -98,14 +103,26 @@
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Update',
+                $exitCode
+            )
         }
 
         if ($exitCode -ne 0) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Chocolatey update failed with exit code $exitCode.",
                 'PHX_UPDATE_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Update',
+                $exitCode
             )
         }
 
@@ -119,7 +136,12 @@
         )
         $result.Data = $Package
 
-        return $result
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Update',
+            $exitCode
+        )
     }
     catch {
 

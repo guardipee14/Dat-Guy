@@ -4,6 +4,18 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-08-01
+
+### Added
+- complete Chocolatey application behavior
+  - Decorate install, update, repair, and removal results with the common
+    provider, operation, target, exit-code, and reboot contract.
+  - Treat Chocolatey restart exit codes as successful restart-required
+    operations across silent and interactive paths.
+  - De-duplicate Chocolatey search and installed-package records.
+  - Reject failed provider metadata commands with structured lookup details.
+  - Add Chocolatey contract, action-path, and Control Center tests.
+
 ## [0.1.13] - 2026-08-01
 
 ### Added

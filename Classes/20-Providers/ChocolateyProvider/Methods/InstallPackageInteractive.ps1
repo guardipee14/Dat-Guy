@@ -94,11 +94,18 @@ Write-Host (
 
 [int]$exitCode = $LASTEXITCODE
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -notin @(0, 1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Interactive Chocolatey installation failed with exit code $exitCode.",
                 'PHX_INSTALL_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Install',
+                $exitCode
             )
         }
 
@@ -110,7 +117,16 @@ Write-Host (
 
         $result.Code = 'PHX_INSTALLED_INTERACTIVE'
 
-        return $result
+        if ($exitCode -in @(1641, 3010)) {
+            $result.Code = 'PHX_INSTALLED_REBOOT_REQUIRED'
+        }
+
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Install',
+            $exitCode
+        )
     }
     catch {
 

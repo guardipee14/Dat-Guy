@@ -103,6 +103,22 @@ function Get-PhoenixControlCenterPackageRelease {
         }
     }
 
+    [int]$metadataExitCode = $LASTEXITCODE
+
+    if ($metadataExitCode -ne 0) {
+        return [pscustomobject]@{
+            Id               = $Id
+            Provider         = $Provider
+            Version          = $Version
+            MetadataStatus   = 'Metadata lookup failed'
+            ReleaseNotes     = ''
+            ReleaseNotesUrl  = ''
+            ProviderMetadata = ($output -join [Environment]::NewLine)
+            Error            =
+                "$Provider metadata command exited with code $metadataExitCode."
+        }
+    }
+
     [string]$providerMetadata = (
         $output -join [Environment]::NewLine
     )

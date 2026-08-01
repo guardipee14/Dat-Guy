@@ -65,7 +65,12 @@
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Remove',
+                $exitCode
+            )
         }
 
         if ($exitCode -in @(1641, 3010)) {
@@ -79,14 +84,26 @@
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Remove',
+                $exitCode
+            )
         }
 
         if ($exitCode -notin @(0, 1614)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Chocolatey removal failed with exit code $exitCode.",
                 'PHX_REMOVE_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Remove',
+                $exitCode
             )
         }
 
@@ -99,7 +116,12 @@
         )
         $result.Data = $Package
 
-        return $result
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Remove',
+            $exitCode
+        )
     }
     catch {
 

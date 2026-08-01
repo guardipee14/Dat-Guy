@@ -85,9 +85,16 @@
 
         if ($exitCode -notin @(0, 1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Interactive Chocolatey repair failed with exit code $exitCode.",
                 'PHX_REPAIR_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Repair',
+                $exitCode
             )
         }
 
@@ -106,7 +113,12 @@
                 'PHX_REPAIRED_INTERACTIVE'
         }
 
-        return $result
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Repair',
+            $exitCode
+        )
     }
     catch {
 

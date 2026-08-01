@@ -45,7 +45,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.11` - Activity cancellation, retry, clearing, and result details
 - [x] `v0.1.12` - Common provider capability and result contract
 - [x] `v0.1.13` - Complete WinGet behavior and UI verification
-- [ ] `v0.1.14` - Complete Chocolatey behavior and UI verification
+- [x] `v0.1.14` - Complete Chocolatey behavior and UI verification
 - [ ] `v0.1.15` - Implement Scoop and connect it to the UI
 - [ ] `v0.1.16` - Implement MSI packages and connect them to the UI
 - [ ] `v0.1.17` - Implement EXE package definitions and UI operations
@@ -140,10 +140,10 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### Chocolatey
 
-- [ ] Align Chocolatey operations with the common provider contract.
-- [ ] Normalize search, inventory, install, update, repair, and uninstall
+- [x] Align Chocolatey operations with the common provider contract.
+- [x] Normalize search, inventory, install, update, repair, and uninstall
       results.
-- [ ] Verify all supported Chocolatey actions from the Applications tab.
+- [x] Verify all supported Chocolatey actions from the Applications tab.
 
 #### Scoop
 

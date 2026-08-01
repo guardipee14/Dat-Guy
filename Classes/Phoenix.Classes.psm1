@@ -3271,6 +3271,9 @@ ChocolateyProvider() {
 [Package[]] GetInstalledPackages() {
 
     $packages = [System.Collections.Generic.List[Package]]::new()
+    $seenPackageIds = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::OrdinalIgnoreCase
+    )
 
     if (-not $this.TestAvailable()) {
         return $packages.ToArray()
@@ -3312,6 +3315,10 @@ ChocolateyProvider() {
                 continue
             }
 
+            if (-not $seenPackageIds.Add($parts[0].Trim())) {
+                continue
+            }
+
             $package = [Package]::new()
 
             $package.Name          = $parts[0].Trim()
@@ -3335,6 +3342,39 @@ ChocolateyProvider() {
 }
 
 #endregion 20-Providers\ChocolateyProvider\Methods\GetInstalledPackages.ps1
+
+#region 20-Providers\ChocolateyProvider\Methods\Helpers\CompleteChocolateyResult.ps1
+##########################################################
+## Method: CompleteChocolateyResult
+##########################################################
+
+hidden [Result] CompleteChocolateyResult(
+    [Result]$Result,
+    [Package]$Package,
+    [string]$Operation,
+    [int]$ExitCode
+) {
+
+    $Result.Provider = $this.Name
+    $Result.Operation = $Operation
+    $Result.Target = if ($null -ne $Package) {
+        $Package.Id
+    }
+    else {
+        ''
+    }
+    $Result.HasExitCode = $true
+    $Result.ExitCode = $ExitCode
+    $Result.RebootRequired =
+        $ExitCode -in @(1641, 3010)
+
+    if ($null -ne $Package) {
+        $Result.Data = $Package
+    }
+
+    return $Result
+}
+#endregion 20-Providers\ChocolateyProvider\Methods\Helpers\CompleteChocolateyResult.ps1
 
 #region 20-Providers\ChocolateyProvider\Methods\Helpers\GetChocolateyExecutable.ps1
 ##########################################################
@@ -3470,11 +3510,18 @@ Write-Host (
 
 [int]$exitCode = $LASTEXITCODE
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -notin @(0, 1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Interactive Chocolatey installation failed with exit code $exitCode.",
                 'PHX_INSTALL_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Install',
+                $exitCode
             )
         }
 
@@ -3486,7 +3533,16 @@ Write-Host (
 
         $result.Code = 'PHX_INSTALLED_INTERACTIVE'
 
-        return $result
+        if ($exitCode -in @(1641, 3010)) {
+            $result.Code = 'PHX_INSTALLED_REBOOT_REQUIRED'
+        }
+
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Install',
+            $exitCode
+        )
     }
     catch {
 
@@ -3577,11 +3633,18 @@ Write-Host (
 
         [int]$exitCode = $LASTEXITCODE
 
-        if ($exitCode -ne 0) {
+        if ($exitCode -notin @(0, 1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Chocolatey installation failed with exit code $exitCode.",
                 'PHX_INSTALL_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Install',
+                $exitCode
             )
         }
 
@@ -3593,7 +3656,16 @@ Write-Host (
 
         $result.Code = 'PHX_INSTALLED'
 
-        return $result
+        if ($exitCode -in @(1641, 3010)) {
+            $result.Code = 'PHX_INSTALLED_REBOOT_REQUIRED'
+        }
+
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Install',
+            $exitCode
+        )
     }
     catch {
 
@@ -3879,7 +3951,12 @@ Write-Host (
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Remove',
+                $exitCode
+            )
         }
 
         if ($exitCode -in @(1641, 3010)) {
@@ -3893,14 +3970,26 @@ Write-Host (
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Remove',
+                $exitCode
+            )
         }
 
         if ($exitCode -notin @(0, 1614)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Chocolatey removal failed with exit code $exitCode.",
                 'PHX_REMOVE_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Remove',
+                $exitCode
             )
         }
 
@@ -3913,7 +4002,12 @@ Write-Host (
         )
         $result.Data = $Package
 
-        return $result
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Remove',
+            $exitCode
+        )
     }
     catch {
 
@@ -4013,9 +4107,16 @@ Write-Host (
 
         if ($exitCode -notin @(0, 1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Interactive Chocolatey repair failed with exit code $exitCode.",
                 'PHX_REPAIR_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Repair',
+                $exitCode
             )
         }
 
@@ -4034,7 +4135,12 @@ Write-Host (
                 'PHX_REPAIRED_INTERACTIVE'
         }
 
-        return $result
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Repair',
+            $exitCode
+        )
     }
     catch {
 
@@ -4131,9 +4237,16 @@ Write-Host (
 
         if ($exitCode -notin @(0, 1641, 3010)) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Chocolatey repair failed with exit code $exitCode.",
                 'PHX_REPAIR_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Repair',
+                $exitCode
             )
         }
 
@@ -4151,7 +4264,12 @@ Write-Host (
             $result.Code = 'PHX_REPAIRED'
         }
 
-        return $result
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Repair',
+            $exitCode
+        )
     }
     catch {
 
@@ -4172,6 +4290,9 @@ Write-Host (
 [Package[]] SearchPackage([string]$Name) {
 
     $packages = [System.Collections.Generic.List[Package]]::new()
+    $seenPackageIds = [System.Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::OrdinalIgnoreCase
+    )
 
     if ([string]::IsNullOrWhiteSpace($Name)) {
         return $packages.ToArray()
@@ -4215,6 +4336,10 @@ Write-Host (
             $parts = $line -split '\|', 2
 
             if ($parts.Count -lt 2) {
+                continue
+            }
+
+            if (-not $seenPackageIds.Add($parts[0].Trim())) {
                 continue
             }
 
@@ -4382,7 +4507,12 @@ Write-Host (
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Update',
+                $exitCode
+            )
         }
 
         if ($exitCode -in @(1641, 3010)) {
@@ -4399,14 +4529,26 @@ Write-Host (
             )
             $result.Data = $Package
 
-            return $result
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Update',
+                $exitCode
+            )
         }
 
         if ($exitCode -ne 0) {
 
-            return $this.NewFailure(
+            $result = $this.NewFailure(
                 "Chocolatey update failed with exit code $exitCode.",
                 'PHX_UPDATE_FAILED'
+            )
+
+            return $this.CompleteChocolateyResult(
+                $result,
+                $Package,
+                'Update',
+                $exitCode
             )
         }
 
@@ -4420,7 +4562,12 @@ Write-Host (
         )
         $result.Data = $Package
 
-        return $result
+        return $this.CompleteChocolateyResult(
+            $result,
+            $Package,
+            'Update',
+            $exitCode
+        )
     }
     catch {
 
