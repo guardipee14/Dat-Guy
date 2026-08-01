@@ -4,6 +4,21 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-08-01
+
+### Added
+- display live Control Center jobs in the Activity Center
+  - Add a typed `PhoenixActivityRecord` model for lifecycle, target, provider,
+    progress, start time, elapsed time, and retained result data.
+  - Show queued, running, completed, cancelled, and failed operations in a
+    live Activity grid while retaining the timestamped event log.
+  - Derive useful targets and providers for inventory, search, package,
+    driver, release-metadata, update, and restore actions.
+  - Refresh running elapsed time and progress from the existing dispatcher
+    polling loop without blocking the WPF interface thread.
+  - Preserve operation history while navigating among Control Center pages.
+  - Add Activity model lifecycle tests and UI binding regression guards.
+
 ## [0.1.9] - 2026-08-01
 
 ### Added

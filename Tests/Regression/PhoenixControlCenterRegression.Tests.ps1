@@ -644,6 +644,63 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
     }
 
+    It 'binds live background operations to the Activity Center' {
+        [xml]$xaml =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\PhoenixControlCenter.xaml'
+                ) `
+                -Raw
+
+        [string]$xamlSource = $xaml.OuterXml
+
+        [string]$desktopSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Private\ControlCenter\Show-PhoenixDesktop.ps1'
+                ) `
+                -Raw
+
+        foreach (
+            $bindingName in @(
+                'State'
+                'Action'
+                'Target'
+                'Provider'
+                'ProgressText'
+                'StartedText'
+                'ElapsedText'
+            )
+        ) {
+            $xamlSource.Contains(
+                "Binding $bindingName"
+            ) |
+                Should-BeTrue
+        }
+
+        $xamlSource.Contains('ActivityGrid') |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '[System.Collections.Generic.List[PhoenixActivityRecord]]::new()'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$timerUpdateActivityOperation'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            '$state.ActivityOperations.ToArray()'
+        ) |
+            Should-BeTrue
+    }
+
     It 'defers provider bootstrap from desktop startup to a worker' {
 
         [string]$openSource =

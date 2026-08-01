@@ -877,6 +877,7 @@
                     <Grid x:Name="ActivityPage" Visibility="Collapsed">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
+                            <RowDefinition Height="2*" />
                             <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <StackPanel Grid.Row="0" Margin="0,0,0,14">
@@ -885,7 +886,29 @@
                                 Style="{StaticResource SectionSubtitle}"
                                 Text="Phoenix operation history for this session." />
                         </StackPanel>
-                        <Border Grid.Row="1" Style="{StaticResource CardBorder}">
+                        <Border
+                            Grid.Row="1"
+                            Style="{StaticResource CardBorder}"
+                            Margin="0,0,0,12">
+                            <DataGrid
+                                x:Name="ActivityGrid"
+                                AutoGenerateColumns="False"
+                                IsReadOnly="True"
+                                CanUserAddRows="False"
+                                SelectionMode="Single"
+                                SelectionUnit="FullRow">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="State" Binding="{Binding State}" Width="100" />
+                                    <DataGridTextColumn Header="Action" Binding="{Binding Action}" Width="120" />
+                                    <DataGridTextColumn Header="Target" Binding="{Binding Target}" Width="*" />
+                                    <DataGridTextColumn Header="Provider" Binding="{Binding Provider}" Width="120" />
+                                    <DataGridTextColumn Header="Progress" Binding="{Binding ProgressText}" Width="2*" />
+                                    <DataGridTextColumn Header="Started" Binding="{Binding StartedText}" Width="90" />
+                                    <DataGridTextColumn Header="Elapsed" Binding="{Binding ElapsedText}" Width="90" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Border>
+                        <Border Grid.Row="2" Style="{StaticResource CardBorder}">
                             <TextBox
                                 x:Name="ActivityText"
                                 Margin="0"

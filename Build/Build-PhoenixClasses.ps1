@@ -391,6 +391,7 @@ foreach ($providerName in $partOneProviders) {
 
 $modelFiles = @(
     '30-Models\PhoenixApplication.ps1'
+    '30-Models\PhoenixActivityRecord.ps1'
     '30-Models\PhoenixInventory.ps1'
     '30-Models\PackageCandidate.ps1'
     '30-Models\PhoenixManifest.ps1'

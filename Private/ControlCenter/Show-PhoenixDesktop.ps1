@@ -112,6 +112,7 @@ function Show-PhoenixDesktop {
             'DriverUpdateGrid'
             'DriverDetailsText'
             'OpenDriverReleaseUrlButton'
+            'ActivityGrid'
             'ActivityText'
             'ThemePresetCombo'
             'ApplyThemeButton'
@@ -232,10 +233,13 @@ function Show-PhoenixDesktop {
         EditMode       = $false
         Themes         = @()
         ActiveOperation = $null
+        ActivityOperations =
+            [System.Collections.Generic.List[PhoenixActivityRecord]]::new()
         OperationQueue =
             [System.Collections.Generic.Queue[PhoenixBackgroundOperation]]::new()
         StartOperation = $null
         StartNextOperation = $null
+        UpdateActivityOperation = $null
         RefreshInventory = $null
         ColorEditorLoading = $false
         ApplicationReleaseUrl = ''
@@ -928,6 +932,202 @@ function Show-PhoenixDesktop {
             $previewBrush
     }.GetNewClosure()
 
+    $getOperationMetadata = {
+        param(
+            [PhoenixBackgroundOperation]$Operation
+        )
+
+        [string]$target =
+            $Operation.Description
+
+        [string]$provider = 'Phoenix'
+        $parameters = $Operation.Parameters
+
+        switch ($Operation.Action) {
+            'PackageAction' {
+                $packages = @()
+
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['Packages']
+                ) {
+                    $packages = @($parameters.Packages)
+                }
+
+                $targetNames = @(
+                    $packages |
+                        ForEach-Object {
+                            if (
+                                $null -ne $_.PSObject.Properties['Name'] -and
+                                -not [string]::IsNullOrWhiteSpace(
+                                    [string]$_.Name
+                                )
+                            ) {
+                                [string]$_.Name
+                            }
+                            elseif (
+                                $null -ne $_.PSObject.Properties['Id']
+                            ) {
+                                [string]$_.Id
+                            }
+                        }
+                )
+
+                if ($targetNames.Count -gt 0) {
+                    $target = $targetNames -join ', '
+                }
+
+                $providers = @(
+                    $packages |
+                        ForEach-Object {
+                            if (
+                                $null -ne $_.PSObject.Properties['Provider']
+                            ) {
+                                [string]$_.Provider
+                            }
+                        } |
+                        Where-Object {
+                            -not [string]::IsNullOrWhiteSpace($_)
+                        } |
+                        Sort-Object -Unique
+                )
+
+                if ($providers.Count -gt 0) {
+                    $provider = $providers -join ', '
+                }
+            }
+
+            'DriverAction' {
+                $provider = 'Windows Update'
+
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['DriverAction']
+                ) {
+                    $target = [string]$parameters.DriverAction
+                }
+            }
+
+            'RestoreAction' {
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['ManifestPath']
+                ) {
+                    $target =
+                        Split-Path `
+                            -Path ([string]$parameters.ManifestPath) `
+                            -Leaf
+                }
+
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['Provider']
+                ) {
+                    $provider =
+                        @($parameters.Provider) -join ', '
+                }
+            }
+
+            'SearchPackages' {
+                $provider = 'All providers'
+
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['Query']
+                ) {
+                    $target = [string]$parameters.Query
+                }
+            }
+
+            'PackageRelease' {
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['Id']
+                ) {
+                    $target = [string]$parameters.Id
+                }
+
+                if (
+                    $null -ne $parameters -and
+                    $null -ne $parameters.PSObject.Properties['Provider']
+                ) {
+                    $provider = [string]$parameters.Provider
+                }
+            }
+
+            'ApplicationUpdates' {
+                $target = 'Installed applications'
+                $provider = 'WinGet, Chocolatey'
+            }
+
+            'Inventory' {
+                $target = 'This computer'
+            }
+        }
+
+        return [pscustomobject]@{
+            Target   = $target
+            Provider = $provider
+        }
+    }.GetNewClosure()
+
+    $refreshActivityGrid = {
+        $controls.ActivityGrid.ItemsSource = $null
+        $controls.ActivityGrid.ItemsSource = @(
+            $state.ActivityOperations.ToArray()
+        )
+    }.GetNewClosure()
+
+    $updateActivityOperation = {
+        param(
+            [PhoenixBackgroundOperation]$Operation,
+            [AllowNull()]
+            [object]$Received
+        )
+
+        $activityRecord = @(
+            $state.ActivityOperations |
+                Where-Object {
+                    $_.OperationId -eq $Operation.OperationId
+                }
+        ) |
+            Select-Object -First 1
+
+        if ($null -eq $activityRecord) {
+            $metadata =
+                & $getOperationMetadata $Operation
+
+            $activityRecord =
+                [PhoenixActivityRecord]::new(
+                    $Operation,
+                    [string]$metadata.Target,
+                    [string]$metadata.Provider
+                )
+
+            $state.ActivityOperations.Add(
+                $activityRecord
+            )
+        }
+        else {
+            $activityRecord.UpdateLifecycle()
+        }
+
+        if (
+            $null -ne $Received -and
+            [bool]$Received.IsCompleted
+        ) {
+            $activityRecord.SetResult(
+                $Received.Data,
+                [string]$Received.Error
+            )
+        }
+
+        & $refreshActivityGrid
+    }.GetNewClosure()
+
+    $state.UpdateActivityOperation =
+        $updateActivityOperation
+
     $appendActivity = {
         param(
             [string]$Message
@@ -1168,8 +1368,15 @@ function Show-PhoenixDesktop {
                     -ProjectRoot $projectRoot
         }
 
+        & $updateActivityOperation `
+            $operation `
+            $null
+
         if ($null -ne $state.ActiveOperation) {
             $operation.MarkQueued()
+            & $updateActivityOperation `
+                $operation `
+                $null
             $state.OperationQueue.Enqueue(
                 $operation
             )
@@ -1198,6 +1405,10 @@ function Show-PhoenixDesktop {
                     -ProjectRoot $projectRoot
         }
         catch {
+            & $updateActivityOperation `
+                $operation `
+                $null
+
             $null =
                 & $removeBackgroundOperationCommand `
                     -Operation $operation
@@ -1219,6 +1430,10 @@ function Show-PhoenixDesktop {
         $state.ActiveOperation =
             $operation
 
+        & $updateActivityOperation `
+            $operation `
+            $null
+
         & $setOperationUi `
             $true `
             $Description `
@@ -1237,6 +1452,8 @@ function Show-PhoenixDesktop {
         $timerNewFailure = $newControlCenterFailureCommand
         $timerWriteFailure = $writeControlCenterFailureCommand
         $timerShowRecovery = $showRecovery
+        $timerUpdateActivityOperation =
+            $updateActivityOperation
         $timerStartNextOperation =
             $timerState.StartNextOperation
         $timerReceiveBackgroundOperation =
@@ -1250,6 +1467,10 @@ function Show-PhoenixDesktop {
                 $received =
                     & $timerReceiveBackgroundOperation `
                         -Operation $operation
+
+                & $timerUpdateActivityOperation `
+                    $operation `
+                    $received
 
                 if ($received.ProgressChanged) {
                     & $timerSetOperationUi `
@@ -1429,6 +1650,10 @@ function Show-PhoenixDesktop {
                 return
             }
             catch {
+                & $updateActivityOperation `
+                    $nextOperation `
+                    $null
+
                 $null =
                     & $removeBackgroundOperationCommand `
                         -Operation $nextOperation
@@ -3297,6 +3522,10 @@ function Show-PhoenixDesktop {
             $state.ActiveOperation = $null
             & $setOperationUi $false
 
+            & $updateActivityOperation `
+                $operation `
+                $null
+
             $null =
                 & $removeBackgroundOperationCommand `
                     -Operation $operation
@@ -3397,6 +3626,10 @@ function Show-PhoenixDesktop {
                 )
             }
             finally {
+                & $updateActivityOperation `
+                    $closingOperation `
+                    $null
+
                 $null =
                     & $removeBackgroundOperationCommand `
                         -Operation $closingOperation
@@ -3422,6 +3655,10 @@ function Show-PhoenixDesktop {
                 )
             }
             finally {
+                & $updateActivityOperation `
+                    $queuedOperation `
+                    $null
+
                 $null =
                     & $removeBackgroundOperationCommand `
                         -Operation $queuedOperation

@@ -41,7 +41,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.7` - Background inventory, provider initialization, and searches
 - [x] `v0.1.8` - Background application operation queue
 - [x] `v0.1.9` - Background driver and restore jobs with cancellation
-- [ ] `v0.1.10` - Activity Center live job display
+- [x] `v0.1.10` - Activity Center live job display
 - [ ] `v0.1.11` - Activity cancellation, retry, clearing, and result details
 - [ ] `v0.1.12` - Common provider capability and result contract
 - [ ] `v0.1.13` - Complete WinGet behavior and UI verification
@@ -107,15 +107,15 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 3. Activity Center
 
-- [ ] Display queued and running jobs.
-- [ ] Display completed, cancelled, and failed jobs.
-- [ ] Show target, action, provider, start time, and elapsed time.
-- [ ] Show determinate or indeterminate progress.
+- [x] Display queued and running jobs.
+- [x] Display completed, cancelled, and failed jobs.
+- [x] Show target, action, provider, start time, and elapsed time.
+- [x] Show determinate or indeterminate progress.
 - [ ] Show warnings, errors, exit codes, and Phoenix result codes.
 - [ ] Show restart requirements.
 - [ ] Add cancel, retry, and clear-completed controls.
-- [ ] Preserve running work when the user changes tabs.
-- [ ] Add Activity Center UI-binding and lifecycle tests.
+- [x] Preserve running work when the user changes tabs.
+- [x] Add Activity Center UI-binding and lifecycle tests.
 
 ### 4. Provider completion
 
