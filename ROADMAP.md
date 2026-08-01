@@ -83,10 +83,12 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 ### 2. Background job system
 
 - [x] Define a common Phoenix background-job contract.
-- [ ] Move inventory collection off the WPF interface thread.
-- [ ] Move provider initialization and searches off the WPF interface thread.
-- [ ] Move application operations off the WPF interface thread.
-- [ ] Move driver and OEM operations off the WPF interface thread.
+- [x] Move inventory collection off the WPF interface thread.
+- [ ] Move provider initialization off the desktop startup path.
+- [x] Move package searches off the WPF interface thread.
+- [x] Move application operations off the WPF interface thread.
+- [x] Move driver operations off the WPF interface thread.
+- [ ] Move OEM driver operations off the WPF interface thread.
 - [ ] Move restore planning, execution, and verification off the WPF interface
       thread.
 - [x] Add created, starting, running, cancellation-requested, cancelled,
@@ -98,7 +100,10 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
       installers when required.
 - [x] Return structured progress and results to the Control Center.
 - [x] Detect workers that exit without publishing a result.
-- [x] Prove through regression tests that long operations do not freeze the UI.
+- [x] Add regression guards that long operations use background workers and
+      avoid synchronous dispatcher calls.
+- [ ] Validate live Control Center responsiveness during long operations in a
+      Windows VM.
 
 ### 3. Activity Center
 
