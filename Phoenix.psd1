@@ -12,7 +12,7 @@
 RootModule = 'Phoenix.psm1'
 
 # Version number of this module.
-    ModuleVersion = '0.1.27'
+    ModuleVersion = '0.1.28'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -75,6 +75,7 @@ FunctionsToExport = @(
     'Get-PhoenixPackages'
     'Get-PhoenixProviders'
     'Install-PhoenixPackage'
+    'New-PhoenixRestorePlan'
     'Repair-PhoenixPackage'
     'Receive-PhoenixJob'
     'Restore-Phoenix'

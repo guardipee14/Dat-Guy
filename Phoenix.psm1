@@ -45,6 +45,7 @@ Export-ModuleMember -Function @(
     'Get-PhoenixPackages'
     'Get-PhoenixProviders'
     'Install-PhoenixPackage'
+    'New-PhoenixRestorePlan'
     'Repair-PhoenixPackage'
     'Receive-PhoenixJob'
     'Restore-Phoenix'

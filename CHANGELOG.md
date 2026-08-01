@@ -4,6 +4,20 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.28] - 2026-08-01
+
+### Added
+- restore planning engine
+  - Build a typed, versioned restore plan before `Restore-Phoenix` requests or
+    performs any system change.
+  - Classify application and driver records as install, update, already
+    satisfied, blocked, invalid, or not restorable.
+  - Record installed, requested, and available versions together with selected
+    providers and eligible alternatives.
+  - Surface elevation, safety, dependency, restart, selection, and reason
+    metadata and include the complete plan in `-WhatIf` results.
+  - Add plan schema, summary, contract, ordering, and export tests.
+
 ## [0.1.27] - 2026-08-01
 
 ### Added

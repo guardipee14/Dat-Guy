@@ -59,7 +59,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.25` - Dell and HP driver integration
 - [x] `v0.1.26` - Lenovo and Intel driver integration
 - [x] `v0.1.27` - AMD and NVIDIA driver integration
-- [ ] `v0.1.28` - Restore planning engine
+- [x] `v0.1.28` - Restore planning engine
 - [ ] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
 - [ ] `v0.1.30` - Versioned restore-checkpoint storage
 - [ ] `v0.1.31` - Restore resume, retry, interruption, and reboot state
@@ -239,16 +239,16 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 6. Restore planning
 
-- [ ] Build a restore plan before making system changes.
-- [ ] Classify every driver and application action.
-- [ ] Show installed, requested, and available versions.
-- [ ] Show the selected provider and provider alternatives.
-- [ ] Show privilege, dependency, safety, and restart information.
+- [x] Build a restore plan before making system changes.
+- [x] Classify every driver and application action.
+- [x] Show installed, requested, and available versions.
+- [x] Show the selected provider and provider alternatives.
+- [x] Show privilege, dependency, safety, and restart information.
 - [ ] Allow individual and grouped selection.
 - [ ] Allow filtering by provider, record type, and planned action.
 - [ ] Allow eligible application records to change providers.
 - [ ] Save and reload restore plans.
-- [ ] Support `-WhatIf`, interactive, and unattended execution.
+- [x] Support `-WhatIf`, interactive, and unattended execution.
 - [ ] Add a Restore Plan view to the Control Center.
 
 ### 7. Restore checkpoints and resume

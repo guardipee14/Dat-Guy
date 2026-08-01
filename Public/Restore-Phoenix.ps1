@@ -107,6 +107,24 @@ function Restore-Phoenix {
     [int]$manifestDriverCount =
         @($manifest.Drivers).Count
 
+    try {
+        [PhoenixRestorePlan]$restorePlan =
+            New-PhoenixRestorePlan `
+                -ManifestPath $manifest.Path `
+                -Provider $Provider `
+                -SkipDrivers:$SkipDrivers `
+                -SkipPackages:$SkipPackages `
+                -ReinstallInstalled:$ReinstallInstalled
+    }
+    catch {
+        [Result]$result = [Result]::Failure(
+            "Phoenix restore planning failed: $($_.Exception.Message)"
+        )
+        $result.Code = 'PHX_RESTORE_PLAN_FAILED'
+        $result.Errors = @($_.Exception.Message)
+        return $result
+    }
+
     [string]$restoreDescription = (
         'Restore {0} package records and process drivers from schema {1}' -f
         $manifestPackageCount,
@@ -142,6 +160,9 @@ function Restore-Phoenix {
             DriversSelected      = -not [bool]$SkipDrivers
             PackagesSelected     = -not [bool]$SkipPackages
             Providers            = @($Provider)
+            Plan                 = $restorePlan
+            PlannedRecordCount   = $restorePlan.TotalCount
+            SelectedRecordCount  = $restorePlan.SelectedCount
         }
 
         return $result
