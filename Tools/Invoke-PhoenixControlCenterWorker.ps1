@@ -260,6 +260,22 @@ try {
             } $request.Parameters
         }
 
+        'OemDriverAction' {
+            Write-PhoenixWorkerProgress `
+                -Percent 10 `
+                -Message 'Preparing OEM driver operation...'
+
+            & $phoenixModule {
+                param($workerParameters)
+
+                Invoke-PhoenixOemDriverAction `
+                    -Action $workerParameters.OemAction `
+                    -AdapterName $workerParameters.AdapterName `
+                    -UpdateId $workerParameters.UpdateId `
+                    -ApproveUtility:$workerParameters.ApproveUtility
+            } $request.Parameters
+        }
+
         'RestoreAction' {
             Write-PhoenixWorkerProgress `
                 -Percent 10 `

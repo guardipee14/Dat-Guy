@@ -504,6 +504,7 @@ function Get-PhoenixControlCenterInventory {
         Applications    = @($applications)
         Drivers         = @($drivers)
         DriverUpdates   = @()
+        OemAdapters     = @(Get-PhoenixOemAdapterStatus)
         Providers       = @($providers)
         Warnings        = @($warnings)
     }

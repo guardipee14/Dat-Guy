@@ -4,6 +4,20 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.24] - 2026-08-01
+
+### Added
+- common OEM driver-adapter framework
+  - Define shared adapter and driver-update contracts for applicability,
+    versions, source, release information, support links, and restart state.
+  - Detect computer manufacturer, model, and hardware IDs before enabling an
+    adapter.
+  - Require explicit approval before installing an unavailable OEM utility and
+    fall back to Windows Update when no adapter applies.
+  - Route OEM scan and install requests through the isolated background worker
+    and expose adapter status to Drivers and Activity consumers.
+  - Add applicability, approval, fallback, metadata, worker, and UI tests.
+
 ## [0.1.23] - 2026-08-01
 
 ### Added

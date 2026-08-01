@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.23`
+**Current module version:** `0.1.24`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -41,6 +41,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Inventory and manage online Windows capabilities, optional features, and packages through DISM with administrator policy, stable result codes, and restart-aware UI actions.
 - Detect Windows Update/WSUS policy, discover applicable managed updates, and download/install them through Windows Update Agent with source, approval, HRESULT, applicability, and reboot details.
 - Select providers through a shared orchestration policy with explicit fallback, capability, elevation, protected-package safety, restore alternatives, and normalized CLI/UI results.
+- Use a common OEM driver-adapter contract with manufacturer/hardware applicability, utility approval, Windows Update fallback, version/release/support metadata, and isolated background operations.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.

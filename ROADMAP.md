@@ -55,7 +55,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.21` - Implement online DISM capability and package management
 - [x] `v0.1.22` - Implement WSUS policy, discovery, and installation support
 - [x] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
-- [ ] `v0.1.24` - Common OEM driver-adapter framework
+- [x] `v0.1.24` - Common OEM driver-adapter framework
 - [ ] `v0.1.25` - Dell and HP driver integration
 - [ ] `v0.1.26` - Lenovo and Intel driver integration
 - [ ] `v0.1.27` - AMD and NVIDIA driver integration
@@ -220,21 +220,21 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 ### 5. OEM driver support
 
-- [ ] Define a common OEM driver-adapter contract.
-- [ ] Detect manufacturer and applicable hardware before enabling an adapter.
+- [x] Define a common OEM driver-adapter contract.
+- [x] Detect manufacturer and applicable hardware before enabling an adapter.
 - [ ] Add Dell integration.
 - [ ] Add HP integration.
 - [ ] Add Lenovo integration.
 - [ ] Add Intel integration.
 - [ ] Add AMD integration.
 - [ ] Add NVIDIA integration.
-- [ ] Require approval before installing an OEM utility.
-- [ ] Use Windows Update when no applicable OEM source is available.
+- [x] Require approval before installing an OEM utility.
+- [x] Use Windows Update when no applicable OEM source is available.
 - [ ] Show installed and available driver versions.
 - [ ] Show driver source, release information, support links, and restart
       requirements.
-- [ ] Route every OEM scan and operation through the background job system.
-- [ ] Verify OEM information and actions in the Drivers and Activity tabs.
+- [x] Route every OEM scan and operation through the background job system.
+- [x] Verify OEM information and actions in the Drivers and Activity tabs.
 - [ ] Add mocked adapter tests and real Windows VM validation.
 
 ### 6. Restore planning
