@@ -122,6 +122,33 @@ function Get-PhoenixControlCenterInventory {
                         Test-PhoenixRestorePackage `
                             -InputObject $_
 
+                    [bool]$packageSupportsRepair = $true
+                    [bool]$packageSupportsRemove = $true
+
+                    if ($_.Provider -eq 'EXE') {
+                        $repairProperty =
+                            $_.PSObject.Properties['RepairCommand']
+                        $uninstallProperty =
+                            $_.PSObject.Properties['UninstallCommand']
+                        $quietUninstallProperty =
+                            $_.PSObject.Properties['QuietUninstallCommand']
+
+                        $packageSupportsRepair =
+                            $null -ne $repairProperty -and
+                            -not [string]::IsNullOrWhiteSpace(
+                                [string]$repairProperty.Value
+                            )
+                        $packageSupportsRemove =
+                            ($null -ne $uninstallProperty -and
+                                -not [string]::IsNullOrWhiteSpace(
+                                    [string]$uninstallProperty.Value
+                                )) -or
+                            ($null -ne $quietUninstallProperty -and
+                                -not [string]::IsNullOrWhiteSpace(
+                                    [string]$quietUninstallProperty.Value
+                                ))
+                    }
+
                     [pscustomobject]@{
                         IsSelected     = $false
                         Name           = $_.Name
@@ -138,11 +165,13 @@ function Get-PhoenixControlCenterInventory {
                         )
                         SupportsRepair = [bool](
                             $providerAvailable -and
-                            $providerCapability.SupportsRepair
+                            $providerCapability.SupportsRepair -and
+                            $packageSupportsRepair
                         )
                         SupportsRemove = [bool](
                             $providerAvailable -and
-                            $providerCapability.SupportsRemove
+                            $providerCapability.SupportsRemove -and
+                            $packageSupportsRemove
                         )
                         ProviderHealth = if (
                             $null -ne $providerCapability

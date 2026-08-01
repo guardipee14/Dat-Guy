@@ -48,7 +48,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.14` - Complete Chocolatey behavior and UI verification
 - [x] `v0.1.15` - Implement Scoop and connect it to the UI
 - [x] `v0.1.16` - Implement MSI packages and connect them to the UI
-- [ ] `v0.1.17` - Implement EXE package definitions and UI operations
+- [x] `v0.1.17` - Implement EXE package definitions and UI operations
 - [ ] `v0.1.18` - Implement the GitHub Releases provider
 - [ ] `v0.1.19` - Implement the PowerShell Gallery provider
 - [ ] `v0.1.20` - Implement the NuGet provider
@@ -163,12 +163,12 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### EXE
 
-- [ ] Define declarative EXE installer metadata.
-- [ ] Implement silent and interactive installation.
-- [ ] Detect installed versions and registered uninstall commands.
-- [ ] Implement repair and uninstall when supported.
-- [ ] Normalize vendor exit codes and restart requirements.
-- [ ] Add EXE package definitions and results to the Applications tab.
+- [x] Define declarative EXE installer metadata.
+- [x] Implement silent and interactive installation.
+- [x] Detect installed versions and registered uninstall commands.
+- [x] Implement repair and uninstall when supported.
+- [x] Normalize vendor exit codes and restart requirements.
+- [x] Add EXE package definitions and results to the Applications tab.
 
 #### GitHub Releases
 

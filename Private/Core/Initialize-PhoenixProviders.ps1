@@ -14,6 +14,7 @@ function Initialize-PhoenixProviders {
         [ChocolateyProvider]::new()
         [ScoopProvider]::new()
         [MSIProvider]::new()
+        [EXEProvider]::new()
     )) {
 
         Write-Host "Adding $($provider.GetType().Name)..."

@@ -36,7 +36,8 @@ function Remove-PhoenixPackage {
             'WinGet',
             'Chocolatey',
             'Scoop',
-            'MSI'
+            'MSI',
+            'EXE'
         )]
         [string]$Provider
     )

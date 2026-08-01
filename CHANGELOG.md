@@ -4,6 +4,21 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.17] - 2026-08-01
+
+### Added
+- declarative executable package support
+  - Add an `EXEPackageDefinition` model for install, repair, uninstall, success,
+    and restart metadata.
+  - Inventory registered non-MSI applications, versions, publishers, and
+    uninstall or modify commands from machine and user registry views.
+  - Run silent or interactive EXE installations and supported repair or
+    uninstall commands without invoking a command shell.
+  - Normalize publisher-specific success and restart exit codes through the
+    common provider result contract.
+  - Register EXE health and per-package repair/removal capabilities in the
+    Applications tab and add focused tests.
+
 ## [0.1.16] - 2026-08-01
 
 ### Added

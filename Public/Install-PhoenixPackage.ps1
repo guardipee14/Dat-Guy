@@ -36,7 +36,8 @@ function Install-PhoenixPackage {
         'WinGet',
         'Chocolatey',
         'Scoop',
-        'MSI'
+        'MSI',
+        'EXE'
     )]
     [string]$Provider,
 

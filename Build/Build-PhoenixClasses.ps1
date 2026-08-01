@@ -367,6 +367,7 @@ $baseAndCoreFiles = @(
     '00-Base\PhoenixProviderCapability.ps1'
     '00-Base\PhoenixProviderResult.ps1'
     '00-Base\Package.ps1'
+    '00-Base\EXEPackageDefinition.ps1'
     '00-Base\Driver.ps1'
 
     '10-Core\PhoenixLogger.ps1'
@@ -387,6 +388,7 @@ $partOneProviders = @(
     'ChocolateyProvider'
     'ScoopProvider'
     'MSIProvider'
+    'EXEProvider'
 )
 
 foreach ($providerName in $partOneProviders) {
