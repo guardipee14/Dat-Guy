@@ -154,6 +154,14 @@ Describe 'Test-PhoenixRestorePackage' -Tag @(
             Should-BeTrue
     }
 
+    It 'accepts a NuGet package' {
+        Test-PhoenixRestorePackage -InputObject ([pscustomobject]@{
+            Id = 'Newtonsoft.Json'
+            Provider = 'NuGet'
+            Source = 'https://api.nuget.org/v3/index.json'
+        }) | Should-BeTrue
+    }
+
     It 'rejects an unsupported provider' {
 
         $package = [pscustomobject]@{

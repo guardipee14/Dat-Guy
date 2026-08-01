@@ -38,7 +38,8 @@ function Remove-PhoenixPackage {
             'Scoop',
             'MSI',
             'EXE',
-            'PowerShell Gallery'
+            'PowerShell Gallery',
+            'NuGet'
         )]
         [string]$Provider
     )

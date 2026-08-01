@@ -51,7 +51,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.17` - Implement EXE package definitions and UI operations
 - [x] `v0.1.18` - Implement the GitHub Releases provider
 - [x] `v0.1.19` - Implement the PowerShell Gallery provider
-- [ ] `v0.1.20` - Implement the NuGet provider
+- [x] `v0.1.20` - Implement the NuGet provider
 - [ ] `v0.1.21` - Implement online DISM capability and package management
 - [ ] `v0.1.22` - Implement WSUS policy, discovery, and installation support
 - [ ] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
@@ -189,11 +189,11 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 
 #### NuGet
 
-- [ ] Support configured NuGet feeds.
-- [ ] Implement package search and version resolution.
-- [ ] Implement download, install, update, and removal where applicable.
-- [ ] Implement export and restore support.
-- [ ] Add NuGet source and result information to the Applications tab.
+- [x] Support configured NuGet feeds.
+- [x] Implement package search and version resolution.
+- [x] Implement download, install, update, and removal where applicable.
+- [x] Implement export and restore support.
+- [x] Add NuGet source and result information to the Applications tab.
 
 #### DISM
 

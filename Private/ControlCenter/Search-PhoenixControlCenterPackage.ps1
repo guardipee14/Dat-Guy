@@ -13,14 +13,16 @@ function Search-PhoenixControlCenterPackage {
             'Chocolatey',
             'Scoop',
             'GitHub Releases',
-            'PowerShell Gallery'
+            'PowerShell Gallery',
+            'NuGet'
         )]
         [string[]]$Provider = @(
             'WinGet',
             'Chocolatey',
             'Scoop',
             'GitHub Releases',
-            'PowerShell Gallery'
+            'PowerShell Gallery',
+            'NuGet'
         )
     )
 

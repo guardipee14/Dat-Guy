@@ -4,6 +4,19 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.1.20] - 2026-08-01
+
+### Added
+- NuGet v3 provider
+  - Discover configured v3 feeds and their search and package-base services.
+  - Search packages, resolve latest stable versions, and correlate the local
+    Phoenix NuGet store.
+  - Download and safely extract packages with archive traversal protection,
+    then support update and constrained removal.
+  - Export and restore typed NuGet selections and expose feed/source details
+    in the Applications tab.
+  - Add NuGet provider, safety, restore, and UI integration tests.
+
 ## [0.1.19] - 2026-08-01
 
 ### Added

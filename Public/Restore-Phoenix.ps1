@@ -18,13 +18,15 @@ function Restore-Phoenix {
             'WinGet',
             'Chocolatey',
             'Scoop',
-            'PowerShell Gallery'
+            'PowerShell Gallery',
+            'NuGet'
         )]
         [string[]]$Provider = @(
             'WinGet',
             'Chocolatey',
             'Scoop',
-            'PowerShell Gallery'
+            'PowerShell Gallery',
+            'NuGet'
         ),
 
         [Parameter()]

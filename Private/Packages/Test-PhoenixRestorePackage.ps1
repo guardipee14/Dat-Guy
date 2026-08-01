@@ -49,6 +49,7 @@ function Test-PhoenixRestorePackage {
             'Chocolatey'
             'Scoop'
             'PowerShell Gallery'
+            'NuGet'
         )) {
             return $true
         }

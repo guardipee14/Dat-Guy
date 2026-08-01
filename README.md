@@ -3,7 +3,7 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.19`
+**Current module version:** `0.1.20`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
@@ -37,6 +37,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Model declarative EXE installers, discover registered executable applications, and run supported install, repair, or uninstall commands with vendor-specific success and restart codes.
 - Discover GitHub repositories and latest releases, select Windows installer assets by architecture, verify publisher checksums, and delegate installation to the MSI or EXE engine with release notes in the UI.
 - Search and inventory PowerShell Gallery modules and scripts, compare installed versions, install/update/remove through PSResourceGet or PowerShellGet, and export or restore resource selections.
+- Search configured NuGet v3 feeds, resolve and safely extract packages into a Phoenix-owned user store, and update, remove, export, or restore source-aware package records.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.

@@ -39,7 +39,8 @@ function Install-PhoenixPackage {
         'MSI',
         'EXE',
         'GitHub Releases',
-        'PowerShell Gallery'
+        'PowerShell Gallery',
+        'NuGet'
     )]
     [string]$Provider,
 
