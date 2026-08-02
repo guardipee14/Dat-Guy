@@ -260,12 +260,12 @@ Describe 'Phoenix release packaging' -Tag @(
 
     It 'ships the complete 33-release Phoenix v0.2.0 train' {
 
-        [string]$roadmap =
+        [string]$developmentHistory =
             Get-Content `
                 -LiteralPath (
                     Join-Path `
                         $projectRoot `
-                        'ROADMAP.md'
+                        'Docs\Phoenix-v0.2.0-Development-History.md'
                 ) `
                 -Raw
 
@@ -280,8 +280,36 @@ Describe 'Phoenix release packaging' -Tag @(
 
         foreach ($expectedVersion in $expectedVersions) {
 
+            $developmentHistory.Contains(
+                "| v$expectedVersion |"
+            ) |
+                Should-BeTrue
+        }
+    }
+
+    It 'plans the complete Phoenix v0.3.0 release train' {
+
+        [string]$roadmap =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'ROADMAP.md'
+                ) `
+                -Raw
+
+        [string[]]$expectedVersions = @(
+            1..18 |
+                ForEach-Object {
+                    "0.2.$_"
+                }
+
+            '0.3.0'
+        )
+
+        foreach ($expectedVersion in $expectedVersions) {
             $versionPattern =
-                '(?m)^- \[[ x]\] `v{0}`' -f
+                '(?m)^- \[ \] `v{0}`' -f
                 [regex]::Escape($expectedVersion)
 
             [regex]::IsMatch(
@@ -293,9 +321,20 @@ Describe 'Phoenix release packaging' -Tag @(
 
         [regex]::Matches(
             $roadmap,
-            '(?m)^- \[[ x]\] `v(?:0\.1\.(?:[2-9]|[12]\d|3[0-3])|0\.2\.0)`'
+            '(?m)^- \[ \] `v(?:0\.2\.(?:[1-9]|1[0-8])|0\.3\.0)`'
         ).Count |
-            Should-Be 33
+            Should-Be 19
+
+        foreach ($requiredSafetyText in @(
+            'Windows 10 and Windows 11 x64'
+            'UEFI/GPT'
+            'typed confirmation'
+            'Block the current system disk'
+            'disposable snapshot-backed VMs'
+        )) {
+            $roadmap.Contains($requiredSafetyText) |
+                Should-BeTrue
+        }
     }
 
     It 'builds versioned archives checksums and optional GitHub releases' {

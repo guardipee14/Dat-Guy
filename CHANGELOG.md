@@ -4,6 +4,12 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- replace the completed v0.2.0 roadmap with a staged v0.3.0 plan covering the
+  carried-forward administrator VM gate, offline recovery bundles, WinPE and
+  bootable media, offline image servicing, unattended setup, guarded disk
+  planning, checkpointed deployment, and disposable-VM release validation
+
 ## [0.2.0] - 2026-08-01
 
 ### Added

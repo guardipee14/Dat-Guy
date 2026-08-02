@@ -1,339 +1,310 @@
 # Phoenix roadmap
 
-This roadmap tracks the work planned for Phoenix v0.2.0.
+This roadmap tracks the work planned for Phoenix v0.3.0.
 
-Phoenix is a PowerShell deployment and recovery framework for Windows
-application management, driver management, inventory, backup and restore,
-elevated updates, and a customizable desktop Control Center.
+Phoenix v0.2.0 established a stable, non-blocking Control Center, normalized
+application and driver providers, planned and resumable restore operations,
+post-restore verification, and independently verified Windows packaging. The
+complete v0.2.0 record is preserved in
+`Docs/Phoenix-v0.2.0-Development-History.md`.
 
 ## Status
 
 - `[x]` Completed and merged
 - `[ ]` Planned or in progress
 
-Roadmap items may be refined as implementation and Windows VM testing reveal
-new requirements. An item is checked only after its backend behavior, Control
-Center integration, automated tests, and documentation are complete.
+An item is checked only after its backend behavior, safety policy, Control
+Center integration, automated tests, Windows VM validation, and documentation
+are complete. Destructive deployment features remain unavailable until their
+planning, preview, identity, confirmation, rollback, and VM gates pass.
 
-## Earlier releases
-
-- [x] Phoenix v0.1.0 - First public release
-- [x] Phoenix v0.1.1 - Double-click Windows installer hotfix
-
-## Phoenix v0.2.0
+## Phoenix v0.3.0
 
 ### Release objective
 
-Deliver a stable, non-blocking Control Center with complete provider
-integration and a planned, resumable, verified restore workflow.
+Deliver a safe offline recovery and Windows deployment foundation that can
+build verified recovery bundles, create bootable WinPE media, service offline
+Windows images, generate unattended setup inputs, and execute reviewed
+deployment plans in isolated Windows virtual machines.
+
+### Supported v0.3.0 boundary
+
+- Windows 10 and Windows 11 x64 hosts and targets.
+- UEFI/GPT as the required deployment path; legacy BIOS/MBR is detected and
+  reported but is not a v0.3.0 execution target.
+- Microsoft-supported Windows ADK and WinPE add-on discovery.
+- Locally attached ISO, WIM/ESD, folder, and removable-media sources.
+- Offline application and driver bundles built from explicit selections.
+- Offline image servicing through supported Windows tools and mounted-image
+  transactions.
+- Destructive disk or media actions only after exact target identity,
+  non-system-disk policy, preview, typed confirmation, and administrator
+  checks succeed.
+
+Production PXE/WDS hosting, fleet orchestration, remote wipe, firmware
+flashing, Secure Boot key management, domain-secret storage, user-profile
+migration, and non-Windows targets remain outside v0.3.0.
 
 ### Release train
 
-Phoenix v0.2.0 will be developed through 33 public, independently validated
-releases after v0.1.1. Each release must pass its backend, Control Center,
-automated-test, packaging, checksum, tag, and GitHub publication gates.
+Phoenix v0.3.0 will be developed through 18 public `0.2.x` releases followed
+by the final v0.3.0 release. Every milestone must pass its focused backend,
+Control Center, automated-test, packaging, checksum, tag, and GitHub release
+gates before the next milestone begins.
 
-- [x] `v0.1.2` - Publish the v0.2.0 roadmap and incremental release workflow
-- [x] `v0.1.3` - Reliable Phoenix context initialization and lifecycle
-- [x] `v0.1.4` - Automatic directory, configuration, and runtime recovery
-- [x] `v0.1.5` - Control Center exception isolation and desktop recovery
-- [x] `v0.1.6` - Shared background-job contract
-- [x] `v0.1.7` - Background inventory, provider initialization, and searches
-- [x] `v0.1.8` - Background application operation queue
-- [x] `v0.1.9` - Background driver and restore jobs with cancellation
-- [x] `v0.1.10` - Activity Center live job display
-- [x] `v0.1.11` - Activity cancellation, retry, clearing, and result details
-- [x] `v0.1.12` - Common provider capability and result contract
-- [x] `v0.1.13` - Complete WinGet behavior and UI verification
-- [x] `v0.1.14` - Complete Chocolatey behavior and UI verification
-- [x] `v0.1.15` - Implement Scoop and connect it to the UI
-- [x] `v0.1.16` - Implement MSI packages and connect them to the UI
-- [x] `v0.1.17` - Implement EXE package definitions and UI operations
-- [x] `v0.1.18` - Implement the GitHub Releases provider
-- [x] `v0.1.19` - Implement the PowerShell Gallery provider
-- [x] `v0.1.20` - Implement the NuGet provider
-- [x] `v0.1.21` - Implement online DISM capability and package management
-- [x] `v0.1.22` - Implement WSUS policy, discovery, and installation support
-- [x] `v0.1.23` - Phoenix provider orchestration, selection, and fallback
-- [x] `v0.1.24` - Common OEM driver-adapter framework
-- [x] `v0.1.25` - Dell and HP driver integration
-- [x] `v0.1.26` - Lenovo and Intel driver integration
-- [x] `v0.1.27` - AMD and NVIDIA driver integration
-- [x] `v0.1.28` - Restore planning engine
-- [x] `v0.1.29` - Restore Plan UI, selection, and provider alternatives
-- [x] `v0.1.30` - Versioned restore-checkpoint storage
-- [x] `v0.1.31` - Restore resume, retry, interruption, and reboot state
-- [x] `v0.1.32` - Restore verification engine and UI results
-- [x] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
-- [x] `v0.2.0` - Final hardening, documentation, packaging, and public release
+- [ ] `v0.2.1` - Complete elevated-token VM validation and define the v0.3.0
+      platform matrix
+- [ ] `v0.2.2` - Deployment capability, privilege, safety, and result contracts
+- [ ] `v0.2.3` - Versioned offline-bundle schema and content-addressed store
+- [ ] `v0.2.4` - Offline application acquisition and provider export adapters
+- [ ] `v0.2.5` - Offline driver export, cataloging, and hardware matching
+- [ ] `v0.2.6` - Bundle integrity, provenance, licensing, and trust verification
+- [ ] `v0.2.7` - Offline-bundle build, update, inspect, and verify commands
+- [ ] `v0.2.8` - Offline-bundle Control Center workflow with resume and cleanup
+- [ ] `v0.2.9` - Windows ADK and WinPE prerequisite discovery and diagnostics
+- [ ] `v0.2.10` - Transactional WinPE workspace and image construction
+- [ ] `v0.2.11` - Bootable ISO creation and guarded removable-media staging
+- [ ] `v0.2.12` - Transactional offline Windows-image mount and servicing engine
+- [ ] `v0.2.13` - Offline driver, package, capability, and update injection
+- [ ] `v0.2.14` - Typed unattended answer-file generation and secret policy
+- [ ] `v0.2.15` - Disk-layout planning, validation, preview, and target identity
+- [ ] `v0.2.16` - Guarded deployment execution in disposable Windows VMs
+- [ ] `v0.2.17` - Deployment checkpoints, reboot resume, rollback, and diagnostics
+- [ ] `v0.2.18` - End-to-end recovery-media and new-PC workflow validation
+- [ ] `v0.3.0` - Final hardening, documentation, packaging, and public release
 
-### 1. Runtime stability
+## 1. Carry-forward validation and platform policy
 
-- [x] Make Phoenix context initialization idempotent and recoverable.
-- [x] Automatically create required configuration, theme, cache, checkpoint,
-      and working directories.
-- [x] Prevent a failed component from closing the desktop interface.
-- [x] Add UI-safe exception boundaries with structured Phoenix results.
-- [x] Prevent duplicate state during repeated starts, refreshes, and provider
-      initialization.
-- [x] Validate administrator and standard-user behavior.
-- [x] Add regression tests for initialization, recovery, missing directories,
-      and repeated startup.
+- [ ] Complete the live administrator-token Control Center smoke gate left
+      unclaimed by the v0.2.0 release environment.
+- [ ] Record standard-user, administrator, clean-install, upgrade, and complete
+      removal results for every supported host version.
+- [ ] Define supported Windows host and target builds, PowerShell versions,
+      architectures, UEFI/GPT requirements, ADK versions, and WinPE versions.
+- [ ] Reject unsupported combinations before downloading, mounting, writing,
+      formatting, or servicing anything.
+- [ ] Expose platform readiness and missing prerequisites in PowerShell and the
+      Control Center.
 
-### 2. Background job system
+## 2. Deployment architecture and safety contract
 
-- [x] Define a common Phoenix background-job contract.
-- [x] Move inventory collection off the WPF interface thread.
-- [x] Move provider initialization off the desktop startup path.
-- [x] Move package searches off the WPF interface thread.
-- [x] Move application operations off the WPF interface thread.
-- [x] Move driver operations off the WPF interface thread.
-- [x] Move OEM driver operations off the WPF interface thread.
-- [x] Move restore planning, execution, and verification off the WPF interface
-      thread.
-- [x] Add created, starting, running, cancellation-requested, cancelled,
-      completed, and failed lifecycle states.
-- [x] Add queued state and queue scheduling.
-- [x] Add cancellation and deterministic process and file cleanup.
-- [x] Add retry, timeout, and concurrency controls.
-- [x] Serialize drivers, reboots, protected packages, and conflicting
-      installers when required.
-- [x] Return structured progress and results to the Control Center.
-- [x] Detect workers that exit without publishing a result.
-- [x] Add regression guards that long operations use background workers and
-      avoid synchronous dispatcher calls.
-- [x] Validate live Control Center responsiveness during long operations in a
-      Windows VM.
+- [ ] Define typed source, target, media, image, bundle, disk-plan, deployment,
+      checkpoint, progress, result, warning, error, and reboot models.
+- [ ] Separate discovery and planning from acquisition, servicing, media
+      writing, and deployment execution.
+- [ ] Require `SupportsShouldProcess` and meaningful `-WhatIf` behavior for
+      every mutating public command.
+- [ ] Centralize administrator, target-identity, system-disk, removable-media,
+      mount-state, free-space, power, and reboot safety policy.
+- [ ] Require exact disk number, stable hardware identity, size, bus type, and
+      serial confirmation before a destructive action can be enabled.
+- [ ] Block the current system disk and ambiguous targets by default without a
+      hidden or unattended bypass.
+- [ ] Run acquisition, hashing, mounting, servicing, media creation, and
+      deployment through bounded background operations.
+- [ ] Serialize DISM, mount, driver injection, media write, disk, and reboot
+      operations with explicit concurrency keys.
+- [ ] Guarantee exact-process and exact-workspace cleanup after success,
+      cancellation, timeout, failure, or application shutdown.
 
-### 3. Activity Center
+## 3. Offline recovery bundles
 
-- [x] Display queued and running jobs.
-- [x] Display completed, cancelled, and failed jobs.
-- [x] Show target, action, provider, start time, and elapsed time.
-- [x] Show determinate or indeterminate progress.
-- [x] Show warnings, errors, exit codes, and Phoenix result codes.
-- [x] Show restart requirements.
-- [x] Add cancel, retry, and clear-completed controls.
-- [x] Preserve running work when the user changes tabs.
-- [x] Add Activity Center UI-binding and lifecycle tests.
+- [ ] Define a versioned bundle manifest with Phoenix, Windows, hardware,
+      provider, source, package, driver, dependency, license, and provenance
+      metadata.
+- [ ] Store payloads by SHA-256 identity and deduplicate identical content.
+- [ ] Acquire eligible WinGet, Chocolatey, Scoop, MSI, EXE, GitHub Releases,
+      PowerShell Gallery, and NuGet payloads through provider adapters.
+- [ ] Export installed applications only when their provider can produce a
+      redistributable or user-supplied offline artifact.
+- [ ] Record unavailable, non-redistributable, interactive-only, or
+      source-restricted items instead of silently omitting them.
+- [ ] Export third-party drivers with INF, catalog, binary, provider, class,
+      version, architecture, hardware IDs, and signature details.
+- [ ] Match exported drivers to target hardware without installing them.
+- [ ] Verify every payload length and hash before sealing a bundle and again
+      before consuming it.
+- [ ] Record publisher signatures when available and make trust policy visible.
+- [ ] Generate a software bill of materials and third-party license inventory.
+- [ ] Support incremental bundle refresh without rebuilding unchanged content.
+- [ ] Support cancellation, retry, checkpoint resume, and safe partial cleanup.
+- [ ] Add PowerShell commands and a Control Center workflow to build, inspect,
+      update, verify, export, and remove Phoenix-owned bundles.
 
-### 4. Provider completion
+## 4. Windows ADK, WinPE, and bootable media
 
-#### Common provider behavior
+- [ ] Discover the Windows ADK, WinPE add-on, DISM, Oscdimg, optional component
+      sources, architectures, and supported version pairings.
+- [ ] Provide actionable installation diagnostics without automatically
+      downloading the ADK unless the user explicitly approves it.
+- [ ] Create an isolated, versioned WinPE workspace without modifying source
+      media.
+- [ ] Mount and unmount WinPE images transactionally with abandoned-mount
+      detection and recovery.
+- [ ] Add Phoenix runtime files, PowerShell requirements, storage/network
+      support, selected drivers, optional components, and startup scripts.
+- [ ] Keep secrets and machine-specific answer files out of reusable base
+      images by default.
+- [ ] Build a reproducible bootable ISO and independently inspect its contents.
+- [ ] Stage bootable removable media only after target identity, system-disk
+      blocking, preview, typed confirmation, elevation, and free-space checks.
+- [ ] Never select removable media by drive letter alone.
+- [ ] Verify written media structure and payload hashes after creation.
 
-- [x] Define a shared provider capability and availability contract.
-- [x] Normalize search, inventory, install, update, repair, remove, export, and
-      restore results.
-- [x] Disable unsupported UI actions instead of presenting nonfunctional
-      controls.
-- [x] Normalize privilege, reboot, timeout, cancellation, and exit-code
-      reporting.
-- [x] Add provider health and capability information to the Control Center.
-- [x] Test every provider with mocked external commands or services.
+## 5. Offline Windows-image servicing
 
-#### WinGet
+- [ ] Read WIM, ESD, ISO, folder, and mounted-image metadata without mutation.
+- [ ] Select image indexes explicitly and reject ambiguous editions or
+      architectures.
+- [ ] Copy read-only source images into Phoenix-owned workspaces before any
+      operation that requires a writable image.
+- [ ] Model mount, inspect, service, validate, commit, discard, export, and
+      cleanup as checkpointed transactions.
+- [ ] Detect and recover Phoenix-owned abandoned mounts without touching
+      foreign DISM mounts.
+- [ ] Inject applicable signed drivers and report skipped, unsigned,
+      incompatible, boot-critical, and duplicate packages.
+- [ ] Add or remove supported Windows packages, capabilities, features, and
+      cumulative updates in dependency-safe order.
+- [ ] Validate servicing-stack and cumulative-update applicability before
+      mutation.
+- [ ] Preserve source artifacts and commit to a distinct output image.
+- [ ] Verify output image metadata, indexes, packages, drivers, file hashes,
+      and bootability inputs after servicing.
 
-- [x] Strengthen search and installed-package correlation.
-- [x] Strengthen install, update, repair, and uninstall handling.
-- [x] Normalize metadata, release details, reboot results, and error codes.
-- [x] Verify all supported WinGet actions from the Applications tab.
+## 6. Unattended setup and disk planning
 
-#### Chocolatey
+- [ ] Define typed, versioned models for regional settings, edition, image
+      index, product-key policy, local accounts, privacy choices, network,
+      partition layout, and first-boot actions.
+- [ ] Generate and schema-validate `autounattend.xml` and `unattend.xml` from
+      explicit configuration.
+- [ ] Separate reusable configuration from secrets and default to interactive
+      secret entry at deployment time.
+- [ ] Never log plaintext passwords, product keys, tokens, recovery keys, or
+      wireless secrets.
+- [ ] Redact secrets from reports, checkpoints, errors, and diagnostic bundles.
+- [ ] Validate generated answer files with Windows Setup tools where available.
+- [ ] Define UEFI/GPT disk plans with EFI, Microsoft Reserved, Windows,
+      recovery, and optional data partitions.
+- [ ] Calculate sizes and alignment deterministically from the exact target
+      disk and configuration.
+- [ ] Preview the complete partition and format plan before execution.
+- [ ] Require administrator state, exact target identity, non-system-disk
+      policy, typed confirmation, and a recent preview token before execution.
+- [ ] Reject plans that would target the running OS, contain overlapping or
+      invalid partitions, exceed capacity, or omit required boot partitions.
+- [ ] Keep disk-plan execution disabled outside disposable VM validation until
+      the full destructive-operation test matrix passes.
 
-- [x] Align Chocolatey operations with the common provider contract.
-- [x] Normalize search, inventory, install, update, repair, and uninstall
-      results.
-- [x] Verify all supported Chocolatey actions from the Applications tab.
+## 7. Deployment execution, checkpoints, and recovery
 
-#### Scoop
+- [ ] Build a reviewed deployment plan before changing a target disk or image.
+- [ ] Stage source validation, disk preparation, image application, boot-file
+      creation, recovery configuration, answer-file placement, bundle restore,
+      and first-boot verification as explicit operations.
+- [ ] Save a checkpoint before and after every mutating operation.
+- [ ] Resume only when source, target, disk, image, plan, and machine identity
+      still match the checkpoint.
+- [ ] Never repeat completed destructive operations during resume.
+- [ ] Preserve restart-pending, first-boot, verification, and rollback state.
+- [ ] Distinguish retryable acquisition failures from non-retryable identity,
+      integrity, safety, partition, and image failures.
+- [ ] Capture DISM, Windows Setup, BCDBoot, disk, WinPE, provider, and Phoenix
+      diagnostics in a redacted support bundle.
+- [ ] Provide an explicit rollback or safe-stop result for every phase; do not
+      claim rollback where the underlying Windows action is irreversible.
+- [ ] Verify boot configuration, partitions, applied image, drivers, packages,
+      Phoenix bundle state, and first-boot completion.
 
-- [x] Implement availability and installation checks.
-- [x] Implement search and installed-package inventory.
-- [x] Implement install, update, and uninstall.
-- [x] Implement export and restore support.
-- [x] Add Scoop selection, status, and results to the Applications tab.
+## 8. Control Center experience
 
-#### MSI
+- [ ] Add a Recovery Bundle page for selection, size estimation, acquisition,
+      trust review, build progress, verification, and export.
+- [ ] Add Deployment Media and Windows Image pages for prerequisite status,
+      source/index selection, servicing plans, WinPE options, and output paths.
+- [ ] Add an Unattended Setup editor with validation and secret-safe fields.
+- [ ] Add a Disk Plan preview that names the exact target and makes destructive
+      consequences unambiguous.
+- [ ] Add a Deployment Activity view with phase, operation, target, checkpoint,
+      elapsed time, warnings, errors, restart state, and diagnostics.
+- [ ] Keep every long-running action off the WPF dispatcher.
+- [ ] Disable every unavailable, unsafe, unsupported, or insufficiently
+      reviewed action instead of allowing a late failure.
+- [ ] Preserve navigation, details, logs, cancellation, and safe recovery while
+      background work is active.
 
-- [x] Detect MSI product codes and installed versions.
-- [x] Implement silent and interactive installation.
-- [x] Implement repair and uninstall.
-- [x] Normalize MSI success, failure, and reboot exit codes.
-- [x] Add MSI package definitions and results to the Applications tab.
+## 9. Testing, security, and release gate
 
-#### EXE
+- [ ] Add unit tests for every schema, planner, validator, safety rule,
+      serializer, provider export adapter, and result classification.
+- [ ] Add malicious-manifest, archive traversal, symlink/reparse-point,
+      signature, tamper, stale-checkpoint, path-boundary, and secret-redaction
+      tests.
+- [ ] Add mocked ADK, DISM, Oscdimg, Windows Setup, BCDBoot, storage, mount,
+      package, driver, and removable-media adapter tests.
+- [ ] Add cancellation, timeout, retry, concurrency, cleanup, abandoned-mount,
+      insufficient-space, and interrupted-servicing tests.
+- [ ] Add static regression guards preventing system-disk overrides, drive-
+      letter-only targeting, plaintext secret logging, and unreviewed mutation.
+- [ ] Run non-destructive host tests as standard user and administrator.
+- [ ] Run destructive disk, media, servicing, unattended-setup, reboot-resume,
+      and first-boot tests only in disposable snapshot-backed VMs.
+- [ ] Cover Windows 10 and Windows 11 x64 targets, supported ADK/WinPE pairs,
+      clean disks, existing partitions, insufficient disks, mismatched images,
+      network loss, cancellation, and reboot interruption.
+- [ ] Verify a created ISO boots, enters Phoenix recovery, detects storage and
+      network, reads its bundle, and produces diagnostics.
+- [ ] Verify an end-to-end new-PC VM reaches Windows first boot, restores the
+      selected bundle, resumes checkpoints, and passes post-deployment checks.
+- [ ] Keep `Build.ps1` green with zero analyzer errors and zero blocking
+      findings at every release.
+- [ ] Independently verify every archive, checksum, tag, GitHub release, bundle,
+      image, and boot-media artifact.
+- [ ] Publish user, administrator, bundle, WinPE, image-servicing, unattended,
+      deployment, troubleshooting, provider, security, and developer docs.
+- [ ] Publish the complete Phoenix v0.3.0 development-history document.
 
-- [x] Define declarative EXE installer metadata.
-- [x] Implement silent and interactive installation.
-- [x] Detect installed versions and registered uninstall commands.
-- [x] Implement repair and uninstall when supported.
-- [x] Normalize vendor exit codes and restart requirements.
-- [x] Add EXE package definitions and results to the Applications tab.
+## Definition of done for v0.3.0
 
-#### GitHub Releases
+- [ ] The carried-forward administrator-token VM gate passes.
+- [ ] Offline bundles are deterministic, deduplicated, inspectable, resumable,
+      license-aware, provenance-aware, and independently hash verified.
+- [ ] Unsupported or unavailable offline application artifacts are reported
+      accurately and never represented as captured.
+- [ ] Exported drivers retain applicability, catalog, signature, provider,
+      version, and hardware identity.
+- [ ] Phoenix builds and verifies a bootable WinPE ISO from supported ADK
+      inputs without modifying source media.
+- [ ] Removable-media staging cannot target the running system disk and requires
+      exact identity, preview, confirmation, elevation, and post-write checks.
+- [ ] Offline servicing preserves source media, uses Phoenix-owned mounts, and
+      produces a separately verified output image.
+- [ ] Answer files validate successfully and no plaintext secret appears in
+      logs, reports, checkpoints, or support bundles.
+- [ ] Disk plans are deterministic, capacity-valid, previewed, and blocked from
+      unsafe targets.
+- [ ] Interrupted deployment resumes without repeating completed destructive
+      work or accepting changed identities.
+- [ ] A disposable Windows 10 VM and Windows 11 VM complete the supported
+      deployment workflow and pass first-boot verification.
+- [ ] The Control Center stays responsive through acquisition, hashing,
+      mounting, servicing, media creation, and deployment.
+- [ ] Automated tests pass with zero failures.
+- [ ] PSScriptAnalyzer reports zero errors and zero blocking findings.
+- [ ] Installation, upgrade, launch, normal uninstall, and complete removal pass
+      on every supported host matrix entry.
+- [ ] The repository, release archive, checksum, tag, GitHub release, bundle,
+      ISO, serviced image, and validation records are independently verified.
 
-- [x] Implement repository and release discovery.
-- [x] Select assets by Windows architecture and package definition.
-- [x] Compare installed and available versions.
-- [x] Verify downloaded asset hashes when publishers provide them.
-- [x] Install supported release assets through the appropriate package engine.
-- [x] Display release notes and links in the Applications tab.
+## Planned after v0.3.0
 
-#### PowerShell Gallery
-
-- [x] Implement module and script search.
-- [x] Implement installed-item inventory and version comparison.
-- [x] Implement install, update, and removal.
-- [x] Implement export and restore support.
-- [x] Add PowerShell Gallery actions and results to the Applications tab.
-
-#### NuGet
-
-- [x] Support configured NuGet feeds.
-- [x] Implement package search and version resolution.
-- [x] Implement download, install, update, and removal where applicable.
-- [x] Implement export and restore support.
-- [x] Add NuGet source and result information to the Applications tab.
-
-#### DISM
-
-- [x] Detect applicable online Windows capabilities, features, and packages.
-- [x] Implement supported enable, install, disable, and removal operations.
-- [x] Report restart requirements and DISM result codes.
-- [x] Add capability-aware DISM actions to the Applications tab.
-- [x] Keep offline Windows-image servicing outside the v0.2.0 scope.
-
-#### WSUS
-
-- [x] Detect configured Windows Update and WSUS policy.
-- [x] Discover applicable updates from the managed update source.
-- [x] Implement download and installation through the managed source.
-- [x] Report approval, applicability, failure, and reboot status.
-- [x] Display WSUS source and operation details in the Control Center.
-
-#### Phoenix orchestration provider
-
-- [x] Coordinate provider selection and fallback.
-- [x] Apply eligibility, elevation, and safety policies consistently.
-- [x] Expose provider alternatives during restore planning.
-- [x] Return one normalized result model to the CLI and Control Center.
-
-### 5. OEM driver support
-
-- [x] Define a common OEM driver-adapter contract.
-- [x] Detect manufacturer and applicable hardware before enabling an adapter.
-- [x] Add Dell integration.
-- [x] Add HP integration.
-- [x] Add Lenovo integration.
-- [x] Add Intel integration.
-- [x] Add AMD integration.
-- [x] Add NVIDIA integration.
-- [x] Require approval before installing an OEM utility.
-- [x] Use Windows Update when no applicable OEM source is available.
-- [x] Show installed and available driver versions.
-- [x] Show driver source, release information, support links, and restart
-      requirements.
-- [x] Route every OEM scan and operation through the background job system.
-- [x] Verify OEM information and actions in the Drivers and Activity tabs.
-- [x] Add mocked adapter tests and real Windows VM validation.
-
-### 6. Restore planning
-
-- [x] Build a restore plan before making system changes.
-- [x] Classify every driver and application action.
-- [x] Show installed, requested, and available versions.
-- [x] Show the selected provider and provider alternatives.
-- [x] Show privilege, dependency, safety, and restart information.
-- [x] Allow individual and grouped selection.
-- [x] Allow filtering by provider, record type, and planned action.
-- [x] Allow eligible application records to change providers.
-- [x] Save and reload restore plans.
-- [x] Support `-WhatIf`, interactive, and unattended execution.
-- [x] Add a Restore Plan view to the Control Center.
-
-### 7. Restore checkpoints and resume
-
-- [x] Define a versioned checkpoint schema.
-- [x] Assign restore-session and operation identifiers.
-- [x] Save progress after every meaningful restore action.
-- [x] Record completed, pending, skipped, failed, and retryable records.
-- [x] Record manifest identity, computer identity, timestamps, and reboot state.
-- [x] Resume without repeating successful work.
-- [x] Detect incompatible or stale checkpoints safely.
-- [x] Display checkpoint and resume status in the Control Center.
-- [x] Add interruption, failure, retry, and resume regression tests.
-
-### 8. Restore verification
-
-- [x] Rescan applications and drivers after restoration.
-- [x] Classify records as verified, version mismatch, already satisfied,
-      skipped, restart pending, missing, failed, no longer applicable, or
-      unable to verify.
-- [x] Show verification results in the Control Center.
-- [x] Return structured verification results to PowerShell.
-- [x] Include provider, version, and failure details.
-- [x] Add complete, partial, failed, and restart-pending verification tests.
-
-### 9. Control Center integration
-
-- [x] Add provider columns and filters to the Applications tab.
-- [x] Allow searches against one provider or all providers.
-- [x] Show installed and available application versions.
-- [x] Show update availability, metadata, release notes, and support links.
-- [x] Show provider alternatives and capability-aware action buttons.
-- [x] Show provider and OEM sources in the Drivers tab.
-- [x] Show installed and available driver versions.
-- [x] Show planned action and verification status.
-- [x] Connect application, driver, provider, activity, checkpoint, and
-      verification data to live background jobs.
-- [x] Test every statically referenced control and data binding.
-- [x] Perform repeatable end-to-end testing in a Windows virtual machine.
-
-### 10. Build, testing, and release gate
-
-- [x] Keep `Build.ps1` as the required validation gate.
-- [x] Add unit tests for every completed provider.
-- [x] Add mocked provider and OEM integration tests.
-- [x] Add background-job cancellation, timeout, and retry tests.
-- [x] Add restore planning, checkpoint, resume, and verification tests.
-- [x] Add Control Center lifecycle and binding tests.
-- [ ] Complete administrator and standard-user VM testing.
-      The standard-user and packaged lifecycle gates passed for v0.2.0. The
-      live administrator-token smoke remains operator-run because the release
-      session did not receive Windows UAC consent.
-- [x] Update user, troubleshooting, provider, and developer documentation.
-- [x] Create the complete Phoenix v0.2.0 development-history document.
-- [x] Produce and independently verify the v0.2.0 release archive.
-
-## Definition of done for v0.2.0
-
-- [x] The Control Center remains responsive during every long-running action.
-- [x] Every included provider reports availability and capabilities accurately.
-- [x] Every supported provider action is available and tested through the UI.
-- [x] Unsupported provider actions are visibly disabled.
-- [x] OEM driver information and operations appear in the Drivers and Activity
-      tabs.
-- [x] Restore plans can be reviewed before execution.
-- [x] Interrupted restores can resume from checkpoints.
-- [x] Completed restores produce verification results.
-- [x] Automated tests pass with zero failures.
-- [x] PSScriptAnalyzer reports zero blocking findings.
-- [x] Installation, upgrade, launch, and complete removal pass Windows VM
-      testing.
-- [x] The repository, release archive, checksum, tag, and GitHub release are
-      verified.
-
-## Planned after v0.2.0
-
-The following remain part of Phoenix's longer-term direction but are not
-required for v0.2.0:
-
-- [ ] Offline application and driver recovery bundles
-- [ ] Bootable Phoenix USB creation
-- [ ] WinPE integration
-- [ ] Windows image deployment
-- [ ] Unattended Windows installation
-- [ ] Pre-OS driver injection
-- [ ] Disk partitioning and formatting
-- [ ] Windows answer-file generation
-- [ ] Full bare-metal new-PC deployment
+- [ ] Production PXE, WDS, or iPXE deployment services
+- [ ] Multi-computer fleet orchestration and remote deployment
+- [ ] Remote wipe or decommission workflows
+- [ ] Firmware, BIOS, or Secure Boot key management
+- [ ] BitLocker recovery-key escrow and enterprise secret integration
+- [ ] Active Directory or cloud directory enrollment automation
+- [ ] User-profile and application-data migration
+- [ ] ARM64 deployment and non-Windows targets
+- [ ] Physical-hardware destructive certification beyond documented lab tests
