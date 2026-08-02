@@ -145,6 +145,22 @@ try {
             $inventory
         }
 
+        'Backup' {
+            Write-PhoenixWorkerProgress `
+                -Percent 10 `
+                -Message 'Collecting data for the Phoenix restore manifest...'
+
+            & $phoenixModule {
+                param($workerParameters)
+
+                Backup-Phoenix `
+                    -OutputPath ([string]$workerParameters.OutputPath) `
+                    -SkipDrivers:([bool]$workerParameters.SkipDrivers) `
+                    -SkipPackages:([bool]$workerParameters.SkipPackages) `
+                    -Confirm:$false
+            } $request.Parameters
+        }
+
         'ApplicationUpdates' {
             Write-PhoenixWorkerProgress `
                 -Percent 35 `
