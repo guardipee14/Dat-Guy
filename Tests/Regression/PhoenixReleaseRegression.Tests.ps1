@@ -24,6 +24,16 @@ BeforeAll {
                 (
                     Join-Path `
                         $projectRoot `
+                        'Build\Test-PhoenixReleaseArchive.ps1'
+                )
+                (
+                    Join-Path `
+                        $projectRoot `
+                        'Build\Invoke-PhoenixInstallLifecycleSmoke.ps1'
+                )
+                (
+                    Join-Path `
+                        $projectRoot `
                         'Distribution\Install-Phoenix.ps1'
                 )
                 (
@@ -151,17 +161,17 @@ Describe 'Phoenix release packaging' -Tag @(
                 -LiteralPath (
                     Join-Path `
                         $projectRoot `
-                        'Docs\Phoenix-v0.1.1-Development-History.md'
+                        'Docs\Phoenix-v0.2.0-Development-History.md'
                 ) `
                 -Raw
 
         $developmentHistory.Contains(
-            '# Phoenix v0.1.1 Development History'
+            '# Phoenix v0.2.0 Development History'
         ) |
             Should-BeTrue
 
         $developmentHistory.Contains(
-            '**Release:** v0.1.1'
+            '**Release:** v0.2.0'
         ) |
             Should-BeTrue
 
@@ -242,7 +252,7 @@ Describe 'Phoenix release packaging' -Tag @(
                 -LiteralPath (
                     Join-Path `
                         $projectRoot `
-                        'Docs\Phoenix-v0.1.1-Development-History.md'
+                        'Docs\Phoenix-v0.2.0-Development-History.md'
                 )
         ).Length -gt 1000 |
             Should-BeTrue
@@ -312,6 +322,47 @@ Describe 'Phoenix release packaging' -Tag @(
             $builderSource.Contains(
                 $requiredText.Trim("'")
             ) |
+                Should-BeTrue
+        }
+    }
+
+    It 'independently verifies archives and the Windows install lifecycle' {
+        [string]$verifierSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Build\Test-PhoenixReleaseArchive.ps1'
+                ) `
+                -Raw
+
+        foreach ($requiredText in @(
+            'Archive checksum mismatch'
+            'Release file checksum mismatch'
+            'Runtime file count mismatch'
+            'Import-Module'
+        )) {
+            $verifierSource.Contains($requiredText) |
+                Should-BeTrue
+        }
+
+        [string]$lifecycleSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Build\Invoke-PhoenixInstallLifecycleSmoke.ps1'
+                ) `
+                -Raw
+
+        foreach ($requiredText in @(
+            'Test-PhoenixReleaseArchive.ps1'
+            'Upgraded'
+            'MainWindowHandle'
+            'UserDataPreserved'
+            'RemovedUserData'
+        )) {
+            $lifecycleSource.Contains($requiredText) |
                 Should-BeTrue
         }
     }

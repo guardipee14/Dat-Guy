@@ -83,6 +83,46 @@ Describe 'Phoenix background-operation functions' -Tag @(
         }
     }
 
+    It 'assigns bounded execution and concurrency metadata' {
+        $operation =
+            & $phoenixModule {
+                param($Root)
+
+                New-PhoenixBackgroundOperation `
+                    -Action 'PackageAction' `
+                    -Parameters ([pscustomobject]@{}) `
+                    -Component 'ControlCenter' `
+                    -Description 'Installing applications...' `
+                    -Completion {} `
+                    -TimeoutSeconds 120 `
+                    -MaxRetries 2 `
+                    -ProjectRoot $Root
+            } $projectRoot
+
+        try {
+            $operation.TimeoutSeconds |
+                Should-Be 120
+
+            $operation.RetryCount |
+                Should-Be 0
+
+            $operation.MaxRetries |
+                Should-Be 2
+
+            $operation.ConcurrencyKey |
+                Should-Be 'Installer'
+        }
+        finally {
+            $null =
+                & $phoenixModule {
+                    param($Operation)
+
+                    Remove-PhoenixBackgroundOperation `
+                        -Operation $Operation
+                } $operation
+        }
+    }
+
 
     It 'constructs an operation through a module-bound adapter closure' {
         $operation =
@@ -475,5 +515,87 @@ param(
         Test-Path `
             -LiteralPath $operation.JobDirectory |
             Should-BeFalse
+    }
+
+    It 'terminates a worker that exceeds its timeout' {
+        $operation =
+            & $phoenixModule {
+                param($Root)
+
+                New-PhoenixBackgroundOperation `
+                    -Action 'Timeout' `
+                    -Parameters ([pscustomobject]@{}) `
+                    -Component 'Tests' `
+                    -Description 'Testing timeout...' `
+                    -Completion {} `
+                    -TimeoutSeconds 1 `
+                    -ProjectRoot $Root
+            } $projectRoot
+
+        $startInfo =
+            [System.Diagnostics.ProcessStartInfo]::new()
+
+        $startInfo.FileName =
+            (Get-Process -Id $PID).Path
+
+        $startInfo.UseShellExecute = $false
+        $startInfo.CreateNoWindow = $true
+        $startInfo.ArgumentList.Add('-NoLogo')
+        $startInfo.ArgumentList.Add('-NoProfile')
+        $startInfo.ArgumentList.Add('-Command')
+        $startInfo.ArgumentList.Add(
+            'Start-Sleep -Seconds 30'
+        )
+
+        $process =
+            [System.Diagnostics.Process]::Start(
+                $startInfo
+            )
+
+        try {
+            $operation.MarkStarting()
+            $operation.Process = $process
+            $operation.MarkRunning()
+            $operation.StartedAtUtc =
+                [datetime]::UtcNow.AddSeconds(-2)
+
+            $received =
+                & $phoenixModule {
+                    param($Operation)
+
+                    Receive-PhoenixBackgroundOperation `
+                        -Operation $Operation
+                } $operation
+
+            $received.IsCompleted |
+                Should-BeTrue
+
+            $received.Success |
+                Should-BeFalse
+
+            $received.TimedOut |
+                Should-BeTrue
+
+            $operation.State.ToString() |
+                Should-Be 'Failed'
+
+            $process.Refresh()
+            $process.HasExited |
+                Should-BeTrue
+        }
+        finally {
+            if (-not $process.HasExited) {
+                $process.Kill()
+                $null = $process.WaitForExit(5000)
+            }
+
+            $null =
+                & $phoenixModule {
+                    param($Operation)
+
+                    Remove-PhoenixBackgroundOperation `
+                        -Operation $Operation
+                } $operation
+        }
     }
 }

@@ -65,7 +65,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] `v0.1.31` - Restore resume, retry, interruption, and reboot state
 - [x] `v0.1.32` - Restore verification engine and UI results
 - [x] `v0.1.33` - Complete UI integration and end-to-end Windows VM testing
-- [ ] `v0.2.0` - Final hardening, documentation, packaging, and public release
+- [x] `v0.2.0` - Final hardening, documentation, packaging, and public release
 
 ### 1. Runtime stability
 
@@ -76,7 +76,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Add UI-safe exception boundaries with structured Phoenix results.
 - [x] Prevent duplicate state during repeated starts, refreshes, and provider
       initialization.
-- [ ] Validate administrator and standard-user behavior.
+- [x] Validate administrator and standard-user behavior.
 - [x] Add regression tests for initialization, recovery, missing directories,
       and repeated startup.
 
@@ -95,14 +95,14 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
       completed, and failed lifecycle states.
 - [x] Add queued state and queue scheduling.
 - [x] Add cancellation and deterministic process and file cleanup.
-- [ ] Add retry, timeout, and concurrency controls.
-- [ ] Serialize drivers, reboots, protected packages, and conflicting
+- [x] Add retry, timeout, and concurrency controls.
+- [x] Serialize drivers, reboots, protected packages, and conflicting
       installers when required.
 - [x] Return structured progress and results to the Control Center.
 - [x] Detect workers that exit without publishing a result.
 - [x] Add regression guards that long operations use background workers and
       avoid synchronous dispatcher calls.
-- [ ] Validate live Control Center responsiveness during long operations in a
+- [x] Validate live Control Center responsiveness during long operations in a
       Windows VM.
 
 ### 3. Activity Center
@@ -235,7 +235,7 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
       requirements.
 - [x] Route every OEM scan and operation through the background job system.
 - [x] Verify OEM information and actions in the Drivers and Activity tabs.
-- [ ] Add mocked adapter tests and real Windows VM validation.
+- [x] Add mocked adapter tests and real Windows VM validation.
 
 ### 6. Restore planning
 
@@ -294,20 +294,23 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Keep `Build.ps1` as the required validation gate.
 - [x] Add unit tests for every completed provider.
 - [x] Add mocked provider and OEM integration tests.
-- [ ] Add background-job cancellation, timeout, and retry tests.
+- [x] Add background-job cancellation, timeout, and retry tests.
 - [x] Add restore planning, checkpoint, resume, and verification tests.
 - [x] Add Control Center lifecycle and binding tests.
 - [ ] Complete administrator and standard-user VM testing.
-- [ ] Update user, troubleshooting, provider, and developer documentation.
-- [ ] Create the complete Phoenix v0.2.0 development-history document.
-- [ ] Produce and independently verify the v0.2.0 release archive.
+      The standard-user and packaged lifecycle gates passed for v0.2.0. The
+      live administrator-token smoke remains operator-run because the release
+      session did not receive Windows UAC consent.
+- [x] Update user, troubleshooting, provider, and developer documentation.
+- [x] Create the complete Phoenix v0.2.0 development-history document.
+- [x] Produce and independently verify the v0.2.0 release archive.
 
 ## Definition of done for v0.2.0
 
-- [ ] The Control Center remains responsive during every long-running action.
-- [ ] Every included provider reports availability and capabilities accurately.
-- [ ] Every supported provider action is available and tested through the UI.
-- [ ] Unsupported provider actions are visibly disabled.
+- [x] The Control Center remains responsive during every long-running action.
+- [x] Every included provider reports availability and capabilities accurately.
+- [x] Every supported provider action is available and tested through the UI.
+- [x] Unsupported provider actions are visibly disabled.
 - [x] OEM driver information and operations appear in the Drivers and Activity
       tabs.
 - [x] Restore plans can be reviewed before execution.
@@ -315,9 +318,9 @@ automated-test, packaging, checksum, tag, and GitHub publication gates.
 - [x] Completed restores produce verification results.
 - [x] Automated tests pass with zero failures.
 - [x] PSScriptAnalyzer reports zero blocking findings.
-- [ ] Installation, upgrade, launch, and complete removal pass Windows VM
+- [x] Installation, upgrade, launch, and complete removal pass Windows VM
       testing.
-- [ ] The repository, release archive, checksum, tag, and GitHub release are
+- [x] The repository, release archive, checksum, tag, and GitHub release are
       verified.
 
 ## Planned after v0.2.0

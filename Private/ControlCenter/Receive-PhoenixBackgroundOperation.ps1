@@ -21,6 +21,49 @@ function Receive-PhoenixBackgroundOperation {
         -not $isCompleted -and
         $Operation.State -eq
             [PhoenixBackgroundOperationState]::Running -and
+        $Operation.TimeoutSeconds -gt 0 -and
+        $Operation.StartedAtUtc -gt [datetime]::MinValue -and
+        (
+            [datetime]::UtcNow - $Operation.StartedAtUtc
+        ).TotalSeconds -ge $Operation.TimeoutSeconds
+    ) {
+        $errorMessage = (
+            'The background operation exceeded its {0}-second timeout.' -f
+            $Operation.TimeoutSeconds
+        )
+
+        if ($null -ne $Operation.Process) {
+            try {
+                $Operation.Process.Refresh()
+
+                if (-not $Operation.Process.HasExited) {
+                    try {
+                        $Operation.Process.Kill($true)
+                    }
+                    catch {
+                        $Operation.Process.Kill()
+                    }
+
+                    $null = $Operation.Process.WaitForExit(5000)
+                }
+            }
+            catch {
+                $errorMessage += (
+                    ' The worker could not be stopped cleanly: {0}' -f
+                    $_.Exception.Message
+                )
+            }
+        }
+
+        $Operation.MarkTimedOut($errorMessage)
+        $success = $false
+        $isCompleted = $true
+    }
+
+    if (
+        -not $isCompleted -and
+        $Operation.State -eq
+            [PhoenixBackgroundOperationState]::Running -and
         (
             Test-Path `
                 -LiteralPath $Operation.ProgressPath `
@@ -210,6 +253,8 @@ function Receive-PhoenixBackgroundOperation {
         Message         = $Operation.ProgressMessage
         IsCompleted     = $isCompleted
         Success         = $success
+        TimedOut        = $Operation.TimedOut
+        RetryCount      = $Operation.RetryCount
         Data            = $data
         Error           = $errorMessage
     }

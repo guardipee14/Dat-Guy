@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.
 
-**Current module version:** `0.1.33`
+**Current module version:** `0.2.0`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Development history:** [Phoenix v0.1.1](Docs/Phoenix-v0.1.1-Development-History.md)
+**Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
 **Roadmap:** [Phoenix v0.2.0 roadmap](ROADMAP.md)
 
@@ -25,6 +25,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Collect hardware, network, software, Windows, package, and driver inventory through private inventory engines.
 - Keep the desktop responsive while provider checks, inventory, searches, application operations, and driver operations run in isolated workers.
 - Queue application install, update, repair, and removal operations in FIFO order when another Control Center operation is active.
+- Serialize every Control Center operation through a bounded FIFO scheduler, terminate workers that exceed their timeout, and permit only configured failed-operation retries.
 - Start, poll, wait for, or cancel restore work through the shared isolated background-job lifecycle.
 - Monitor queued, running, completed, cancelled, and failed Control Center operations in a live Activity grid.
 - Filter installed applications by provider, search one provider or every available provider, and review source, installed/available versions, alternatives, update metadata, release notes, support links, and capability-aware actions.
@@ -50,6 +51,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 - Execute reviewed plans with a checkpoint before and after each operation, resume without repeating completed work, retry eligible failures, recover interrupted records, reject stale manifests, and preserve restart-pending state.
 - Verify completed restores by rescanning applications and drivers, classifying per-record outcomes, preserving provider/version/failure details, and showing complete, partial, failed, or restart-pending results in the Control Center.
 - Run the repeatable STA Windows VM/WPF smoke gate in `Build\Invoke-PhoenixWindowsVmSmoke.ps1`; see `Docs\Windows-VM-Testing.md` for the standard and administrator test matrix.
+- Independently verify release checksums, file manifests, and module imports, then exercise installation, upgrade, responsive launch, preserved-data uninstall, reinstall, and complete removal from the built archive.
 - Write Phoenix operational logs with structured severity levels.
 - Recover missing runtime directories and damaged configuration automatically while preserving backups, custom values, and a visible recovery journal.
 - Isolate Control Center component failures, keep the desktop available, offer retry and safe-layout recovery, and retain structured failure diagnostics.
@@ -128,6 +130,15 @@ Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended
 - Manifest restore reinstalls supported packages and Windows Update drivers; it does not yet restore application data, user profiles, Windows settings, or offline driver packages.
 - Package manifests record installed versions for reference, but restore currently installs the provider-current version instead of pinning an exact historical version.
 - Protected packages such as Microsoft Edge are not removed unless -ForceProtectedMigration is explicitly supplied.
+
+## Documentation
+
+- [User guide](Docs/User-Guide.md)
+- [Troubleshooting](Docs/Troubleshooting.md)
+- [Provider guide](Docs/Providers.md)
+- [Developer guide](Docs/Developer-Guide.md)
+- [Windows VM validation](Docs/Windows-VM-Testing.md)
+- [v0.2.0 development history](Docs/Phoenix-v0.2.0-Development-History.md)
 
 ## Project layout
 

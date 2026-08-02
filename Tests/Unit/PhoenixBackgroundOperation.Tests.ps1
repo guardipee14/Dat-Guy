@@ -231,6 +231,56 @@ Describe 'PhoenixBackgroundOperation' -Tag @(
             Should-BeTrue
     }
 
+    It 'limits retries to failed operations within the configured budget' {
+        $operation =
+            [PhoenixBackgroundOperation]::new(
+                'PackageAction',
+                [pscustomobject]@{},
+                'Applications',
+                'Installing applications...',
+                {}
+            )
+
+        $operation.MaxRetries = 1
+        $operation.MarkStarting()
+        $operation.MarkRunning()
+        $operation.MarkFailed('First attempt failed.')
+
+        $operation.CanRetry() |
+            Should-BeTrue
+
+        $operation.RetryCount = 1
+
+        $operation.CanRetry() |
+            Should-BeFalse
+    }
+
+    It 'records timeouts as failed terminal operations' {
+        $operation =
+            [PhoenixBackgroundOperation]::new(
+                'Inventory',
+                [pscustomobject]@{},
+                'Inventory',
+                'Collecting inventory...',
+                {}
+            )
+
+        $operation.MarkStarting()
+        $operation.MarkRunning()
+        $operation.MarkTimedOut(
+            'The operation exceeded its timeout.'
+        )
+
+        $operation.State.ToString() |
+            Should-Be 'Failed'
+
+        $operation.TimedOut |
+            Should-BeTrue
+
+        $operation.CanRetry() |
+            Should-BeTrue
+    }
+
     It 'rejects invalid lifecycle transitions' {
         $operation =
             [PhoenixBackgroundOperation]::new(

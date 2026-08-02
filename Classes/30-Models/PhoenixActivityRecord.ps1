@@ -73,7 +73,7 @@ class PhoenixActivityRecord {
         $this.CanCancel =
             $this.Operation.CanCancel()
         $this.CanRetry =
-            $this.IsTerminal
+            $this.Operation.CanRetry()
 
         [datetime]$effectiveStart = if (
             $this.StartedAtUtc -gt [datetime]::MinValue

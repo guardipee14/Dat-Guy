@@ -342,6 +342,18 @@ function Show-PhoenixDesktop {
                 [Parameter(Mandatory)]
                 [scriptblock]$Completion,
 
+                [Parameter()]
+                [int]$TimeoutSeconds = 900,
+
+                [Parameter()]
+                [int]$RetryCount = 0,
+
+                [Parameter()]
+                [int]$MaxRetries = 1,
+
+                [Parameter()]
+                [string]$ConcurrencyKey = '',
+
                 [Parameter(Mandatory)]
                 [string]$ProjectRoot
             )
@@ -1441,30 +1453,21 @@ function Show-PhoenixDesktop {
             [scriptblock]$Completed,
 
             [Parameter()]
-            [switch]$QueueIfBusy,
+            [int]$TimeoutSeconds = 900,
+
+            [Parameter()]
+            [int]$RetryCount = 0,
+
+            [Parameter()]
+            [int]$MaxRetries = 1,
+
+            [Parameter()]
+            [string]$ConcurrencyKey = '',
 
             [Parameter()]
             [AllowNull()]
             [PhoenixBackgroundOperation]$Operation
         )
-
-        if (
-            $null -ne $state.ActiveOperation -and
-            -not $QueueIfBusy
-        ) {
-            [void][System.Windows.MessageBox]::Show(
-                $window,
-                (
-                    'Phoenix is already running an operation. ' +
-                    'You can keep navigating or open Activity to watch it.'
-                ),
-                'Phoenix operation in progress',
-                [System.Windows.MessageBoxButton]::OK,
-                [System.Windows.MessageBoxImage]::Information
-            )
-
-            return
-        }
 
         [string]$projectRoot =
             Split-Path `
@@ -1485,6 +1488,10 @@ function Show-PhoenixDesktop {
                     -Component 'ControlCenter' `
                     -Description $Description `
                     -Completion $Completed `
+                    -TimeoutSeconds $TimeoutSeconds `
+                    -RetryCount $RetryCount `
+                    -MaxRetries $MaxRetries `
+                    -ConcurrencyKey $ConcurrencyKey `
                     -ProjectRoot $projectRoot
         }
 
@@ -1505,13 +1512,14 @@ function Show-PhoenixDesktop {
                 $state.OperationQueue.Count
 
             & $appendActivity (
-                'Queued application operation {0}: {1}' -f
+                'Queued operation {0} ({1}): {2}' -f
                 $queuePosition,
+                $operation.ConcurrencyKey,
                 $operation.Description
             )
 
             & $setStatus (
-                'Application operation queued in position {0}.' -f
+                'Operation queued in position {0}.' -f
                 $queuePosition
             )
 
@@ -1744,7 +1752,8 @@ function Show-PhoenixDesktop {
 
             try {
                 & $appendActivity (
-                    'Starting queued application operation: {0}' -f
+                    'Starting queued operation ({0}): {1}' -f
+                    $nextOperation.ConcurrencyKey,
                     $nextOperation.Description
                 )
 
@@ -2244,7 +2253,6 @@ function Show-PhoenixDesktop {
 
         & $startOperation `
             -Action 'PackageAction' `
-            -QueueIfBusy `
             -Parameters ([pscustomobject]@{
                 PackageAction = $Action
                 Packages      = $packageDescriptors
@@ -3761,7 +3769,6 @@ function Show-PhoenixDesktop {
 
         & $startOperation `
             -Action 'PackageAction' `
-            -QueueIfBusy `
             -Parameters ([pscustomobject]@{
                 PackageAction = 'Install'
                 Packages      = $packageDescriptors
@@ -4426,7 +4433,7 @@ function Show-PhoenixDesktop {
 
         if (
             $null -eq $selectedActivity -or
-            -not $selectedActivity.IsTerminal
+            -not $selectedActivity.CanRetry
         ) {
             return
         }
@@ -4456,10 +4463,10 @@ function Show-PhoenixDesktop {
             Parameters  = $previousOperation.Parameters
             Description = $previousOperation.Description
             Completed   = $previousOperation.Completion
-        }
-
-        if ($previousOperation.Action -eq 'PackageAction') {
-            $retryParameters.QueueIfBusy = $true
+            TimeoutSeconds = $previousOperation.TimeoutSeconds
+            RetryCount  = $previousOperation.RetryCount + 1
+            MaxRetries  = $previousOperation.MaxRetries
+            ConcurrencyKey = $previousOperation.ConcurrencyKey
         }
 
         & $startOperationCommand `

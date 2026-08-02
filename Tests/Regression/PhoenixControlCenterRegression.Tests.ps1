@@ -617,26 +617,25 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
 
         $desktopSource.Contains(
-            'Queued application operation {0}: {1}'
+            'Queued operation {0} ({1}): {2}'
         ) |
             Should-BeTrue
 
         $desktopSource.Contains(
-            'Starting queued application operation: {0}'
+            'Starting queued operation ({0}): {1}'
         ) |
             Should-BeTrue
 
-        [regex]::Matches(
-            $desktopSource,
-            '(?s)-Action ''PackageAction''.{0,80}-QueueIfBusy'
-        ).Count |
-            Should-Be 2
+        $desktopSource.Contains(
+            'if ($null -ne $state.ActiveOperation)'
+        ) |
+            Should-BeTrue
 
-        [regex]::Matches(
-            $desktopSource,
-            '(?s)-Action ''DriverAction''.{0,80}-QueueIfBusy'
-        ).Count |
-            Should-Be 0
+        $operationSource.Contains('[string]$ConcurrencyKey') |
+            Should-BeTrue
+
+        $operationSource.Contains('[int]$TimeoutSeconds') |
+            Should-BeTrue
 
         $desktopSource.Contains(
             'while ($state.OperationQueue.Count -gt 0)'
@@ -743,7 +742,12 @@ Describe 'Phoenix Control Center regressions' -Tag @(
             Should-BeTrue
 
         $desktopSource.Contains(
-            '$retryParameters.QueueIfBusy = $true'
+            'RetryCount  = $previousOperation.RetryCount + 1'
+        ) |
+            Should-BeTrue
+
+        $desktopSource.Contains(
+            'MaxRetries  = $previousOperation.MaxRetries'
         ) |
             Should-BeTrue
 

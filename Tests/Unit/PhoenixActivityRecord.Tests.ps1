@@ -128,7 +128,7 @@ Describe 'PhoenixActivityRecord' -Tag @(
             Should-BeFalse
 
         $record.CanRetry |
-            Should-BeTrue
+            Should-BeFalse
 
         (
             $record.ElapsedText -match

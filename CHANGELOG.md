@@ -4,6 +4,25 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-01
+
+### Added
+- final v0.2.0 hardening, documentation, packaging, and validation
+  - Bound background operations with explicit timeouts, action-specific
+    concurrency keys, deterministic worker termination, and configurable
+    failed-operation retry limits.
+  - Serialize Control Center work through one FIFO scheduler so driver,
+    installer, restore, reboot-sensitive, and inventory activity cannot
+    conflict on the desktop dispatcher.
+  - Add independent archive verification for the outer SHA-256 checksum,
+    every RELEASE.json file length and hash, runtime file count, version, and
+    clean child-process module import.
+  - Add a Windows lifecycle smoke gate covering clean CurrentUser install,
+    in-place upgrade, responsive installed launch, preserved-data uninstall,
+    reinstall, and complete user-data removal.
+  - Publish user, troubleshooting, provider, developer, Windows VM, and full
+    v0.2.0 development-history documentation.
+
 ## [0.1.33] - 2026-08-01
 
 ### Added

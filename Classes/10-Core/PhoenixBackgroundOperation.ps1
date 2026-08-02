@@ -38,7 +38,13 @@ class PhoenixBackgroundOperation {
     [string]$LastProgressKey
 
     [bool]$CancellationRequested
+    [bool]$TimedOut
     [string]$ErrorMessage
+
+    [int]$TimeoutSeconds
+    [int]$RetryCount
+    [int]$MaxRetries
+    [string]$ConcurrencyKey
 
     PhoenixBackgroundOperation(
         [string]$Action,
@@ -97,7 +103,13 @@ class PhoenixBackgroundOperation {
         $this.LastProgressKey = ''
 
         $this.CancellationRequested = $false
+        $this.TimedOut = $false
         $this.ErrorMessage = ''
+
+        $this.TimeoutSeconds = 900
+        $this.RetryCount = 0
+        $this.MaxRetries = 1
+        $this.ConcurrencyKey = $Component
     }
 
     [void] MarkQueued() {
@@ -246,6 +258,13 @@ class PhoenixBackgroundOperation {
             [datetime]::UtcNow
     }
 
+    [void] MarkTimedOut(
+        [string]$Message
+    ) {
+        $this.TimedOut = $true
+        $this.MarkFailed($Message)
+    }
+
     [bool] CanCancel() {
         return (
             $this.State -eq
@@ -265,6 +284,14 @@ class PhoenixBackgroundOperation {
                 [PhoenixBackgroundOperationState]::Completed -or
             $this.State -eq
                 [PhoenixBackgroundOperationState]::Failed
+        )
+    }
+
+    [bool] CanRetry() {
+        return (
+            $this.State -eq
+                [PhoenixBackgroundOperationState]::Failed -and
+            $this.RetryCount -lt $this.MaxRetries
         )
     }
 

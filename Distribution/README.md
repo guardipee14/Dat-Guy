@@ -10,7 +10,7 @@ Run the normal validation pipeline and create a versioned archive:
 ```powershell
 $releaseResult =
     .\Build\New-PhoenixRelease.ps1 `
-        -Version '0.1.5'
+        -Version '0.2.0'
 
 $releaseResult | Format-List
 ```
@@ -18,14 +18,14 @@ $releaseResult | Format-List
 The archive and its SHA-256 checksum are written to
 `Artifacts\Releases`.
 
-The release payload includes the focused v0.1.1 hotfix record, the complete
-v0.1.0 development baseline, and the public Phoenix roadmap.
+The release payload includes the full public documentation set, complete
+v0.2.0 development history, and public roadmap.
 
 Use `-AllowDirty` only while testing uncommitted release changes:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.5' `
+    -Version '0.2.0' `
     -AllowDirty
 ```
 
@@ -95,17 +95,36 @@ Remove the application and all user data:
     -RemoveUserData
 ```
 
+## Verify a release
+
+Independently verify a locally built archive before publication:
+
+```powershell
+.\Build\Test-PhoenixReleaseArchive.ps1 `
+    -ArchivePath .\Artifacts\Releases\Phoenix-0.2.0.zip
+```
+
+On Windows, run the complete installed-product lifecycle gate:
+
+```powershell
+.\Build\Invoke-PhoenixInstallLifecycleSmoke.ps1 `
+    -ArchivePath .\Artifacts\Releases\Phoenix-0.2.0.zip
+```
+
+The lifecycle gate uses an isolated temporary CurrentUser installation and
+removes it completely when validation finishes.
+
 ## Publish a GitHub release
 
 After committing and pushing a clean working tree:
 
 ```powershell
 .\Build\New-PhoenixRelease.ps1 `
-    -Version '0.1.5' `
+    -Version '0.2.0' `
     -PublishGitHub
 ```
 
-This creates the `v0.1.5` GitHub release and uploads both the ZIP and checksum.
+This creates the `v0.2.0` GitHub release and uploads both the ZIP and checksum.
 Use `-Prerelease` when the GitHub release should be marked as a prerelease.
 
 ## License

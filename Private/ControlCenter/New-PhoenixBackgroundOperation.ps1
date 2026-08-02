@@ -23,6 +23,22 @@ function New-PhoenixBackgroundOperation {
         [ValidateNotNull()]
         [scriptblock]$Completion,
 
+        [Parameter()]
+        [ValidateRange(1, 86400)]
+        [int]$TimeoutSeconds = 900,
+
+        [Parameter()]
+        [ValidateRange(0, 10)]
+        [int]$RetryCount = 0,
+
+        [Parameter()]
+        [ValidateRange(0, 10)]
+        [int]$MaxRetries = 1,
+
+        [Parameter()]
+        [AllowEmptyString()]
+        [string]$ConcurrencyKey = '',
+
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [string]$ProjectRoot
@@ -53,6 +69,25 @@ function New-PhoenixBackgroundOperation {
             $Description,
             $Completion
         )
+
+    if ($RetryCount -gt $MaxRetries) {
+        throw 'RetryCount cannot be greater than MaxRetries.'
+    }
+
+    if ([string]::IsNullOrWhiteSpace($ConcurrencyKey)) {
+        $ConcurrencyKey = switch -Regex ($Action) {
+            '^PackageAction$' { 'Installer'; break }
+            '^(DriverAction|OemDriverAction)$' { 'Driver'; break }
+            '^Restore' { 'Restore'; break }
+            '^Reboot' { 'Reboot'; break }
+            default { $Component }
+        }
+    }
+
+    $operation.TimeoutSeconds = $TimeoutSeconds
+    $operation.RetryCount = $RetryCount
+    $operation.MaxRetries = $MaxRetries
+    $operation.ConcurrencyKey = $ConcurrencyKey
 
     [string]$operationRoot =
         Join-Path `
