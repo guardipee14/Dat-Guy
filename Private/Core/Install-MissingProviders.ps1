@@ -102,7 +102,7 @@ function Install-MissingProviders {
 
         try {
 
-            $null = $provider.InstallProvider()
+            $installResult = $provider.InstallProvider()
 
             $provider.Available = $provider.TestAvailable()
         }
@@ -128,8 +128,33 @@ function Install-MissingProviders {
             Write-Host '  ✓ Installed successfully.' -ForegroundColor Green
         }
         else {
+            if (
+                $null -ne $installResult -and
+                [string]$installResult.Code -eq
+                    'PHX_PROVIDER_INSTALL_APPROVAL_REQUIRED'
+            ) {
+                [string]$approvalMessage = if (
+                    [string]::IsNullOrWhiteSpace(
+                        [string]$installResult.Message
+                    )
+                ) {
+                    'Manual installation approval is required.'
+                }
+                else {
+                    [string]$installResult.Message
+                }
 
-            Write-Host '  ✗ Failed to install.' -ForegroundColor Red
+                $context.InitializationWarnings.Add(
+                    $approvalMessage
+                )
+
+                Write-Host (
+                    "  ! Manual installation required: $approvalMessage"
+                ) -ForegroundColor Yellow
+            }
+            else {
+                Write-Host '  ✗ Failed to install.' -ForegroundColor Red
+            }
         }
 
         Write-Host ''

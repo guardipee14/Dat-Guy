@@ -22,14 +22,461 @@ class ScoopProvider : PhoenixProvider {
     }
 
     [Result] InstallProvider() {
-        $result = [Result]::Failure(
-            'Install Scoop from https://scoop.sh, then refresh Phoenix providers.'
-        )
-        $result.Code = 'PHX_PROVIDER_INSTALL_APPROVAL_REQUIRED'
-        $result.Provider = $this.Name
-        $result.Operation = 'InstallProvider'
+        if ($this.TestAvailable()) {
+            $this.Available = $true
 
-        return $result
+            $existingResult = [Result]::Success()
+            $existingResult.Code =
+                'PHX_PROVIDER_ALREADY_AVAILABLE'
+            $existingResult.Message =
+                'Scoop is already installed.'
+            $existingResult.Provider = $this.Name
+            $existingResult.Operation = 'InstallProvider'
+            $existingResult.Target = 'Scoop'
+
+            return $existingResult
+        }
+
+        [string]$installerUri =
+            'https://get.scoop.sh'
+
+        [string]$temporaryRoot =
+            Join-Path `
+                ([IO.Path]::GetTempPath()) `
+                (
+                    'Phoenix-Scoop-{0}' -f
+                    [guid]::NewGuid().ToString('N')
+                )
+
+        [string]$installerPath =
+            Join-Path $temporaryRoot 'install.ps1'
+
+        [string]$wrapperPath =
+            Join-Path $temporaryRoot 'invoke-install.ps1'
+
+        [string]$standardOutputPath =
+            Join-Path $temporaryRoot 'stdout.log'
+
+        [string]$standardErrorPath =
+            Join-Path $temporaryRoot 'stderr.log'
+
+        try {
+            $null =
+                New-Item `
+                    -ItemType Directory `
+                    -Path $temporaryRoot `
+                    -Force `
+                    -ErrorAction Stop
+
+            Invoke-WebRequest `
+                -Uri $installerUri `
+                -OutFile $installerPath `
+                -UseBasicParsing `
+                -MaximumRedirection 5 `
+                -TimeoutSec 60 `
+                -ErrorAction Stop
+
+            if (
+                -not (
+                    Test-Path `
+                        -LiteralPath $installerPath `
+                        -PathType Leaf
+                ) -or
+                (Get-Item -LiteralPath $installerPath).Length -le 0
+            ) {
+                return $this.NewFailure(
+                    'The Scoop installer download was empty.',
+                    'PHX_PROVIDER_DOWNLOAD_FAILED'
+                )
+            }
+
+            [string]$powerShellPath =
+                [Environment]::ProcessPath
+
+            if (
+                [string]::IsNullOrWhiteSpace(
+                    $powerShellPath
+                ) -or
+                -not (
+                    Test-Path `
+                        -LiteralPath $powerShellPath `
+                        -PathType Leaf
+                )
+            ) {
+                $powerShellCommand =
+                    Get-Command `
+                        pwsh.exe `
+                        -ErrorAction SilentlyContinue
+
+                if ($null -eq $powerShellCommand) {
+                    $powerShellCommand =
+                        Get-Command `
+                            powershell.exe `
+                            -ErrorAction SilentlyContinue
+                }
+
+                if ($null -eq $powerShellCommand) {
+                    return $this.NewFailure(
+                        'A PowerShell executable was not found.',
+                        'PHX_PROVIDER_INSTALL_ENGINE_MISSING'
+                    )
+                }
+
+                $powerShellPath =
+                    [string]$powerShellCommand.Source
+            }
+
+            [bool]$isAdministrator =
+                [Security.Principal.WindowsPrincipal]::new(
+                    [Security.Principal.WindowsIdentity]::
+                        GetCurrent()
+                ).IsInRole(
+                    [Security.Principal.WindowsBuiltInRole]::
+                        Administrator
+                )
+
+            [string]$escapedInstallerPath =
+                $installerPath.Replace(
+                    "'",
+                    "''"
+                )
+
+            [string]$wrapperText =
+                if ($isAdministrator) {
+                    @"
+`$ErrorActionPreference = 'Stop'
+& '$escapedInstallerPath' -RunAsAdmin
+exit `$LASTEXITCODE
+"@
+                }
+                else {
+                    @"
+`$ErrorActionPreference = 'Stop'
+& '$escapedInstallerPath'
+exit `$LASTEXITCODE
+"@
+                }
+
+            [IO.File]::WriteAllText(
+                $wrapperPath,
+                $wrapperText,
+                [Text.UTF8Encoding]::new($false)
+            )
+
+            $argumentList =
+                [System.Collections.Generic.List[string]]::new()
+
+            foreach ($argument in @(
+                '-NoLogo'
+                '-NoProfile'
+                '-NonInteractive'
+                '-ExecutionPolicy'
+                'Bypass'
+                '-File'
+                ('"{0}"' -f $wrapperPath)
+            )) {
+                $argumentList.Add($argument)
+            }
+
+            $process =
+                Start-Process `
+                    -FilePath $powerShellPath `
+                    -ArgumentList $argumentList.ToArray() `
+                    -RedirectStandardOutput $standardOutputPath `
+                    -RedirectStandardError $standardErrorPath `
+                    -PassThru `
+                    -WindowStyle Hidden `
+                    -ErrorAction Stop
+
+            [bool]$completed =
+                $process.WaitForExit(300000)
+
+            if (-not $completed) {
+                try {
+                    Stop-Process `
+                        -Id $process.Id `
+                        -Force `
+                        -ErrorAction Stop
+                }
+                catch {
+                }
+
+                return $this.NewFailure(
+                    'Scoop installation timed out after five minutes.',
+                    'PHX_PROVIDER_INSTALL_TIMEOUT'
+                )
+            }
+
+            [int]$exitCode =
+                [int]$process.ExitCode
+
+            [string]$standardOutput = ''
+
+            if (
+                Test-Path `
+                    -LiteralPath $standardOutputPath `
+                    -PathType Leaf
+            ) {
+                $standardOutput =
+                    Get-Content `
+                        -LiteralPath $standardOutputPath `
+                        -Raw `
+                        -ErrorAction SilentlyContinue
+            }
+
+            [string]$standardError = ''
+
+            if (
+                Test-Path `
+                    -LiteralPath $standardErrorPath `
+                    -PathType Leaf
+            ) {
+                $standardError =
+                    Get-Content `
+                        -LiteralPath $standardErrorPath `
+                        -Raw `
+                        -ErrorAction SilentlyContinue
+            }
+
+            if ($exitCode -ne 0) {
+                [string]$failureMessage =
+                    (
+                        'Scoop installation failed with exit ' +
+                        "code $exitCode."
+                    )
+
+                if (
+                    -not [string]::IsNullOrWhiteSpace(
+                        $standardError
+                    )
+                ) {
+                    $failureMessage += (
+                        ' ' +
+                        $standardError.Trim()
+                    )
+                }
+                elseif (
+                    -not [string]::IsNullOrWhiteSpace(
+                        $standardOutput
+                    )
+                ) {
+                    $failureMessage += (
+                        ' ' +
+                        $standardOutput.Trim()
+                    )
+                }
+
+                $failedResult =
+                    $this.NewFailure(
+                        $failureMessage,
+                        'PHX_PROVIDER_INSTALL_FAILED'
+                    )
+
+                $failedResult.HasExitCode = $true
+                $failedResult.ExitCode = $exitCode
+                $failedResult.Provider = $this.Name
+                $failedResult.Operation = 'InstallProvider'
+                $failedResult.Target = 'Scoop'
+                $failedResult.Errors = @(
+                    $standardError
+                    $standardOutput
+                ) |
+                    Where-Object {
+                        -not [string]::IsNullOrWhiteSpace(
+                            [string]$_
+                        )
+                    }
+
+                return $failedResult
+            }
+
+            [string]$machinePath =
+                [Environment]::GetEnvironmentVariable(
+                    'Path',
+                    [EnvironmentVariableTarget]::Machine
+                )
+
+            [string]$userPath =
+                [Environment]::GetEnvironmentVariable(
+                    'Path',
+                    [EnvironmentVariableTarget]::User
+                )
+
+            [string]$processPath =
+                [Environment]::GetEnvironmentVariable(
+                    'Path',
+                    [EnvironmentVariableTarget]::Process
+                )
+
+            $pathEntries =
+                [System.Collections.Generic.List[string]]::new()
+
+            $seenPathEntries =
+                [System.Collections.Generic.HashSet[string]]::new(
+                    [StringComparer]::OrdinalIgnoreCase
+                )
+
+            foreach ($pathValue in @(
+                $machinePath
+                $userPath
+                $processPath
+            )) {
+                foreach (
+                    $pathEntry in @(
+                        [string]$pathValue -split ';'
+                    )
+                ) {
+                    [string]$trimmedEntry =
+                        $pathEntry.Trim()
+
+                    if (
+                        -not [string]::IsNullOrWhiteSpace(
+                            $trimmedEntry
+                        ) -and
+                        $seenPathEntries.Add($trimmedEntry)
+                    ) {
+                        $pathEntries.Add($trimmedEntry)
+                    }
+                }
+            }
+
+            [string]$scoopRoot =
+                [Environment]::GetEnvironmentVariable(
+                    'SCOOP',
+                    [EnvironmentVariableTarget]::User
+                )
+
+            if (
+                [string]::IsNullOrWhiteSpace(
+                    $scoopRoot
+                )
+            ) {
+                $scoopRoot =
+                    Join-Path `
+                        $env:USERPROFILE `
+                        'scoop'
+            }
+
+            [string]$scoopShimPath =
+                Join-Path $scoopRoot 'shims'
+
+            if (
+                Test-Path `
+                    -LiteralPath $scoopShimPath `
+                    -PathType Container
+            ) {
+                if ($seenPathEntries.Add($scoopShimPath)) {
+                    $pathEntries.Add($scoopShimPath)
+                }
+            }
+
+            [string]$refreshedPath =
+                $pathEntries.ToArray() -join ';'
+
+            [Environment]::SetEnvironmentVariable(
+                'Path',
+                $refreshedPath,
+                [EnvironmentVariableTarget]::Process
+            )
+
+            $scoopCommand =
+                Get-Command `
+                    scoop `
+                    -ErrorAction SilentlyContinue
+
+            if ($null -eq $scoopCommand) {
+                [string]$scoopCommandPath =
+                    Join-Path `
+                        $scoopShimPath `
+                        'scoop.ps1'
+
+                if (
+                    Test-Path `
+                        -LiteralPath $scoopCommandPath `
+                        -PathType Leaf
+                ) {
+                    $scoopCommand =
+                        Get-Command `
+                            $scoopCommandPath `
+                            -ErrorAction SilentlyContinue
+                }
+            }
+
+            if ($null -eq $scoopCommand) {
+                $verificationResult =
+                    $this.NewFailure(
+                        (
+                            'The Scoop installer exited successfully, ' +
+                            'but the scoop command could not be found.'
+                        ),
+                        'PHX_PROVIDER_INSTALL_VERIFY_FAILED'
+                    )
+
+                $verificationResult.HasExitCode = $true
+                $verificationResult.ExitCode = $exitCode
+                $verificationResult.Provider = $this.Name
+                $verificationResult.Operation = 'InstallProvider'
+                $verificationResult.Target = 'Scoop'
+
+                return $verificationResult
+            }
+
+            $this.Available = $true
+
+            $result = [Result]::Success()
+            $result.Code =
+                'PHX_PROVIDER_INSTALL_SUCCEEDED'
+            $result.Message =
+                'Scoop was installed and verified successfully.'
+            $result.Provider = $this.Name
+            $result.Operation = 'InstallProvider'
+            $result.Target =
+                [string]$scoopCommand.Source
+            $result.HasExitCode = $true
+            $result.ExitCode = $exitCode
+            $result.Data =
+                [pscustomobject]@{
+                    InstallerUri = $installerUri
+                    PowerShellPath = $powerShellPath
+                    RunAsAdmin = $isAdministrator
+                    ScoopCommand =
+                        [string]$scoopCommand.Source
+                    StandardOutput = $standardOutput
+                }
+
+            return $result
+        }
+        catch {
+            $exceptionResult =
+                $this.NewFailure(
+                    (
+                        'Scoop installation failed: {0}' -f
+                        $_.Exception.Message
+                    ),
+                    'PHX_PROVIDER_INSTALL_FAILED'
+                )
+
+            $exceptionResult.Provider = $this.Name
+            $exceptionResult.Operation = 'InstallProvider'
+            $exceptionResult.Target = 'Scoop'
+            $exceptionResult.Errors = @(
+                $_.Exception.Message
+            )
+
+            return $exceptionResult
+        }
+        finally {
+            if (
+                Test-Path `
+                    -LiteralPath $temporaryRoot
+            ) {
+                Remove-Item `
+                    -LiteralPath $temporaryRoot `
+                    -Recurse `
+                    -Force `
+                    -ErrorAction SilentlyContinue
+            }
+        }
     }
 
     [Result] UpdateProvider() {
