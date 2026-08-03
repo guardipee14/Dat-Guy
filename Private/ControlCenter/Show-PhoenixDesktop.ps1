@@ -119,6 +119,7 @@ function Show-PhoenixDesktop {
             'OpenDriverReleaseUrlButton'
             'RestoreManifestPathText'
             'BrowseRestoreManifestButton'
+            'CreateRestoreManifestButton'
             'BuildRestorePlanButton'
             'LoadRestorePlanButton'
             'SaveRestorePlanButton'
@@ -1969,6 +1970,10 @@ function Show-PhoenixDesktop {
         $inventoryControls = $controls
         $inventorySetStatus = $setStatus
         $inventoryGetContext = $getContextCommand
+        $inventoryPopulateProviderFilters =
+            $populateProviderFilters
+        $inventoryApplyApplicationFilter =
+            $applyApplicationFilter
 
         & $startOperation `
             -Action 'Inventory' `
@@ -2078,8 +2083,29 @@ function Show-PhoenixDesktop {
                 $inventoryControls.OemAdapterGrid.ItemsSource =
                     @($inventoryState.Inventory.OemAdapters)
 
-                & $populateProviderFilters
-                & $applyApplicationFilter
+                if (
+                    $inventoryPopulateProviderFilters -is
+                    [scriptblock]
+                ) {
+                    & $inventoryPopulateProviderFilters
+                }
+                else {
+                    throw (
+                        'The provider-filter population command is unavailable.'
+                    )
+                }
+
+                if (
+                    $inventoryApplyApplicationFilter -is
+                    [scriptblock]
+                ) {
+                    & $inventoryApplyApplicationFilter
+                }
+                else {
+                    throw (
+                        'The application-filter command is unavailable.'
+                    )
+                }
 
                 $updateApplicationActions =
                     $inventoryState.UpdateApplicationActions
@@ -2804,6 +2830,76 @@ function Show-PhoenixDesktop {
         if ($dialog.ShowDialog($window)) {
             $controls.RestoreManifestPathText.Text = $dialog.FileName
         }
+    }.GetNewClosure())
+
+    $controls.CreateRestoreManifestButton.Add_Click({
+        $dialog = [Microsoft.Win32.SaveFileDialog]::new()
+        $dialog.Title = 'Create a Phoenix restore manifest'
+        $dialog.Filter = 'Phoenix manifests (*.json)|*.json'
+        $dialog.FileName = 'manifest.json'
+        $dialog.InitialDirectory = [Environment]::GetFolderPath(
+            [Environment+SpecialFolder]::MyDocuments
+        )
+
+        if (-not $dialog.ShowDialog($window)) {
+            return
+        }
+
+        $completionControls = $controls
+        $completionSetStatus = $setStatus
+        [string]$outputPath = $dialog.FileName
+
+        & $startOperation `
+            -Action 'Backup' `
+            -Parameters ([pscustomobject]@{
+                OutputPath = $outputPath
+                SkipDrivers = $false
+                SkipPackages = $false
+            }) `
+            -Description 'Creating a Phoenix restore manifest...' `
+            -Completed {
+                param($backupResult)
+
+                if (
+                    $null -eq $backupResult -or
+                    -not [bool]$backupResult.Success
+                ) {
+                    [string]$message = if (
+                        $null -ne $backupResult -and
+                        -not [string]::IsNullOrWhiteSpace(
+                            [string]$backupResult.Message
+                        )
+                    ) {
+                        [string]$backupResult.Message
+                    }
+                    else {
+                        'Phoenix did not create the restore manifest.'
+                    }
+
+                    throw $message
+                }
+
+                [string]$manifestPath =
+                    [string]$backupResult.Data.Path
+
+                if (-not (
+                    Test-Path `
+                        -LiteralPath $manifestPath `
+                        -PathType Leaf
+                )) {
+                    throw (
+                        'Phoenix reported success, but the restore manifest ' +
+                        "was not found at '$manifestPath'."
+                    )
+                }
+
+                $completionControls.RestoreManifestPathText.Text =
+                    $manifestPath
+
+                & $completionSetStatus (
+                    "Restore manifest created at '$manifestPath'."
+                )
+            }.GetNewClosure()
     }.GetNewClosure())
 
     $controls.BuildRestorePlanButton.Add_Click({

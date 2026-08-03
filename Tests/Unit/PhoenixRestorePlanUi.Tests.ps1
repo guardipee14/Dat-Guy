@@ -13,7 +13,8 @@ Describe 'Phoenix Restore Plan UI and persistence' -Tag @('Unit','Restore','UI')
     It 'ships a dedicated Restore Plan page and navigation entry' {
         foreach ($name in @(
             'RestorePlanNavButton','RestorePlanPage','RestoreManifestPathText',
-            'RestorePlanGrid','RestorePlanSummaryText'
+            'CreateRestoreManifestButton','RestorePlanGrid',
+            'RestorePlanSummaryText'
         )) {
             $script:xamlSource.Contains("x:Name=`"$name`"") | Should-BeTrue
             $script:desktopSource.Contains("'$name'") | Should-BeTrue
@@ -45,6 +46,36 @@ Describe 'Phoenix Restore Plan UI and persistence' -Tag @('Unit','Restore','UI')
         $worker.Contains("'RestorePlan'") | Should-BeTrue
         $worker.Contains('New-PhoenixRestorePlan') | Should-BeTrue
         $script:desktopSource.Contains("-Action 'RestorePlan'") | Should-BeTrue
+    }
+
+    It 'creates restore manifests in the isolated background worker' {
+        $worker = Get-Content (
+            Join-Path $PSScriptRoot '..\..\Tools\Invoke-PhoenixControlCenterWorker.ps1'
+        ) -Raw
+        $script:xamlSource.Contains(
+            'x:Name="CreateRestoreManifestButton"'
+        ) | Should-BeTrue
+        $worker.Contains("'Backup'") | Should-BeTrue
+        $worker.Contains('Backup-Phoenix') | Should-BeTrue
+        $script:desktopSource.Contains("-Action 'Backup'") | Should-BeTrue
+        $script:desktopSource.Contains(
+            'RestoreManifestPathText.Text ='
+        ) | Should-BeTrue
+    }
+
+    It 'captures delayed inventory filter callbacks explicitly' {
+        $script:desktopSource.Contains(
+            '$inventoryPopulateProviderFilters ='
+        ) | Should-BeTrue
+        $script:desktopSource.Contains(
+            '$inventoryApplyApplicationFilter ='
+        ) | Should-BeTrue
+        $script:desktopSource.Contains(
+            '& $inventoryPopulateProviderFilters'
+        ) | Should-BeTrue
+        $script:desktopSource.Contains(
+            '& $inventoryApplyApplicationFilter'
+        ) | Should-BeTrue
     }
 
     It 'saves atomically and validates saved plan schema versions' {

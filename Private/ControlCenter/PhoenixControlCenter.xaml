@@ -753,6 +753,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBox
                                     Grid.Column="0"
@@ -951,16 +952,21 @@
                                     Content="Browse manifest" />
                                 <Button
                                     Grid.Column="2"
+                                    x:Name="CreateRestoreManifestButton"
+                                    Style="{StaticResource SecondaryButton}"
+                                    Content="Create manifest" />
+                                <Button
+                                    Grid.Column="3"
                                     x:Name="BuildRestorePlanButton"
                                     Style="{StaticResource ModernButton}"
                                     Content="Build plan" />
                                 <Button
-                                    Grid.Column="3"
+                                    Grid.Column="4"
                                     x:Name="LoadRestorePlanButton"
                                     Style="{StaticResource SecondaryButton}"
                                     Content="Load plan" />
                                 <Button
-                                    Grid.Column="4"
+                                    Grid.Column="5"
                                     x:Name="SaveRestorePlanButton"
                                     Style="{StaticResource SecondaryButton}"
                                     Content="Save plan"
