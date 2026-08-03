@@ -9,7 +9,7 @@ PowerShell deployment and recovery framework for Windows application and driver 
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
-**Roadmap:** [Phoenix v0.2.0 roadmap](ROADMAP.md)
+**Roadmap:** [Phoenix v0.3.0 roadmap](ROADMAP.md)
 
 ## What Phoenix can currently do
 
