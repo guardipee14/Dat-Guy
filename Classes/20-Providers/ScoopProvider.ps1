@@ -16,8 +16,113 @@ class ScoopProvider : PhoenixProvider {
     }
 
     [bool] TestAvailable() {
+        $scoopCommand =
+            Get-Command `
+                scoop `
+                -ErrorAction SilentlyContinue
+
+        if ($null -ne $scoopCommand) {
+            return $true
+        }
+
+        [string]$scoopRoot =
+            [Environment]::GetEnvironmentVariable(
+                'SCOOP',
+                [EnvironmentVariableTarget]::Process
+            )
+
+        if (
+            [string]::IsNullOrWhiteSpace(
+                $scoopRoot
+            )
+        ) {
+            $scoopRoot =
+                [Environment]::GetEnvironmentVariable(
+                    'SCOOP',
+                    [EnvironmentVariableTarget]::User
+                )
+        }
+
+        if (
+            [string]::IsNullOrWhiteSpace(
+                $scoopRoot
+            )
+        ) {
+            $scoopRoot =
+                Join-Path `
+                    $env:USERPROFILE `
+                    'scoop'
+        }
+
+        [string]$scoopShimPath =
+            Join-Path $scoopRoot 'shims'
+
+        [string]$scoopCommandPath =
+            Join-Path `
+                $scoopShimPath `
+                'scoop.ps1'
+
+        if (
+            -not (
+                Test-Path `
+                    -LiteralPath $scoopCommandPath `
+                    -PathType Leaf
+            )
+        ) {
+            return $false
+        }
+
+        [string]$processPath =
+            [Environment]::GetEnvironmentVariable(
+                'Path',
+                [EnvironmentVariableTarget]::Process
+            )
+
+        [bool]$shimPathPresent = $false
+
+        foreach (
+            $pathEntry in @(
+                [string]$processPath -split ';'
+            )
+        ) {
+            if (
+                [string]::Equals(
+                    $pathEntry.Trim(),
+                    $scoopShimPath,
+                    [StringComparison]::OrdinalIgnoreCase
+                )
+            ) {
+                $shimPathPresent = $true
+                break
+            }
+        }
+
+        if (-not $shimPathPresent) {
+            [string]$refreshedPath =
+                $scoopShimPath
+
+            if (
+                -not [string]::IsNullOrWhiteSpace(
+                    $processPath
+                )
+            ) {
+                $refreshedPath =
+                    '{0};{1}' -f
+                    $scoopShimPath,
+                    $processPath
+            }
+
+            [Environment]::SetEnvironmentVariable(
+                'Path',
+                $refreshedPath,
+                [EnvironmentVariableTarget]::Process
+            )
+        }
+
         return $null -ne (
-            Get-Command scoop -ErrorAction SilentlyContinue
+            Get-Command `
+                scoop `
+                -ErrorAction SilentlyContinue
         )
     }
 

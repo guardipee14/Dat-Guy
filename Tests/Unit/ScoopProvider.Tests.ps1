@@ -49,4 +49,132 @@ Describe 'ScoopProvider' -Tag @('Unit','Provider','Scoop') {
         $search.Contains("'Scoop'") | Should-BeTrue
         $eligibility.Contains("'Scoop'") | Should-BeTrue
     }
+    It 'detects an existing Scoop shim and repairs the process PATH' {
+        $originalProcessPath =
+            [Environment]::GetEnvironmentVariable(
+                'Path',
+                [EnvironmentVariableTarget]::Process
+            )
+
+        $originalProcessScoop =
+            [Environment]::GetEnvironmentVariable(
+                'SCOOP',
+                [EnvironmentVariableTarget]::Process
+            )
+
+        [string]$temporaryRoot =
+            Join-Path `
+                ([IO.Path]::GetTempPath()) `
+                (
+                    'Phoenix-Scoop-Detection-{0}' -f
+                    [guid]::NewGuid().ToString('N')
+                )
+
+        try {
+            [string]$shimPath =
+                Join-Path $temporaryRoot 'shims'
+
+            $null =
+                New-Item `
+                    -ItemType Directory `
+                    -Path $shimPath `
+                    -Force `
+                    -ErrorAction Stop
+
+            [string]$fakeScoopPath =
+                Join-Path $shimPath 'scoop.ps1'
+
+            [IO.File]::WriteAllText(
+                $fakeScoopPath,
+                "param()`n",
+                [Text.UTF8Encoding]::new($false)
+            )
+
+            [Environment]::SetEnvironmentVariable(
+                'SCOOP',
+                $temporaryRoot,
+                [EnvironmentVariableTarget]::Process
+            )
+
+            [Environment]::SetEnvironmentVariable(
+                'Path',
+                [IO.Path]::GetTempPath(),
+                [EnvironmentVariableTarget]::Process
+            )
+
+            (
+                $null -eq (
+                    Get-Command `
+                        scoop `
+                        -ErrorAction SilentlyContinue
+                )
+            ) | Should-BeTrue
+
+            $provider =
+                [ScoopProvider]::new()
+
+            $provider.Available |
+                Should-BeTrue
+
+            $provider.TestAvailable() |
+                Should-BeTrue
+
+            $resolvedCommand =
+                Get-Command `
+                    scoop `
+                    -ErrorAction SilentlyContinue
+
+            ($null -ne $resolvedCommand) |
+                Should-BeTrue
+
+            (
+                [string]::Equals(
+                    [IO.Path]::GetFullPath(
+                        [string]$resolvedCommand.Source
+                    ),
+                    [IO.Path]::GetFullPath(
+                        $fakeScoopPath
+                    ),
+                    [StringComparison]::OrdinalIgnoreCase
+                )
+            ) | Should-BeTrue
+
+            $matchingShimEntries =
+                @(
+                    [Environment]::GetEnvironmentVariable(
+                        'Path',
+                        [EnvironmentVariableTarget]::Process
+                    ) -split ';' |
+                        Where-Object {
+                            [string]::Equals(
+                                $_.Trim(),
+                                $shimPath,
+                                [StringComparison]::OrdinalIgnoreCase
+                            )
+                        }
+                )
+
+            ($matchingShimEntries.Count -eq 1) |
+                Should-BeTrue
+        }
+        finally {
+            [Environment]::SetEnvironmentVariable(
+                'Path',
+                $originalProcessPath,
+                [EnvironmentVariableTarget]::Process
+            )
+
+            [Environment]::SetEnvironmentVariable(
+                'SCOOP',
+                $originalProcessScoop,
+                [EnvironmentVariableTarget]::Process
+            )
+
+            Remove-Item `
+                -LiteralPath $temporaryRoot `
+                -Recurse `
+                -Force `
+                -ErrorAction SilentlyContinue
+        }
+    }
 }
