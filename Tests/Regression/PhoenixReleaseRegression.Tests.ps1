@@ -258,7 +258,7 @@ Describe 'Phoenix release packaging' -Tag @(
             Should-BeTrue
     }
 
-    It 'ships the complete 33-release Phoenix v0.2.0 train' {
+    It 'ships the active Phoenix v0.3.0 release train' {
 
         [string]$roadmap =
             Get-Content `
@@ -270,19 +270,19 @@ Describe 'Phoenix release packaging' -Tag @(
                 -Raw
 
         [string[]]$expectedVersions = @(
-            2..33 |
+            1..19 |
                 ForEach-Object {
-                    "0.1.$_"
+                    "0.2.$_"
                 }
 
-            '0.2.0'
+            '0.3.0'
         )
 
         foreach ($expectedVersion in $expectedVersions) {
 
             $versionPattern =
                 '(?m)^- \[[ x]\] `v{0}`' -f
-                [regex]::Escape($expectedVersion)
+                    [regex]::Escape($expectedVersion)
 
             [regex]::IsMatch(
                 $roadmap,
@@ -293,11 +293,49 @@ Describe 'Phoenix release packaging' -Tag @(
 
         [regex]::Matches(
             $roadmap,
-            '(?m)^- \[[ x]\] `v(?:0\.1\.(?:[2-9]|[12]\d|3[0-3])|0\.2\.0)`'
+            '(?m)^- \[[ x]\] `v(?:0\.2\.(?:[1-9]|1\d)|0\.3\.0)`'
         ).Count |
-            Should-Be 33
+            Should-Be 20
+
+        [regex]::IsMatch(
+            $roadmap,
+            '(?m)^- \[x\] `v0\.2\.1`'
+        ) |
+            Should-BeTrue
     }
 
+    It 'requires the module version to have a checked roadmap entry' {
+
+        $moduleManifest =
+            Import-PowerShellDataFile `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Phoenix.psd1'
+                )
+
+        [string]$moduleVersion =
+            $moduleManifest.ModuleVersion.ToString()
+
+        [string]$roadmap =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'ROADMAP.md'
+                ) `
+                -Raw
+
+        [string]$versionPattern =
+            '(?m)^- \[x\] `v{0}`' -f
+                [regex]::Escape($moduleVersion)
+
+        [regex]::IsMatch(
+            $roadmap,
+            $versionPattern
+        ) |
+            Should-BeTrue
+    }
     It 'builds versioned archives checksums and optional GitHub releases' {
 
         [string]$builderSource =
@@ -317,6 +355,9 @@ Describe 'Phoenix release packaging' -Tag @(
                 'DirtyWorkingTree'
                 "'PublishGitHub'"
                 "'--generate-notes'"
+                'Sync-PhoenixReleaseRoadmapIssue'
+                "'--body-file'"
+                'RoadmapIssueSynchronized'
             )
         ) {
             $builderSource.Contains(
@@ -367,7 +408,18 @@ Describe 'Phoenix release packaging' -Tag @(
         }
     }
 
-    It 'previews a release without writing an archive' {
+    It 'previews a listed release without writing an archive' {
+
+        $moduleManifest =
+            Import-PowerShellDataFile `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Phoenix.psd1'
+                )
+
+        [string]$previewVersion =
+            $moduleManifest.ModuleVersion.ToString()
 
         $preview =
             & (
@@ -375,7 +427,7 @@ Describe 'Phoenix release packaging' -Tag @(
                     $projectRoot `
                     'Build\New-PhoenixRelease.ps1'
             ) `
-                -Version '9.9.9' `
+                -Version $previewVersion `
                 -OutputPath $TestDrive `
                 -SkipValidation `
                 -AllowDirty `
@@ -388,9 +440,28 @@ Describe 'Phoenix release packaging' -Tag @(
             Should-BeFalse
 
         $preview.Version |
-            Should-Be '9.9.9'
+            Should-Be $previewVersion
+
+        $preview.RoadmapIssueSynchronized |
+            Should-BeFalse
     }
 
+    It 'rejects a release version without a checked roadmap entry' {
+
+        {
+            & (
+                Join-Path `
+                    $projectRoot `
+                    'Build\New-PhoenixRelease.ps1'
+            ) `
+                -Version '9.9.9' `
+                -OutputPath $TestDrive `
+                -SkipValidation `
+                -AllowDirty `
+                -WhatIf
+        } |
+            Should-Throw
+    }
     It 'supports scoped installs shortcuts upgrades and Apps registration' {
 
         [string]$installerSource =
