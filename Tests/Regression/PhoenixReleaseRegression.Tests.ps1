@@ -446,6 +446,65 @@ Describe 'Phoenix release packaging' -Tag @(
             Should-BeFalse
     }
 
+    It 'isolates validation from release preview WhatIf state' {
+
+        [string]$builderSource =
+            Get-Content `
+                -LiteralPath (
+                    Join-Path `
+                        $projectRoot `
+                        'Build\New-PhoenixRelease.ps1'
+                ) `
+                -Raw
+
+        [string]$validationPattern =
+            '(?s)\$buildResult\s*=\s*&\s*\{' +
+            '.*?\$WhatIfPreference\s*=\s*\$false' +
+            '.*?&\s*\$Path' +
+            '.*?\}\s*\$buildScript'
+
+        [regex]::IsMatch(
+            $builderSource,
+            $validationPattern
+        ) |
+            Should-BeTrue
+
+        [string]$probePath =
+            Join-Path `
+                $TestDrive `
+                'Phoenix-WhatIfValidationProbe.ps1'
+
+        $probeCreated =
+            & {
+                param(
+                    [Parameter(Mandatory)]
+                    [string]$Path
+                )
+
+                $WhatIfPreference = $true
+
+                & {
+                    param(
+                        [Parameter(Mandatory)]
+                        [string]$InnerPath
+                    )
+
+                    $WhatIfPreference = $false
+
+                    Set-Content `
+                        -LiteralPath $InnerPath `
+                        -Value 'validation probe' `
+                        -Encoding UTF8
+
+                    Test-Path `
+                        -LiteralPath $InnerPath `
+                        -PathType Leaf
+                } $Path
+            } $probePath
+
+        $probeCreated |
+            Should-BeTrue
+    }
     It 'rejects a release version without a checked roadmap entry' {
 
         {

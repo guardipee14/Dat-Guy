@@ -472,7 +472,16 @@ if (-not $SkipValidation) {
             'Build.ps1'
 
     $buildResult =
-        & $buildScript
+        & {
+            param(
+                [Parameter(Mandatory)]
+                [string]$Path
+            )
+
+            $WhatIfPreference = $false
+
+            & $Path
+        } $buildScript
 
     if (
         $null -eq $buildResult -or
