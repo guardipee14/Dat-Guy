@@ -81,11 +81,11 @@ release gates before the next milestone begins.
 
 ## 1. Carry-forward validation and platform policy
 
-- [ ] Complete the live administrator-token Control Center smoke gate left
+- [x] Complete the live administrator-token Control Center smoke gate left
       unclaimed by the v0.2.0 release environment.
 - [ ] Record standard-user, administrator, clean-install, upgrade, and complete
       removal results for every supported host version.
-- [ ] Define supported Windows host and target builds, PowerShell versions,
+- [x] Define supported Windows host and target builds, PowerShell versions,
       architectures, UEFI/GPT requirements, ADK versions, and WinPE versions.
 - [ ] Reject unsupported combinations before downloading, mounting, writing,
       formatting, or servicing anything.
@@ -275,7 +275,7 @@ release gates before the next milestone begins.
 
 ## Definition of done for v0.3.0
 
-- [ ] The carried-forward administrator-token VM gate passes.
+- [x] The carried-forward administrator-token VM gate passes.
 - [ ] Offline bundles are deterministic, deduplicated, inspectable, resumable,
       license-aware, provenance-aware, and independently hash verified.
 - [ ] Unsupported or unavailable offline application artifacts are reported
