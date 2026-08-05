@@ -28,7 +28,11 @@ param(
     [switch]$Prerelease,
 
     [Parameter()]
-    [string]$Repository = ''
+    [string]$Repository = '',
+
+    [Parameter()]
+    [ValidateRange(1, 2147483647)]
+    [int]$RoadmapIssueNumber = 2
 )
 
 Set-StrictMode -Version Latest
@@ -204,6 +208,146 @@ function Get-PhoenixReleaseGitValue {
     ).Trim()
 }
 
+function Assert-PhoenixReleaseRoadmap {
+
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory)]
+        [string]$RoadmapPath,
+
+        [Parameter(Mandatory)]
+        [string]$Version
+    )
+
+    if (-not (Test-Path -LiteralPath $RoadmapPath -PathType Leaf)) {
+        throw "Phoenix roadmap was not found: $RoadmapPath"
+    }
+
+    [string]$roadmap =
+        Get-Content `
+            -LiteralPath $RoadmapPath `
+            -Raw
+
+    [string]$releasePattern =
+        '(?m)^- \[x\] `v{0}`(?:\s+-\s+.*)?\s*$' -f
+            [regex]::Escape($Version)
+
+    if (
+        -not [regex]::IsMatch(
+            $roadmap,
+            $releasePattern
+        )
+    ) {
+        throw (
+            "ROADMAP.md must contain a checked release entry for " +
+            "`v$Version` before Phoenix can package or publish it."
+        )
+    }
+}
+function Sync-PhoenixReleaseRoadmapIssue {
+
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory)]
+        [string]$GitHubCommand,
+
+        [Parameter(Mandatory)]
+        [string]$RoadmapPath,
+
+        [Parameter(Mandatory)]
+        [int]$IssueNumber,
+
+        [Parameter()]
+        [string]$Repository = ''
+    )
+
+    $editArguments = @(
+        'issue'
+        'edit'
+        [string]$IssueNumber
+        '--body-file'
+        $RoadmapPath
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($Repository)) {
+        $editArguments += @(
+            '--repo'
+            $Repository
+        )
+    }
+
+    $editOutput = @(
+        & $GitHubCommand `
+            @editArguments `
+            2>&1
+    )
+
+    if ($LASTEXITCODE -ne 0) {
+        throw (
+            "GitHub roadmap issue synchronization failed.`n{0}" -f
+            (
+                $editOutput -join
+                    [Environment]::NewLine
+            )
+        )
+    }
+
+    $viewArguments = @(
+        'issue'
+        'view'
+        [string]$IssueNumber
+        '--json'
+        'body'
+        '--jq'
+        '.body'
+    )
+
+    if (-not [string]::IsNullOrWhiteSpace($Repository)) {
+        $viewArguments += @(
+            '--repo'
+            $Repository
+        )
+    }
+
+    [string]$remoteRoadmap = @(
+        & $GitHubCommand `
+            @viewArguments `
+            2>&1
+    ) -join [Environment]::NewLine
+
+    if ($LASTEXITCODE -ne 0) {
+        throw 'The synchronized GitHub roadmap could not be verified.'
+    }
+
+    [string]$localRoadmap =
+        Get-Content `
+            -LiteralPath $RoadmapPath `
+            -Raw
+
+    [string]$normalizedLocal =
+        (
+            $localRoadmap -replace
+                "`r`n",
+                "`n"
+        ).TrimEnd()
+
+    [string]$normalizedRemote =
+        (
+            $remoteRoadmap -replace
+                "`r`n",
+                "`n"
+        ).TrimEnd()
+
+    if ($normalizedRemote -cne $normalizedLocal) {
+        throw (
+            'GitHub issue roadmap content does not match ROADMAP.md ' +
+            'after synchronization.'
+        )
+    }
+
+    return $true
+}
 [string]$projectRoot =
     [IO.Path]::GetFullPath(
         (
@@ -222,11 +366,16 @@ function Get-PhoenixReleaseGitValue {
     Join-Path `
         $PSScriptRoot `
         'Phoenix.Release.psd1'
+[string]$roadmapPath =
+    Join-Path `
+        $projectRoot `
+        'ROADMAP.md'
 
 foreach (
     $requiredPath in @(
         $moduleManifestPath
         $releaseConfigurationPath
+        $roadmapPath
         (
             Join-Path `
                 $projectRoot `
@@ -271,6 +420,9 @@ if (
     )
 }
 
+Assert-PhoenixReleaseRoadmap `
+    -RoadmapPath $roadmapPath `
+    -Version $resolvedVersion
 [string]$resolvedOutputPath = if (
     [string]::IsNullOrWhiteSpace($OutputPath)
 ) {
@@ -370,7 +522,8 @@ if (
         Version      = $resolvedVersion
         ArchivePath  = $archivePath
         ChecksumPath = $checksumPath
-        Published    = $false
+        Published                  = $false
+        RoadmapIssueSynchronized   = $false
     }
 }
 
@@ -654,6 +807,7 @@ if ($null -eq (Get-Module -Name Phoenix)) {
             -Encoding ascii
 
     [bool]$published = $false
+    [bool]$roadmapIssueSynchronized = $false
 
     if ($PublishGitHub) {
         $ghCommand =
@@ -674,6 +828,13 @@ if ($null -eq (Get-Module -Name Phoenix)) {
                 'Create GitHub release and upload Phoenix artifacts'
             )
         ) {
+            $roadmapIssueSynchronized =
+                Sync-PhoenixReleaseRoadmapIssue `
+                    -GitHubCommand $ghCommand.Source `
+                    -RoadmapPath $roadmapPath `
+                    -IssueNumber $RoadmapIssueNumber `
+                    -Repository $Repository
+
             $releaseArguments = @(
                 'release'
                 'create'
@@ -732,7 +893,8 @@ if ($null -eq (Get-Module -Name Phoenix)) {
         GitBranch         = $gitBranch
         GitCommit         = $gitCommit
         DirtyWorkingTree  = $workingTreeDirty
-        Published         = $published
+        Published                  = $published
+        RoadmapIssueSynchronized   = $roadmapIssueSynchronized
     }
 }
 finally {
