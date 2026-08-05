@@ -70,3 +70,30 @@ The full repository gate remains:
 ```powershell
 pwsh -NoProfile -File .\Build.ps1 -TestOutput Normal
 ```
+
+## v0.2.2 validation record
+
+Phoenix v0.2.2 completed the previously unclaimed live
+administrator-token Control Center smoke gate and repeated the standard-token
+gate against the same source tree.
+
+The validation environment was `TESTWINDOWS`, a VirtualBox Windows 11 Pro
+25H2 x64 VM at build `26200.8894`, running PowerShell `7.6.4` Core in STA mode.
+The VM used UEFI firmware and a GPT system disk.
+
+Both privilege scenarios reached the Phoenix `Ready` lifecycle state, resolved
+139 runtime controls, measured all six Control Center pages, and bound 10
+providers, 91 applications, 70 drivers, and six OEM adapters.
+
+The standard-token scenario confirmed that current-user operations remain
+available while administrator operations require elevation. The
+administrator-token scenario confirmed that administrator operations are
+allowed without requesting another elevation.
+
+The Windows ADK and Windows PE add-on were not installed in this environment.
+That condition does not invalidate the non-destructive Control Center smoke
+gate, but deployment-media readiness remains false until the supported,
+matching, and serviced toolchain is installed.
+
+The supported v0.3.0 execution boundary is defined in
+`Docs/Phoenix-v0.3.0-Platform-Matrix.md`.
