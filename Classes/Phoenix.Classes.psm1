@@ -37,6 +37,262 @@ enum PhoenixProviderOperation {
 }
 #endregion 00-Base\PhoenixProviderOperation.ps1
 
+#region 00-Base\PhoenixDeploymentOperation.ps1
+enum PhoenixDeploymentOperation {
+
+    Unknown = 0
+    Discover = 1
+    Plan = 2
+    Acquire = 3
+    Verify = 4
+    Mount = 5
+    Service = 6
+    WriteMedia = 7
+    Deploy = 8
+    Cleanup = 9
+    Reboot = 10
+
+}
+#endregion 00-Base\PhoenixDeploymentOperation.ps1
+
+#region 00-Base\PhoenixDeploymentCapability.ps1
+class PhoenixDeploymentCapability {
+
+    [string]$Name
+    [PhoenixDeploymentOperation]$Operation
+    [bool]$Supported
+    [bool]$Available
+    [PhoenixPrivilegeLevel]$RequiredPrivilege
+    [bool]$IsMutating
+    [bool]$IsDestructive
+    [bool]$SupportsShouldProcess
+    [bool]$RequiresTargetIdentity
+    [bool]$RequiresExclusiveAccess
+    [string]$ConcurrencyKey
+    [string]$Message
+    [datetime]$CheckedAtUtc
+
+    PhoenixDeploymentCapability() {
+
+        $this.Name = ''
+        $this.Operation =
+            [PhoenixDeploymentOperation]::Unknown
+        $this.Supported = $false
+        $this.Available = $false
+        $this.RequiredPrivilege =
+            [PhoenixPrivilegeLevel]::User
+        $this.IsMutating = $false
+        $this.IsDestructive = $false
+        $this.SupportsShouldProcess = $false
+        $this.RequiresTargetIdentity = $false
+        $this.RequiresExclusiveAccess = $false
+        $this.ConcurrencyKey = ''
+        $this.Message =
+            'Deployment capability has not been evaluated.'
+        $this.CheckedAtUtc = [datetime]::UtcNow
+    }
+
+    [bool] IsReady() {
+
+        return (
+            $this.Supported -and
+            $this.Available
+        )
+    }
+}
+#endregion 00-Base\PhoenixDeploymentCapability.ps1
+
+#region 00-Base\PhoenixDeploymentDecision.ps1
+class PhoenixDeploymentDecision {
+
+    [string]$Name
+    [PhoenixDeploymentOperation]$Operation
+    [string]$Target
+    [bool]$Supported
+    [bool]$Available
+    [bool]$Eligible
+    [bool]$Safe
+    [bool]$Protected
+    [bool]$RequiresApproval
+    [bool]$ApprovalGranted
+    [bool]$RequiresTargetIdentity
+    [bool]$TargetIdentityConfirmed
+    [PhoenixPrivilegeLevel]$RequiredPrivilege
+    [PhoenixPrivilegeLevel]$CurrentPrivilege
+    [bool]$RequiresElevation
+    [bool]$CanElevate
+    [string]$Code
+    [string]$Reason
+    [string[]]$Warnings
+    [datetime]$EvaluatedAtUtc
+
+    PhoenixDeploymentDecision() {
+
+        $this.Name = ''
+        $this.Operation =
+            [PhoenixDeploymentOperation]::Unknown
+        $this.Target = ''
+        $this.Supported = $false
+        $this.Available = $false
+        $this.Eligible = $false
+        $this.Safe = $false
+        $this.Protected = $false
+        $this.RequiresApproval = $false
+        $this.ApprovalGranted = $false
+        $this.RequiresTargetIdentity = $false
+        $this.TargetIdentityConfirmed = $false
+        $this.RequiredPrivilege =
+            [PhoenixPrivilegeLevel]::User
+        $this.CurrentPrivilege =
+            [PhoenixPrivilegeLevel]::User
+        $this.RequiresElevation = $false
+        $this.CanElevate = $false
+        $this.Code = 'PHX_DEPLOYMENT_NOT_EVALUATED'
+        $this.Reason =
+            'Deployment safety has not been evaluated.'
+        $this.Warnings = @()
+        $this.EvaluatedAtUtc = [datetime]::UtcNow
+    }
+
+    [bool] IsAllowed() {
+
+        if (-not $this.Supported) {
+            return $false
+        }
+
+        if (-not $this.Available) {
+            return $false
+        }
+
+        if (-not $this.Eligible) {
+            return $false
+        }
+
+        if (-not $this.Safe) {
+            return $false
+        }
+
+        if (
+            $this.Protected -and
+            (
+                -not $this.RequiresApproval -or
+                -not $this.ApprovalGranted
+            )
+        ) {
+            return $false
+        }
+
+        if (
+            $this.RequiresApproval -and
+            -not $this.ApprovalGranted
+        ) {
+            return $false
+        }
+
+        if (
+            $this.RequiresTargetIdentity -and
+            -not $this.TargetIdentityConfirmed
+        ) {
+            return $false
+        }
+
+        if (
+            $this.RequiresElevation -and
+            -not $this.CanElevate
+        ) {
+            return $false
+        }
+
+        return $true
+    }
+}
+#endregion 00-Base\PhoenixDeploymentDecision.ps1
+
+#region 00-Base\PhoenixDeploymentResult.ps1
+class PhoenixDeploymentResult {
+
+    [string]$Name
+    [PhoenixDeploymentOperation]$Operation
+    [string]$Target
+    [bool]$Success
+    [string]$Code
+    [string]$Message
+    [object]$Data
+    [string[]]$Warnings
+    [string[]]$Errors
+    [PhoenixDeploymentDecision]$Decision
+    [PhoenixPrivilegeLevel]$RequiredPrivilege
+    [bool]$RequiresRestart
+    [bool]$TimedOut
+    [bool]$Cancelled
+    [bool]$HasExitCode
+    [int]$ExitCode
+    [bool]$CleanupRequired
+    [bool]$CleanupSucceeded
+    [datetime]$StartedAtUtc
+    [datetime]$CompletedAtUtc
+    [timespan]$Duration
+
+    PhoenixDeploymentResult() {
+
+        $this.Name = ''
+        $this.Operation =
+            [PhoenixDeploymentOperation]::Unknown
+        $this.Target = ''
+        $this.Success = $false
+        $this.Code = 'PHX_DEPLOYMENT_NOT_STARTED'
+        $this.Message =
+            'Deployment operation has not started.'
+        $this.Warnings = @()
+        $this.Errors = @()
+        $this.RequiredPrivilege =
+            [PhoenixPrivilegeLevel]::User
+        $this.RequiresRestart = $false
+        $this.TimedOut = $false
+        $this.Cancelled = $false
+        $this.HasExitCode = $false
+        $this.ExitCode = 0
+        $this.CleanupRequired = $false
+        $this.CleanupSucceeded = $false
+        $this.StartedAtUtc = [datetime]::UtcNow
+        $this.CompletedAtUtc = [datetime]::MinValue
+        $this.Duration = [timespan]::Zero
+    }
+
+    [void] Complete(
+        [bool]$Succeeded,
+        [string]$ResultCode,
+        [string]$ResultMessage
+    ) {
+
+        $this.Success = $Succeeded
+        $this.Code = $ResultCode
+        $this.Message = $ResultMessage
+        $this.CompletedAtUtc = [datetime]::UtcNow
+        $this.Duration =
+            $this.CompletedAtUtc - $this.StartedAtUtc
+
+        if (
+            -not $Succeeded -and
+            $this.Errors.Count -eq 0 -and
+            -not [string]::IsNullOrWhiteSpace(
+                $ResultMessage
+            )
+        ) {
+            $this.Errors = @($ResultMessage)
+        }
+    }
+
+    [bool] IsComplete() {
+
+        return (
+            $this.CompletedAtUtc -gt
+            [datetime]::MinValue
+        )
+    }
+}
+#endregion 00-Base\PhoenixDeploymentResult.ps1
+
 #region 00-Base\PhoenixProviderAvailability.ps1
 enum PhoenixProviderAvailability {
 
