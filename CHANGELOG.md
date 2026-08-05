@@ -4,6 +4,18 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-04
+
+### Fixed
+- restore reliable Control Center inventory completion and provider-filter
+  population after isolated background operations
+- create Phoenix restore manifests directly from the Restore Plan page through
+  the isolated Control Center worker
+- install Scoop automatically when the provider is unavailable, including
+  support for elevated Phoenix sessions
+- detect existing Scoop installations whose shim directory is missing from the
+  current process PATH and refresh command discovery without reinstalling Scoop
+
 ## [0.2.0] - 2026-08-01
 
 ### Added
