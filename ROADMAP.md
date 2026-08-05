@@ -60,7 +60,7 @@ release gates before the next milestone begins.
       Scoop installation, and existing Scoop shim detection
 - [x] `v0.2.2` - Complete elevated-token VM validation and define the v0.3.0
       platform matrix
-- [ ] `v0.2.3` - Deployment capability, privilege, safety, and result contracts
+- [x] `v0.2.3` - Deployment capability, privilege, safety, and result contracts
 - [ ] `v0.2.4` - Versioned offline-bundle schema and content-addressed store
 - [ ] `v0.2.5` - Offline application acquisition and provider export adapters
 - [ ] `v0.2.6` - Offline driver export, cataloging, and hardware matching
