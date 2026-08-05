@@ -4,6 +4,22 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-08-04
+
+### Added
+- define the Phoenix v0.3.0 Windows, PowerShell, architecture, firmware,
+  disk-layout, Windows ADK, and Windows PE support matrix
+- document the validated Windows 11 Pro 25H2 x64 VM environment and
+  distinguish supported policy from completed validation evidence
+- add Pester 6 regression coverage for the platform policy, validation
+  record, and roadmap release status
+
+### Validated
+- complete standard-token and administrator-token Control Center smoke
+  validation against the same source tree
+- resolve 139 runtime controls, measure all six Control Center pages,
+  and verify the expected privilege contract in both scenarios
+
 ## [0.2.1] - 2026-08-04
 
 ### Fixed

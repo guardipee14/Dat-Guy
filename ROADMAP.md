@@ -58,7 +58,7 @@ release gates before the next milestone begins.
 
 - [x] `v0.2.1` - Control Center recovery, restore-manifest creation, automatic
       Scoop installation, and existing Scoop shim detection
-- [ ] `v0.2.2` - Complete elevated-token VM validation and define the v0.3.0
+- [x] `v0.2.2` - Complete elevated-token VM validation and define the v0.3.0
       platform matrix
 - [ ] `v0.2.3` - Deployment capability, privilege, safety, and result contracts
 - [ ] `v0.2.4` - Versioned offline-bundle schema and content-addressed store

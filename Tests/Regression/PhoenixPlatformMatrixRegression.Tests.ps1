@@ -116,7 +116,7 @@ Describe 'Phoenix v0.3.0 platform matrix' {
             )
     }
 
-    It 'records completed roadmap work without completing the release early' {
+    It 'records the completed v0.2.2 roadmap release status' {
         $script:Roadmap |
             Should-MatchString (
                 '(?m)^- \[x\] Complete the live administrator-token ' +
@@ -137,7 +137,7 @@ Describe 'Phoenix v0.3.0 platform matrix' {
 
         $script:Roadmap |
             Should-MatchString (
-                '(?m)^- \[ \] `v0\.2\.2` - Complete elevated-token ' +
+                '(?m)^- \[x\] `v0\.2\.2` - Complete elevated-token ' +
                 'VM validation and define the v0\.3\.0$'
             )
     }
