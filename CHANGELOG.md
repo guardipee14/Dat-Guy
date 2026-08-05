@@ -4,6 +4,24 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-08-05
+
+### Added
+- define typed deployment lifecycle operations from discovery and planning
+  through acquisition, servicing, deployment, cleanup, and reboot
+- add deployment capability, target-specific decision, and normalized
+  deployment result contracts
+- centralize support, availability, eligibility, privilege, elevation,
+  target-identity, protected-target, destructive-action, `ShouldProcess`,
+  and exclusive-operation concurrency policy
+- add Pester 6 coverage for contract defaults, readiness, approval, target
+  identity, elevation, result completion, and centralized safety decisions
+
+### Validated
+- pass Phoenix class generation and module import validation
+- analyze 155 PowerShell files with 0 errors and 0 blocking findings
+- pass all 269 integration, regression, and unit tests
+
 ## [0.2.2] - 2026-08-04
 
 ### Added
