@@ -61,7 +61,7 @@ release gates before the next milestone begins.
 - [x] `v0.2.2` - Complete elevated-token VM validation and define the v0.3.0
       platform matrix
 - [x] `v0.2.3` - Deployment capability, privilege, safety, and result contracts
-- [ ] `v0.2.4` - Versioned offline-bundle schema and content-addressed store
+- [x] `v0.2.4` - Versioned offline-bundle schema and content-addressed store
 - [ ] `v0.2.5` - Offline application acquisition and provider export adapters
 - [ ] `v0.2.6` - Offline driver export, cataloging, and hardware matching
 - [ ] `v0.2.7` - Bundle integrity, provenance, licensing, and trust verification
