@@ -16,6 +16,7 @@ $Folders = @(
     'Private\Drivers'
     'Private\Inventory'
     'Private\Packages'
+    'Private\OfflineBundle'
     'Public'
 )
 

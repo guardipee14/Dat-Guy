@@ -293,6 +293,110 @@ class PhoenixDeploymentResult {
 }
 #endregion 00-Base\PhoenixDeploymentResult.ps1
 
+#region 00-Base\PhoenixContentAddress.ps1
+class PhoenixContentAddress {
+
+    [string]$Algorithm
+    [string]$Digest
+    [string]$ObjectId
+    [string]$RelativePath
+
+    PhoenixContentAddress() {
+
+        $this.Algorithm = 'SHA256'
+        $this.Digest = ''
+        $this.ObjectId = ''
+        $this.RelativePath = ''
+    }
+
+    PhoenixContentAddress(
+        [string]$Digest
+    ) {
+
+        $this.Algorithm = 'SHA256'
+
+        $this.SetDigest(
+            $Digest
+        )
+    }
+
+    [void] SetDigest(
+        [string]$Digest
+    ) {
+
+        if ([string]::IsNullOrWhiteSpace($Digest)) {
+            throw 'A SHA-256 digest is required.'
+        }
+
+        [string]$normalizedDigest =
+            $Digest.Trim().ToLowerInvariant()
+
+        if (
+            $normalizedDigest -notmatch
+                '^[0-9a-f]{64}$'
+        ) {
+            throw (
+                'A SHA-256 digest must contain exactly ' +
+                '64 hexadecimal characters.'
+            )
+        }
+
+        $this.Algorithm = 'SHA256'
+        $this.Digest = $normalizedDigest
+        $this.ObjectId =
+            'sha256:{0}' -f
+                $normalizedDigest
+
+        $this.RelativePath =
+            'objects/sha256/{0}/{1}' -f
+                $normalizedDigest.Substring(
+                    0,
+                    2
+                ),
+                $normalizedDigest.Substring(
+                    2
+                )
+    }
+
+    [bool] IsValid() {
+
+        if ($this.Algorithm -cne 'SHA256') {
+            return $false
+        }
+
+        if (
+            $this.Digest -cnotmatch
+                '^[0-9a-f]{64}$'
+        ) {
+            return $false
+        }
+
+        [string]$expectedObjectId =
+            'sha256:{0}' -f
+                $this.Digest
+
+        if ($this.ObjectId -cne $expectedObjectId) {
+            return $false
+        }
+
+        [string]$expectedRelativePath =
+            'objects/sha256/{0}/{1}' -f
+                $this.Digest.Substring(
+                    0,
+                    2
+                ),
+                $this.Digest.Substring(
+                    2
+                )
+
+        return (
+            $this.RelativePath -ceq
+                $expectedRelativePath
+        )
+    }
+}
+#endregion 00-Base\PhoenixContentAddress.ps1
+
 #region 00-Base\PhoenixProviderAvailability.ps1
 enum PhoenixProviderAvailability {
 
@@ -8979,6 +9083,343 @@ class PackageCandidate {
 
 }
 #endregion 30-Models\PackageCandidate.ps1
+
+#region 30-Models\PhoenixContentObject.ps1
+class PhoenixContentObject {
+
+    [string]$ObjectId
+    [string]$Algorithm
+    [string]$Digest
+    [string]$RelativePath
+    [long]$Length
+
+    PhoenixContentObject() {
+
+        $this.ObjectId = ''
+        $this.Algorithm = 'SHA256'
+        $this.Digest = ''
+        $this.RelativePath = ''
+        $this.Length = -1
+    }
+
+    PhoenixContentObject(
+        [PhoenixContentAddress]$Address,
+        [long]$Length
+    ) {
+
+        $this.ObjectId = ''
+        $this.Algorithm = 'SHA256'
+        $this.Digest = ''
+        $this.RelativePath = ''
+        $this.Length = -1
+
+        $this.SetAddress(
+            $Address
+        )
+
+        $this.SetLength(
+            $Length
+        )
+    }
+
+    [void] SetAddress(
+        [PhoenixContentAddress]$Address
+    ) {
+
+        if ($null -eq $Address) {
+            throw 'A Phoenix content address is required.'
+        }
+
+        if (-not $Address.IsValid()) {
+            throw 'The Phoenix content address is invalid.'
+        }
+
+        $this.ObjectId =
+            $Address.ObjectId
+
+        $this.Algorithm =
+            $Address.Algorithm
+
+        $this.Digest =
+            $Address.Digest
+
+        $this.RelativePath =
+            $Address.RelativePath
+    }
+
+    [void] SetLength(
+        [long]$Length
+    ) {
+
+        if ($Length -lt 0) {
+            throw 'Content length cannot be negative.'
+        }
+
+        $this.Length = $Length
+    }
+
+    [bool] IsValid() {
+
+        if ($this.Length -lt 0) {
+            return $false
+        }
+
+        $address =
+            [PhoenixContentAddress]::new()
+
+        $address.ObjectId =
+            $this.ObjectId
+
+        $address.Algorithm =
+            $this.Algorithm
+
+        $address.Digest =
+            $this.Digest
+
+        $address.RelativePath =
+            $this.RelativePath
+
+        return $address.IsValid()
+    }
+}
+#endregion 30-Models\PhoenixContentObject.ps1
+
+#region 30-Models\PhoenixOfflineBundleManifest.ps1
+class PhoenixOfflineBundleManifest {
+
+    [string]$Schema
+    [string]$SchemaVersion
+    [string]$ContentStoreVersion
+    [string]$BundleId
+    [string]$Name
+    [string]$Description
+    [datetime]$CreatedAtUtc
+    [datetime]$UpdatedAtUtc
+    [object]$Phoenix
+    [object]$Windows
+    [object]$Hardware
+    [object[]]$Providers
+    [object[]]$Sources
+    [object[]]$Packages
+    [object[]]$Drivers
+    [object[]]$Dependencies
+    [object[]]$Licenses
+    [object[]]$Provenance
+    [PhoenixContentObject[]]$Objects
+    [int]$ObjectCount
+    [long]$TotalBytes
+
+    PhoenixOfflineBundleManifest() {
+
+        $this.Schema =
+            'PhoenixOfflineBundleManifest'
+
+        $this.SchemaVersion =
+            '1.0'
+
+        $this.ContentStoreVersion =
+            '1.0'
+
+        $this.BundleId =
+            [guid]::NewGuid().ToString()
+
+        $this.Name = ''
+        $this.Description = ''
+
+        $this.CreatedAtUtc =
+            [datetime]::UtcNow
+
+        $this.UpdatedAtUtc =
+            $this.CreatedAtUtc
+
+        $this.Phoenix = $null
+        $this.Windows = $null
+        $this.Hardware = $null
+        $this.Providers = @()
+        $this.Sources = @()
+        $this.Packages = @()
+        $this.Drivers = @()
+        $this.Dependencies = @()
+        $this.Licenses = @()
+        $this.Provenance = @()
+        $this.Objects = @()
+        $this.ObjectCount = 0
+        $this.TotalBytes = 0
+    }
+
+    [void] AddObject(
+        [PhoenixContentObject]$ContentObject
+    ) {
+
+        if ($null -eq $ContentObject) {
+            throw 'A Phoenix content object is required.'
+        }
+
+        if (-not $ContentObject.IsValid()) {
+            throw 'The Phoenix content object is invalid.'
+        }
+
+        foreach ($existingObject in $this.Objects) {
+
+            if (
+                $existingObject.ObjectId -ceq
+                    $ContentObject.ObjectId
+            ) {
+
+                if (
+                    $existingObject.Length -ne
+                        $ContentObject.Length
+                ) {
+                    throw (
+                        "Content object '$($ContentObject.ObjectId)' " +
+                        'has a conflicting byte length.'
+                    )
+                }
+
+                return
+            }
+        }
+
+        $this.Objects =
+            @(
+                $this.Objects
+                $ContentObject
+            )
+
+        $this.UpdatedAtUtc =
+            [datetime]::UtcNow
+
+        $this.RefreshSummary()
+    }
+
+    [bool] ContainsObject(
+        [string]$ObjectId
+    ) {
+
+        if ([string]::IsNullOrWhiteSpace($ObjectId)) {
+            return $false
+        }
+
+        foreach ($contentObject in $this.Objects) {
+
+            if (
+                $contentObject.ObjectId -ceq
+                    $ObjectId
+            ) {
+                return $true
+            }
+        }
+
+        return $false
+    }
+
+    [void] RefreshSummary() {
+
+        [long]$calculatedBytes = 0
+
+        foreach ($contentObject in $this.Objects) {
+
+            if ($null -ne $contentObject) {
+                $calculatedBytes +=
+                    $contentObject.Length
+            }
+        }
+
+        $this.ObjectCount =
+            $this.Objects.Count
+
+        $this.TotalBytes =
+            $calculatedBytes
+    }
+
+    [bool] IsValid() {
+
+        if (
+            $this.Schema -cne
+                'PhoenixOfflineBundleManifest'
+        ) {
+            return $false
+        }
+
+        if ($this.SchemaVersion -cne '1.0') {
+            return $false
+        }
+
+        if ($this.ContentStoreVersion -cne '1.0') {
+            return $false
+        }
+
+        if ([string]::IsNullOrWhiteSpace($this.BundleId)) {
+            return $false
+        }
+
+        try {
+            [void][guid]::Parse(
+                $this.BundleId
+            )
+        }
+        catch {
+            return $false
+        }
+
+        if (
+            $this.CreatedAtUtc -eq
+                [datetime]::MinValue -or
+            $this.UpdatedAtUtc -eq
+                [datetime]::MinValue -or
+            $this.UpdatedAtUtc -lt
+                $this.CreatedAtUtc
+        ) {
+            return $false
+        }
+
+        $objectIds =
+            [System.Collections.Generic.HashSet[string]]::new(
+                [StringComparer]::Ordinal
+            )
+
+        [long]$expectedTotalBytes = 0
+
+        foreach ($contentObject in $this.Objects) {
+
+            if ($null -eq $contentObject) {
+                return $false
+            }
+
+            if (-not $contentObject.IsValid()) {
+                return $false
+            }
+
+            if (
+                -not $objectIds.Add(
+                    $contentObject.ObjectId
+                )
+            ) {
+                return $false
+            }
+
+            $expectedTotalBytes +=
+                $contentObject.Length
+        }
+
+        if (
+            $this.ObjectCount -ne
+                $this.Objects.Count
+        ) {
+            return $false
+        }
+
+        if (
+            $this.TotalBytes -ne
+                $expectedTotalBytes
+        ) {
+            return $false
+        }
+
+        return $true
+    }
+}
+#endregion 30-Models\PhoenixOfflineBundleManifest.ps1
 
 #region 30-Models\PhoenixManifest.ps1
 class PhoenixRestorePlanRecord {
