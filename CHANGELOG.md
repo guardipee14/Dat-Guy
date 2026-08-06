@@ -4,6 +4,26 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-08-05
+
+### Added
+- add the versioned `PhoenixOfflineBundleManifest` schema and typed
+  save-and-read persistence
+- add canonical SHA-256 content addresses and sharded content-object
+  storage paths
+- add file hashing, content verification, deduplication, and atomic
+  content-object publication
+- reject corrupt existing objects, unsupported manifest versions,
+  invalid summaries, noncanonical records, and duplicate object identities
+- add Pester 6 coverage for content contracts, storage primitives,
+  persistence, round trips, and tamper validation
+
+### Validated
+- pass Phoenix class generation and module import validation
+- complete PSScriptAnalyzer with 0 blocking findings
+- pass all 57 focused offline-bundle and content-store tests
+- pass all 327 integration, regression, and unit tests
+
 ## [0.2.3] - 2026-08-05
 
 ### Added
