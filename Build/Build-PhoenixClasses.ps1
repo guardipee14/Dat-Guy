@@ -427,6 +427,7 @@ $modelFiles = @(
     '30-Models\PhoenixInventory.ps1'
     '30-Models\PackageCandidate.ps1'
     '30-Models\PhoenixContentObject.ps1'
+    '30-Models\PhoenixPackageAcquisitionRequest.ps1'
     '30-Models\PhoenixPackageAcquisitionResult.ps1'
     '30-Models\PhoenixOfflineBundleManifest.ps1'
     '30-Models\PhoenixManifest.ps1'
