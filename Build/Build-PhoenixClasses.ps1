@@ -362,6 +362,7 @@ $baseAndCoreFiles = @(
     '00-Base\PhoenixPrivilegeLevel.ps1'
     '00-Base\PhoenixInstallMode.ps1'
     '00-Base\PhoenixProviderOperation.ps1'
+    '00-Base\PhoenixPackageAcquisitionStatus.ps1'
     '00-Base\PhoenixDeploymentOperation.ps1'
     '00-Base\PhoenixDeploymentCapability.ps1'
     '00-Base\PhoenixDeploymentDecision.ps1'
