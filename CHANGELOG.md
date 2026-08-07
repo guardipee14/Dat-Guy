@@ -4,6 +4,14 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+- refresh README and project description
+  - Show the current release, release link, development history, and roadmap automatically.
+  - Keep one development-history document for each minor development era instead of creating one for every patch release.
+  - Group Phoenix capabilities into clearer reader-focused sections.
+  - Keep offline recovery wording future-proof and roadmap-driven.
+  - Synchronize the module, README, and GitHub repository description.
+
 ## [0.2.5] - 2026-08-06
 
 ### Added

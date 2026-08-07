@@ -148,8 +148,8 @@ $manifest = Import-PowerShellDataFile `
     -LiteralPath $manifestPath
 
 $defaultDescription = (
-    'PowerShell deployment and recovery framework for Windows package ' +
-    'management, driver discovery, inventory, backup, and elevated update workflows.'
+    'PowerShell deployment and recovery framework for Windows applications, ' +
+    'drivers, updates, restore workflows, offline recovery, and a desktop Control Center.'
 )
 
 if ([string]::IsNullOrWhiteSpace($ProjectDescription)) {
@@ -177,6 +177,16 @@ if ($UpdateManifestDescription) {
 [string]$version = [string]$manifest.ModuleVersion
 [string[]]$commands = @($manifest.FunctionsToExport)
 [string]$repositoryUrl = Get-PhoenixRepositoryUrl
+
+[string]$releaseUrl = ''
+
+if (-not [string]::IsNullOrWhiteSpace($repositoryUrl)) {
+    $releaseUrl = (
+        '{0}/releases/tag/v{1}' -f
+            $repositoryUrl.TrimEnd('/'),
+            $version
+    )
+}
 
 $commandDescriptions = @{
     'Backup-Phoenix' = 'Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata.'
@@ -391,15 +401,38 @@ $readmeLines.Add('# PhoenixDeploy')
 $readmeLines.Add('')
 $readmeLines.Add($ProjectDescription)
 $readmeLines.Add('')
-$readmeLines.Add(('**Current module version:** `{0}`' -f $version))
+$readmeLines.Add(
+    ('**Current release:** `v{0}`' -f $version)
+)
 
 if (-not [string]::IsNullOrWhiteSpace($repositoryUrl)) {
     $readmeLines.Add('')
-    $readmeLines.Add(('**Repository:** [{0}]({0})' -f $repositoryUrl))
+    $readmeLines.Add(
+        ('**Repository:** [{0}]({0})' -f $repositoryUrl)
+    )
 }
 
+if (-not [string]::IsNullOrWhiteSpace($releaseUrl)) {
+    $readmeLines.Add('')
+    $readmeLines.Add(
+        (
+            '**Latest release:** [Phoenix v{0}]({1})' -f
+                $version,
+                $releaseUrl
+        )
+    )
+}
+
+[version]$parsedVersion = [version]$version
+
+[string]$developmentHistoryBaseline =
+    '{0}.{1}.0' -f
+        $parsedVersion.Major,
+        $parsedVersion.Minor
+
 [string]$developmentHistoryRelativePath =
-    'Docs/Phoenix-v{0}-Development-History.md' -f $version
+    'Docs/Phoenix-v{0}-Development-History.md' -f
+        $developmentHistoryBaseline
 
 [string]$developmentHistoryPath =
     Join-Path `
@@ -407,7 +440,7 @@ if (-not [string]::IsNullOrWhiteSpace($repositoryUrl)) {
         $developmentHistoryRelativePath
 
 [string]$developmentHistoryDisplayVersion =
-    $version
+    $developmentHistoryBaseline
 
 if (-not (Test-Path -LiteralPath $developmentHistoryPath)) {
 
@@ -470,9 +503,30 @@ $roadmapPath =
         'ROADMAP.md'
 
 if (Test-Path -LiteralPath $roadmapPath) {
+
+    [string]$roadmapText =
+        Get-Content `
+            -LiteralPath $roadmapPath `
+            -Raw
+
+    [string]$roadmapLabel =
+        'Phoenix roadmap'
+
+    if (
+        $roadmapText -match
+            '(?m)^## Phoenix v(?<Version>\d+\.\d+\.\d+)\s*$'
+    ) {
+        $roadmapLabel =
+            'Phoenix v{0} roadmap' -f
+                $Matches.Version
+    }
+
     $readmeLines.Add('')
     $readmeLines.Add(
-        '**Roadmap:** [Phoenix v0.2.0 roadmap](ROADMAP.md)'
+        (
+            '**Roadmap:** [{0}](ROADMAP.md)' -f
+                $roadmapLabel
+        )
     )
 }
 
@@ -480,9 +534,79 @@ $readmeLines.Add('')
 $readmeLines.Add('## What Phoenix can currently do')
 $readmeLines.Add('')
 
-foreach ($capability in $capabilities) {
-    $readmeLines.Add("- $capability")
+$capabilityGroups = [ordered]@{
+    'Applications and package management' = @(
+        'Discover, install, update, repair, and remove applications through a common Phoenix interface.'
+        'Work with WinGet, Chocolatey, Scoop, MSI, EXE, GitHub Releases, PowerShell Gallery, and NuGet sources.'
+        'Compare installed and available versions, inspect provider metadata, and choose supported actions from the Control Center.'
+        'Handle installer changes and protected applications with explicit safety and approval policies.'
+        'Normalize provider results so command-line and Control Center workflows report success, failure, restart, timeout, and cancellation consistently.'
+    )
+
+    'Drivers and Windows updates' = @(
+        'Inventory installed drivers and scan Windows for hardware changes.'
+        'Search for and install applicable driver updates through Windows Update.'
+        'Detect Windows Update and WSUS policy and manage applicable Windows updates.'
+        'Inspect OEM driver information for Dell, HP, Lenovo, Intel, AMD, and NVIDIA through a shared adapter model.'
+        'Run driver work before application updates when performing a full Phoenix update.'
+    )
+
+    'Backup, restore, and recovery' = @(
+        'Create versioned Phoenix restore manifests containing hardware, network, application, driver, and provider information.'
+        'Build a restore plan before making changes so actions, versions, providers, dependencies, elevation requirements, and restart state can be reviewed.'
+        'Restore drivers first and reinstall supported applications from a Phoenix manifest.'
+        'Save restore checkpoints before and after operations and resume interrupted restores without repeating completed work.'
+        'Verify completed restores by rescanning applications and drivers and reporting complete, partial, failed, or restart-pending results.'
+    )
+
+    'Offline recovery foundations' = @(
+        'Store recovery content by SHA-256 identity and automatically reuse identical content.'
+        'Use a versioned offline-bundle manifest and content-addressed object store.'
+        'Acquire eligible application content from NuGet, PowerShell Gallery, Scoop, GitHub Releases, MSI, and EXE sources.'
+        'Acquire content from local files, file URIs, HTTPS sources, provider caches, and direct installer media.'
+        'Validate optional SHA-256 hashes, block insecure HTTP by default, and isolate temporary acquisition workspaces.'
+        'Report unavailable, unsupported, failed, reused, acquired, and user-supplied-media requirements explicitly instead of silently skipping content.'
+    )
+
+    'Control Center and background work' = @(
+        'Keep the desktop responsive by running provider checks, inventory, searches, restore work, and application or driver operations in isolated workers.'
+        'Queue operations through a bounded FIFO scheduler instead of allowing conflicting work to run at the same time.'
+        'Monitor queued, running, completed, cancelled, and failed operations from the Activity view.'
+        'Cancel, retry, clear, and inspect jobs with detailed results, warnings, errors, restart information, and elapsed time.'
+        'Keep unsupported or unavailable actions disabled rather than allowing unsafe operations to fail late.'
+        'Recover from Control Center component failures and damaged runtime configuration while preserving diagnostic information.'
+    )
+
+    'Safety, diagnostics, and release validation' = @(
+        'Request elevation only when privileged work is required and return structured results to the original Phoenix process.'
+        'Write structured operational logs and preserve recovery and failure diagnostics.'
+        'Validate module generation, module imports, static analysis, and Pester tests during development and release builds.'
+        'Run repeatable Windows VM and WPF smoke tests for supported workflows.'
+        'Build versioned release archives with file manifests and SHA-256 verification.'
+        'Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.'
+    )
 }
+
+foreach ($groupName in $capabilityGroups.Keys) {
+
+    $readmeLines.Add(
+        ('### {0}' -f $groupName)
+    )
+    $readmeLines.Add('')
+
+    foreach ($capability in @($capabilityGroups[$groupName])) {
+        $readmeLines.Add("- $capability")
+    }
+
+    $readmeLines.Add('')
+}
+
+$readmeLines.Add(
+    (
+        '> Phoenix v{0} includes offline application acquisition and content-store foundations. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).' -f
+            $version
+    )
+)
 
 $readmeLines.Add('')
 $readmeLines.Add('## Available commands')
@@ -522,7 +646,7 @@ $readmeLines.Add('Import-Module .\Phoenix.psd1 -Force')
 $readmeLines.Add('Start-Phoenix')
 $readmeLines.Add('```')
 $readmeLines.Add('')
-$readmeLines.Add('Phoenix first recovers required runtime directories and configuration, then initializes its context, logging, WinGet provider, Chocolatey provider, and missing-provider checks. Repeated calls reuse the active context; use `Start-Phoenix -Force` only when a new context generation is required.')
+$readmeLines.Add('Phoenix first recovers required runtime directories and configuration, then initializes its runtime context, logging, configured providers, and background services. The Control Center keeps provider checks and inventory work off the desktop thread so the interface can remain responsive. Repeated calls reuse the active context; use `Start-Phoenix -Force` only when a new context generation is required.')
 $readmeLines.Add('')
 $readmeLines.Add('## Common examples')
 $readmeLines.Add('')
@@ -553,17 +677,22 @@ $readmeLines.Add('# Restore drivers first and reinstall missing packages')
 $readmeLines.Add("Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended -Confirm:`$false")
 $readmeLines.Add('```')
 $readmeLines.Add('')
-$readmeLines.Add('## Supported package providers')
+$readmeLines.Add('## Application and package sources')
 $readmeLines.Add('')
 $readmeLines.Add('- WinGet')
 $readmeLines.Add('- Chocolatey')
+$readmeLines.Add('- Scoop')
+$readmeLines.Add('- Local MSI and EXE installers')
+$readmeLines.Add('- GitHub Releases')
+$readmeLines.Add('- PowerShell Gallery')
+$readmeLines.Add('- NuGet v3 feeds')
 $readmeLines.Add('')
 $readmeLines.Add('## Current limitations')
 $readmeLines.Add('')
-
-foreach ($limitation in $limitations) {
-    $readmeLines.Add("- $limitation")
-}
+$readmeLines.Add('- Phoenix is currently Windows-only and is under active development.')
+$readmeLines.Add('- Offline recovery and deployment capabilities are being delivered incrementally; see [ROADMAP.md](ROADMAP.md) for the current milestone status.')
+$readmeLines.Add('- Restore does not currently include user profiles, application data, or complete Windows settings migration.')
+$readmeLines.Add('- Destructive deployment, disk, WinPE, and boot-media workflows remain unavailable until their roadmap safety and VM-validation gates are complete.')
 
 $readmeLines.Add('')
 $readmeLines.Add('## Project layout')
