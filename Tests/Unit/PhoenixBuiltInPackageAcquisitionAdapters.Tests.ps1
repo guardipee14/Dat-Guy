@@ -100,7 +100,12 @@ Describe 'Phoenix built-in package acquisition adapter catalog' -Tag @(
                     Should-BeFalse
 
                 $adapter.Metadata['ImplementationStatus'] |
-                    Should-Be 'Declared'
+                    Should-Be 'Implemented'
+
+                [string]::IsNullOrWhiteSpace(
+                    [string]$adapter.Metadata['Handler']
+                ) |
+                    Should-BeFalse
             }
         }
     }
@@ -129,7 +134,7 @@ Describe 'Phoenix built-in package acquisition adapter catalog' -Tag @(
                 $byProvider['PowerShell Gallery'].
                     SupportedInstallerTypes -join '|'
             ) |
-                Should-Be 'Module|Script'
+                Should-Be 'PowerShellModule|PowerShellScript'
 
             (
                 $byProvider['Scoop'].
@@ -171,15 +176,10 @@ Describe 'Phoenix built-in package acquisition adapter catalog' -Tag @(
                     $adapter
             }
 
-            (
-                $byProvider['PowerShell Gallery'].
-                    SupportedSources -join '|'
-            ) |
-                Should-Be 'PSGallery'
-
             foreach (
                 $provider in @(
                     'NuGet'
+                    'PowerShell Gallery'
                     'Scoop'
                     'GitHub'
                     'MSI'
@@ -195,13 +195,17 @@ Describe 'Phoenix built-in package acquisition adapter catalog' -Tag @(
                 Metadata['SourcePolicy'] |
                 Should-Be 'AnyConfiguredFeed'
 
+            $byProvider['PowerShell Gallery'].
+                Metadata['SourcePolicy'] |
+                Should-Be 'AnyNamedRepository'
+
             $byProvider['Scoop'].
                 Metadata['SourcePolicy'] |
-                Should-Be 'AnyConfiguredBucket'
+                Should-Be 'AnyConfiguredBucketOrCache'
 
             $byProvider['GitHub'].
                 Metadata['SourcePolicy'] |
-                Should-Be 'GitHubRepositoryOrRelease'
+                Should-Be 'GitHubReleaseAssetOrDirectUri'
 
             $byProvider['MSI'].
                 Metadata['SourcePolicy'] |
@@ -345,7 +349,7 @@ Describe 'Phoenix built-in package acquisition adapter catalog' -Tag @(
                     @{
                         Provider = 'PowerShell Gallery'
                         Source = 'PSGallery'
-                        InstallerType = 'Module'
+                        InstallerType = 'PowerShellModule'
                         Expected = 'PowerShell Gallery Acquisition'
                     }
                     @{

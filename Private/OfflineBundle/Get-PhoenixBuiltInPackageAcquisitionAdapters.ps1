@@ -41,6 +41,10 @@ function New-PhoenixBuiltInPackageAcquisitionAdapter {
         [ValidateNotNullOrEmpty()]
         [string]$ProviderClass,
 
+        [Parameter(Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Handler,
+
         [Parameter()]
         [switch]$RequiresUserSuppliedMedia
     )
@@ -81,10 +85,10 @@ function New-PhoenixBuiltInPackageAcquisitionAdapter {
         'Phoenix.BuiltIn.PackageAcquisition'
 
     $adapter.Metadata['CatalogVersion'] =
-        '1.0'
+        '2.0'
 
     $adapter.Metadata['ImplementationStatus'] =
-        'Declared'
+        'Implemented'
 
     $adapter.Metadata['SourcePolicy'] =
         $SourcePolicy
@@ -94,6 +98,9 @@ function New-PhoenixBuiltInPackageAcquisitionAdapter {
 
     $adapter.Metadata['ProviderClass'] =
         $ProviderClass
+
+    $adapter.Metadata['Handler'] =
+        $Handler
 
     $adapter.Metadata['RequiresUserSuppliedMedia'] =
         $RequiresUserSuppliedMedia.IsPresent
@@ -125,23 +132,22 @@ function Get-PhoenixBuiltInPackageAcquisitionAdapters {
                 -SupportsForceRefresh `
                 -SourcePolicy 'AnyConfiguredFeed' `
                 -AcquisitionMode 'RemotePackage' `
-                -ProviderClass 'NuGetProvider'
+                -ProviderClass 'NuGetProvider' `
+                -Handler 'Invoke-PhoenixNuGetPackageAcquisition'
 
             New-PhoenixBuiltInPackageAcquisitionAdapter `
                 -Name 'PowerShell Gallery Acquisition' `
                 -Provider 'PowerShell Gallery' `
                 -Priority 550 `
-                -SupportedSource @(
-                    'PSGallery'
-                ) `
                 -SupportedInstallerType @(
-                    'Module'
-                    'Script'
+                    'PowerShellModule'
+                    'PowerShellScript'
                 ) `
                 -SupportsForceRefresh `
-                -SourcePolicy 'NamedRepository' `
+                -SourcePolicy 'AnyNamedRepository' `
                 -AcquisitionMode 'RemoteResource' `
-                -ProviderClass 'PowerShellGalleryProvider'
+                -ProviderClass 'PowerShellGalleryProvider' `
+                -Handler 'Invoke-PhoenixPowerShellGalleryPackageAcquisition'
 
             New-PhoenixBuiltInPackageAcquisitionAdapter `
                 -Name 'Scoop Package Acquisition' `
@@ -151,9 +157,10 @@ function Get-PhoenixBuiltInPackageAcquisitionAdapters {
                     'Scoop'
                 ) `
                 -SupportsForceRefresh `
-                -SourcePolicy 'AnyConfiguredBucket' `
-                -AcquisitionMode 'PackageManagerExport' `
-                -ProviderClass 'ScoopProvider'
+                -SourcePolicy 'AnyConfiguredBucketOrCache' `
+                -AcquisitionMode 'PackageManagerCache' `
+                -ProviderClass 'ScoopProvider' `
+                -Handler 'Invoke-PhoenixScoopPackageAcquisition'
 
             New-PhoenixBuiltInPackageAcquisitionAdapter `
                 -Name 'GitHub Release Acquisition' `
@@ -166,9 +173,10 @@ function Get-PhoenixBuiltInPackageAcquisitionAdapters {
                     'ZIP'
                 ) `
                 -SupportsForceRefresh `
-                -SourcePolicy 'GitHubRepositoryOrRelease' `
+                -SourcePolicy 'GitHubReleaseAssetOrDirectUri' `
                 -AcquisitionMode 'ReleaseAsset' `
-                -ProviderClass 'GitHubProvider'
+                -ProviderClass 'GitHubProvider' `
+                -Handler 'Invoke-PhoenixGitHubPackageAcquisition'
 
             New-PhoenixBuiltInPackageAcquisitionAdapter `
                 -Name 'MSI Installer Acquisition' `
@@ -181,6 +189,7 @@ function Get-PhoenixBuiltInPackageAcquisitionAdapters {
                 -SourcePolicy 'LocalPathOrDirectUri' `
                 -AcquisitionMode 'InstallerMedia' `
                 -ProviderClass 'MSIProvider' `
+                -Handler 'Invoke-PhoenixMsiPackageAcquisition' `
                 -RequiresUserSuppliedMedia
 
             New-PhoenixBuiltInPackageAcquisitionAdapter `
@@ -194,6 +203,7 @@ function Get-PhoenixBuiltInPackageAcquisitionAdapters {
                 -SourcePolicy 'LocalPathOrDirectUri' `
                 -AcquisitionMode 'InstallerMedia' `
                 -ProviderClass 'EXEProvider' `
+                -Handler 'Invoke-PhoenixExePackageAcquisition' `
                 -RequiresUserSuppliedMedia
         )
 
