@@ -4,6 +4,29 @@ All notable changes to Phoenix are documented in this file.
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-08-06
+
+### Added
+- add typed package-acquisition status, request, result, adapter,
+  and route contracts
+- add deterministic built-in acquisition routing for NuGet,
+  PowerShell Gallery, Scoop, GitHub Releases, MSI, and EXE providers
+- acquire local, file-URI, HTTPS, provider-cache, and direct-media
+  artifacts into the content-addressed Phoenix store
+- reuse identical stored content, honor `ForceRefresh`, verify optional
+  SHA-256 digests, and enforce secure HTTP and isolated-workspace policy
+- record unavailable, unsupported, failed, and user-supplied-media
+  outcomes instead of silently omitting uncaptured artifacts
+- preserve existing provider `ExportPackages()` behavior while keeping
+  offline acquisition separate from installed-package inventory export
+- add Pester 6 coverage for contracts, routing, provider handlers,
+  content reuse, hash verification, source policy, and cleanup
+
+### Validated
+- pass Phoenix class generation and module import validation
+- complete PSScriptAnalyzer with 0 blocking findings
+- pass all 64 focused package-acquisition tests
+- pass all 391 integration, regression, and unit tests
 ## [0.2.4] - 2026-08-05
 
 ### Added
