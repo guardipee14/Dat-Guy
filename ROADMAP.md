@@ -62,7 +62,7 @@ release gates before the next milestone begins.
       platform matrix
 - [x] `v0.2.3` - Deployment capability, privilege, safety, and result contracts
 - [x] `v0.2.4` - Versioned offline-bundle schema and content-addressed store
-- [ ] `v0.2.5` - Offline application acquisition and provider export adapters
+- [x] `v0.2.5` - Offline application acquisition and provider export adapters
 - [ ] `v0.2.6` - Offline driver export, cataloging, and hardware matching
 - [ ] `v0.2.7` - Bundle integrity, provenance, licensing, and trust verification
 - [ ] `v0.2.8` - Offline-bundle build, update, inspect, and verify commands
