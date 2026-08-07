@@ -30,7 +30,7 @@ CompanyName = 'Phoenix'
 Copyright = 'Copyright (c) 2026 Donaven Guardipee'
 
 # Description of the functionality provided by this module
-Description = 'PowerShell deployment and recovery framework for Windows application and driver management, inventory, backup and restore, elevated updates, and a customizable desktop Control Center.'
+Description = 'PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.'
 
 # Minimum version of the PowerShell engine required by this module
 # PowerShellVersion = ''
