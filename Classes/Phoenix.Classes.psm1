@@ -9782,6 +9782,584 @@ class PhoenixPackageAcquisitionResult {
 }
 #endregion 30-Models\PhoenixPackageAcquisitionResult.ps1
 
+#region 30-Models\PhoenixPackageAcquisitionAdapter.ps1
+class PhoenixPackageAcquisitionAdapter {
+
+    [string]$AdapterId
+    [string]$Name
+    [string]$Provider
+    [int]$Priority
+    [bool]$Enabled
+    [bool]$IsFallback
+    [string[]]$SupportedSources
+    [string[]]$SupportedInstallerTypes
+    [bool]$SupportsInteractive
+    [bool]$SupportsForceRefresh
+    [hashtable]$Metadata
+
+    PhoenixPackageAcquisitionAdapter() {
+
+        $this.AdapterId =
+            [guid]::NewGuid().ToString('D')
+
+        $this.Name = ''
+        $this.Provider = ''
+        $this.Priority = 0
+        $this.Enabled = $true
+        $this.IsFallback = $false
+        $this.SupportedSources = @()
+        $this.SupportedInstallerTypes = @()
+        $this.SupportsInteractive = $false
+        $this.SupportsForceRefresh = $false
+        $this.Metadata = @{}
+    }
+
+    [void] SetIdentity(
+        [string]$AdapterName,
+        [string]$ProviderName
+    ) {
+
+        if ([string]::IsNullOrWhiteSpace($AdapterName)) {
+            throw 'An acquisition-adapter name is required.'
+        }
+
+        if ([string]::IsNullOrWhiteSpace($ProviderName)) {
+            throw 'An acquisition-adapter provider is required.'
+        }
+
+        $this.Name = $AdapterName.Trim()
+        $this.Provider = $ProviderName.Trim()
+    }
+
+    hidden [bool] ContainsValue(
+        [string[]]$Values,
+        [string]$Candidate
+    ) {
+
+        foreach ($value in @($Values)) {
+            if (
+                [string]::Equals(
+                    $value,
+                    $Candidate,
+                    [StringComparison]::OrdinalIgnoreCase
+                )
+            ) {
+                return $true
+            }
+        }
+
+        return $false
+    }
+
+    [void] AddSupportedSource(
+        [string]$Source
+    ) {
+
+        if ([string]::IsNullOrWhiteSpace($Source)) {
+            throw 'A supported source name is required.'
+        }
+
+        [string]$normalizedSource =
+            $Source.Trim()
+
+        if (
+            -not $this.ContainsValue(
+                $this.SupportedSources,
+                $normalizedSource
+            )
+        ) {
+            $this.SupportedSources =
+                @($this.SupportedSources) +
+                @($normalizedSource)
+        }
+    }
+
+    [void] AddSupportedInstallerType(
+        [string]$InstallerType
+    ) {
+
+        if (
+            [string]::IsNullOrWhiteSpace(
+                $InstallerType
+            )
+        ) {
+            throw 'A supported installer type is required.'
+        }
+
+        [string]$normalizedInstallerType =
+            $InstallerType.Trim()
+
+        if (
+            -not $this.ContainsValue(
+                $this.SupportedInstallerTypes,
+                $normalizedInstallerType
+            )
+        ) {
+            $this.SupportedInstallerTypes =
+                @($this.SupportedInstallerTypes) +
+                @($normalizedInstallerType)
+        }
+    }
+
+    hidden [bool] MatchesFilter(
+        [string[]]$Values,
+        [string]$Candidate
+    ) {
+
+        if (@($Values).Count -eq 0) {
+            return $true
+        }
+
+        if ([string]::IsNullOrWhiteSpace($Candidate)) {
+            return $false
+        }
+
+        return $this.ContainsValue(
+            $Values,
+            $Candidate
+        )
+    }
+
+    [bool] CanHandle(
+        [PhoenixPackageAcquisitionRequest]$Request
+    ) {
+
+        return $this.CanHandle(
+            $Request,
+            $false
+        )
+    }
+
+    [bool] CanHandle(
+        [PhoenixPackageAcquisitionRequest]$Request,
+        [bool]$AllowFallback
+    ) {
+
+        if (
+            $null -eq $Request -or
+            -not $Request.IsValid() -or
+            -not $this.IsValid() -or
+            -not $this.Enabled
+        ) {
+            return $false
+        }
+
+        [string]$requestedProvider =
+            $Request.Package.Provider
+
+        if ($this.IsFallback) {
+            if (
+                -not $AllowFallback -or
+                $this.Provider -cne '*'
+            ) {
+                return $false
+            }
+        }
+        elseif (
+            -not [string]::Equals(
+                $this.Provider,
+                $requestedProvider,
+                [StringComparison]::OrdinalIgnoreCase
+            )
+        ) {
+            return $false
+        }
+
+        if (
+            $Request.ForceRefresh -and
+            -not $this.SupportsForceRefresh
+        ) {
+            return $false
+        }
+
+        if (
+            -not $this.MatchesFilter(
+                $this.SupportedSources,
+                $Request.Package.Source
+            )
+        ) {
+            return $false
+        }
+
+        if (
+            -not $this.MatchesFilter(
+                $this.SupportedInstallerTypes,
+                $Request.Package.InstallerType
+            )
+        ) {
+            return $false
+        }
+
+        return $true
+    }
+
+    [PhoenixPackageAcquisitionResult] Acquire(
+        [PhoenixPackageAcquisitionRequest]$Request
+    ) {
+
+        if (
+            $null -eq $Request -or
+            -not $Request.IsValid()
+        ) {
+            throw 'A valid package-acquisition request is required.'
+        }
+
+        $result =
+            [PhoenixPackageAcquisitionResult]::new()
+
+        $result.SetPackage(
+            $Request.Package
+        )
+
+        $result.Metadata['AdapterId'] =
+            $this.AdapterId
+
+        $result.Metadata['AdapterName'] =
+            $this.Name
+
+        $result.Metadata['RequestId'] =
+            $Request.RequestId
+
+        $result.Complete(
+            [PhoenixPackageAcquisitionStatus]::Unsupported,
+            'PHX_PACKAGE_ACQUISITION_NOT_IMPLEMENTED',
+            (
+                "Acquisition adapter '$($this.Name)' " +
+                'does not implement artifact acquisition.'
+            )
+        )
+
+        return $result
+    }
+
+    [bool] IsValid() {
+
+        [guid]$parsedAdapterId =
+            [guid]::Empty
+
+        if (
+            -not [guid]::TryParse(
+                $this.AdapterId,
+                [ref]$parsedAdapterId
+            ) -or
+            $parsedAdapterId -eq [guid]::Empty
+        ) {
+            return $false
+        }
+
+        if (
+            [string]::IsNullOrWhiteSpace($this.Name) -or
+            [string]::IsNullOrWhiteSpace($this.Provider) -or
+            $this.Priority -lt 0
+        ) {
+            return $false
+        }
+
+        if (
+            $this.IsFallback -and
+            $this.Provider -cne '*'
+        ) {
+            return $false
+        }
+
+        if (
+            -not $this.IsFallback -and
+            $this.Provider -ceq '*'
+        ) {
+            return $false
+        }
+
+        if (
+            $null -eq $this.SupportedSources -or
+            $null -eq $this.SupportedInstallerTypes -or
+            $null -eq $this.Metadata
+        ) {
+            return $false
+        }
+
+        [string[]]$seenSources = @()
+
+        foreach ($source in @($this.SupportedSources)) {
+            if (
+                [string]::IsNullOrWhiteSpace($source) -or
+                $this.ContainsValue(
+                    $seenSources,
+                    $source
+                )
+            ) {
+                return $false
+            }
+
+            $seenSources =
+                @($seenSources) +
+                @($source)
+        }
+
+        [string[]]$seenInstallerTypes = @()
+
+        foreach (
+            $installerType in
+            @($this.SupportedInstallerTypes)
+        ) {
+            if (
+                [string]::IsNullOrWhiteSpace(
+                    $installerType
+                ) -or
+                $this.ContainsValue(
+                    $seenInstallerTypes,
+                    $installerType
+                )
+            ) {
+                return $false
+            }
+
+            $seenInstallerTypes =
+                @($seenInstallerTypes) +
+                @($installerType)
+        }
+
+        return $true
+    }
+}
+#endregion 30-Models\PhoenixPackageAcquisitionAdapter.ps1
+
+#region 30-Models\PhoenixPackageAcquisitionRoute.ps1
+class PhoenixPackageAcquisitionRoute {
+
+    [string]$RequestId
+    [bool]$Resolved
+    [bool]$UsedFallback
+    [PhoenixPackageAcquisitionAdapter]$SelectedAdapter
+    [PhoenixPackageAcquisitionAdapter[]]$Alternatives
+    [string]$Code
+    [string]$Message
+    [datetime]$ResolvedAtUtc
+
+    PhoenixPackageAcquisitionRoute() {
+
+        $this.RequestId = ''
+        $this.Resolved = $false
+        $this.UsedFallback = $false
+        $this.Alternatives = @()
+        $this.Code =
+            'PHX_PACKAGE_ACQUISITION_ROUTE_NOT_RESOLVED'
+
+        $this.Message =
+            'A package-acquisition route has not been resolved.'
+
+        $this.ResolvedAtUtc =
+            [datetime]::MinValue
+    }
+
+    [void] CompleteResolved(
+        [PhoenixPackageAcquisitionRequest]$Request,
+        [PhoenixPackageAcquisitionAdapter]$Selected,
+        [PhoenixPackageAcquisitionAdapter[]]$OrderedAlternatives,
+        [bool]$Fallback
+    ) {
+
+        if (
+            $null -eq $Request -or
+            -not $Request.IsValid()
+        ) {
+            throw 'A valid package-acquisition request is required.'
+        }
+
+        if (
+            $null -eq $Selected -or
+            -not $Selected.IsValid() -or
+            -not $Selected.CanHandle(
+                $Request,
+                $Fallback
+            )
+        ) {
+            throw 'A compatible selected acquisition adapter is required.'
+        }
+
+        [string[]]$seenAdapterIds =
+            @($Selected.AdapterId)
+
+        foreach ($alternative in @($OrderedAlternatives)) {
+            if (
+                $null -eq $alternative -or
+                -not $alternative.IsValid() -or
+                -not $alternative.CanHandle(
+                    $Request,
+                    $Fallback
+                )
+            ) {
+                throw 'Every alternative acquisition adapter must be compatible.'
+            }
+
+            foreach ($seenAdapterId in $seenAdapterIds) {
+                if (
+                    [string]::Equals(
+                        $seenAdapterId,
+                        $alternative.AdapterId,
+                        [StringComparison]::OrdinalIgnoreCase
+                    )
+                ) {
+                    throw 'Acquisition routes cannot contain duplicate adapters.'
+                }
+            }
+
+            $seenAdapterIds =
+                @($seenAdapterIds) +
+                @($alternative.AdapterId)
+        }
+
+        $this.RequestId =
+            $Request.RequestId
+
+        $this.Resolved = $true
+        $this.UsedFallback = $Fallback
+        $this.SelectedAdapter = $Selected
+        $this.Alternatives =
+            @($OrderedAlternatives)
+
+        if ($Fallback) {
+            $this.Code =
+                'PHX_PACKAGE_ACQUISITION_FALLBACK_ROUTE_RESOLVED'
+
+            $this.Message =
+                "Fallback acquisition adapter '$($Selected.Name)' was selected."
+        }
+        else {
+            $this.Code =
+                'PHX_PACKAGE_ACQUISITION_ROUTE_RESOLVED'
+
+            $this.Message =
+                "Acquisition adapter '$($Selected.Name)' was selected."
+        }
+
+        $this.ResolvedAtUtc =
+            [datetime]::UtcNow
+    }
+
+    [void] CompleteUnresolved(
+        [PhoenixPackageAcquisitionRequest]$Request,
+        [string]$ResultMessage
+    ) {
+
+        if (
+            $null -eq $Request -or
+            -not $Request.IsValid()
+        ) {
+            throw 'A valid package-acquisition request is required.'
+        }
+
+        if ([string]::IsNullOrWhiteSpace($ResultMessage)) {
+            throw 'An unresolved route message is required.'
+        }
+
+        $this.RequestId =
+            $Request.RequestId
+
+        $this.Resolved = $false
+        $this.UsedFallback = $false
+        $this.SelectedAdapter = $null
+        $this.Alternatives = @()
+        $this.Code =
+            'PHX_PACKAGE_ACQUISITION_ROUTE_UNAVAILABLE'
+
+        $this.Message =
+            $ResultMessage
+
+        $this.ResolvedAtUtc =
+            [datetime]::UtcNow
+    }
+
+    [bool] IsValid() {
+
+        [guid]$parsedRequestId =
+            [guid]::Empty
+
+        if (
+            -not [guid]::TryParse(
+                $this.RequestId,
+                [ref]$parsedRequestId
+            ) -or
+            $parsedRequestId -eq [guid]::Empty
+        ) {
+            return $false
+        }
+
+        if (
+            $this.ResolvedAtUtc -le
+                [datetime]::MinValue -or
+            $this.ResolvedAtUtc.Kind -ne
+                [DateTimeKind]::Utc -or
+            [string]::IsNullOrWhiteSpace($this.Code) -or
+            [string]::IsNullOrWhiteSpace($this.Message) -or
+            $null -eq $this.Alternatives
+        ) {
+            return $false
+        }
+
+        if ($this.Resolved) {
+            if (
+                $null -eq $this.SelectedAdapter -or
+                -not $this.SelectedAdapter.IsValid()
+            ) {
+                return $false
+            }
+
+            if (
+                $this.UsedFallback -and
+                -not $this.SelectedAdapter.IsFallback
+            ) {
+                return $false
+            }
+
+            if (
+                -not $this.UsedFallback -and
+                $this.SelectedAdapter.IsFallback
+            ) {
+                return $false
+            }
+
+            [string[]]$seenAdapterIds =
+                @($this.SelectedAdapter.AdapterId)
+
+            foreach ($alternative in @($this.Alternatives)) {
+                if (
+                    $null -eq $alternative -or
+                    -not $alternative.IsValid()
+                ) {
+                    return $false
+                }
+
+                foreach ($seenAdapterId in $seenAdapterIds) {
+                    if (
+                        [string]::Equals(
+                            $seenAdapterId,
+                            $alternative.AdapterId,
+                            [StringComparison]::OrdinalIgnoreCase
+                        )
+                    ) {
+                        return $false
+                    }
+                }
+
+                $seenAdapterIds =
+                    @($seenAdapterIds) +
+                    @($alternative.AdapterId)
+            }
+
+            return $true
+        }
+
+        return (
+            -not $this.UsedFallback -and
+            $null -eq $this.SelectedAdapter -and
+            $this.Alternatives.Count -eq 0 -and
+            $this.Code -eq
+                'PHX_PACKAGE_ACQUISITION_ROUTE_UNAVAILABLE'
+        )
+    }
+}
+#endregion 30-Models\PhoenixPackageAcquisitionRoute.ps1
+
 #region 30-Models\PhoenixOfflineBundleManifest.ps1
 class PhoenixOfflineBundleManifest {
 

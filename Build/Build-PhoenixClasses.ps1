@@ -429,6 +429,8 @@ $modelFiles = @(
     '30-Models\PhoenixContentObject.ps1'
     '30-Models\PhoenixPackageAcquisitionRequest.ps1'
     '30-Models\PhoenixPackageAcquisitionResult.ps1'
+    '30-Models\PhoenixPackageAcquisitionAdapter.ps1'
+    '30-Models\PhoenixPackageAcquisitionRoute.ps1'
     '30-Models\PhoenixOfflineBundleManifest.ps1'
     '30-Models\PhoenixManifest.ps1'
     '30-Models\PhoenixRestoreCheckpoint.ps1'
