@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.5`
+**Current release:** `v0.2.6`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.5](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.5)
+**Latest release:** [Phoenix v0.2.6](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.6)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -47,6 +47,8 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Acquire content from local files, file URIs, HTTPS sources, provider caches, and direct installer media.
 - Validate optional SHA-256 hashes, block insecure HTTP by default, and isolate temporary acquisition workspaces.
 - Report unavailable, unsupported, failed, reused, acquired, and user-supplied-media requirements explicitly instead of silently skipping content.
+- Export installed third-party driver packages into the content-addressed store and catalog normalized hardware identities, provider, class, version, architecture, date, and signing state.
+- Rank compatible offline driver packages deterministically against target hardware without installing them.
 
 ### Control Center and background work
 
@@ -66,7 +68,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build versioned release archives with file manifests and SHA-256 verification.
 - Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.
 
-> Phoenix v0.2.5 includes offline application acquisition and content-store foundations. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).
+> Phoenix v0.2.6 adds offline driver export, cataloging, and hardware matching. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Available commands
 
