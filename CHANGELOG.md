@@ -12,6 +12,26 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.6] - 2026-09-02
+
+### Added
+- add normalized hardware and compatible-ID contracts for target matching
+- catalog exported third-party driver packages with deterministic package IDs,
+  content-object references, provider, version, class, architecture, date,
+  hardware identities, compatible identities, and signed-driver metadata
+- export installed OEM driver packages through PnPUtil into the
+  content-addressed Phoenix store with `ShouldProcess` protection
+- rank offline driver matches deterministically without installing them
+- add focused Pester coverage for identity normalization, catalog validation,
+  export preview behavior, package deduplication, and match ordering
+
+### Validated
+- pass Phoenix class generation and module import validation
+- analyze 185 PowerShell files with PSScriptAnalyzer 1.25.0 and report zero
+  errors and zero blocking findings
+- pass all 15 focused offline-driver tests
+- pass all 406 integration, regression, and unit tests
+
 ## [0.2.5] - 2026-08-06
 
 ### Added
