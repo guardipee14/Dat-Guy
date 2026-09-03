@@ -429,6 +429,7 @@ $modelFiles = @(
     '30-Models\PhoenixContentObject.ps1'
     '30-Models\PhoenixDriverHardwareIdentity.ps1'
     '30-Models\PhoenixOfflineDriverPackage.ps1'
+    '30-Models\PhoenixOfflineBundleVerificationResult.ps1'
     '30-Models\PhoenixPackageAcquisitionRequest.ps1'
     '30-Models\PhoenixPackageAcquisitionResult.ps1'
     '30-Models\PhoenixPackageAcquisitionAdapter.ps1'

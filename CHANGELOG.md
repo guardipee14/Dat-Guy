@@ -12,6 +12,26 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.7] - 2026-09-02
+
+### Added
+- add a typed offline-bundle verification result with explicit manifest,
+  integrity, provenance, license, and trust outcomes
+- verify every bundle object against its recorded byte length and SHA-256
+  content address before use
+- add selectable integrity-only, provenance-required, redistributable, and
+  trusted-publisher policies with fail-closed strict-policy behavior
+- validate package license records, explicit redistribution approval,
+  signature status, and publisher identity without mutating bundle content
+- export `Test-PhoenixOfflineBundle` and add focused tamper and policy tests
+
+### Validated
+- pass Phoenix class generation and module import validation
+- analyze 187 PowerShell files with PSScriptAnalyzer 1.25.0 and report zero
+  errors and zero blocking findings
+- pass all 4 focused bundle-verification tests
+- pass all 410 integration, regression, and unit tests
+
 ## [0.2.6] - 2026-09-02
 
 ### Added
