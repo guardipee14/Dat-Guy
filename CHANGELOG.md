@@ -12,6 +12,28 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.10] - 2026-09-09
+
+### Added
+- add typed deployment readiness and tool-status results for Windows ADK and
+  WinPE prerequisite diagnostics
+- discover the Windows Kits root from the installed-kits registry record while
+  allowing explicit roots for deterministic validation and troubleshooting
+- inspect the supported x64 ADK DISM, Oscdimg, WinPE base WIM, media tree, and
+  optional-component directory without changing the host
+- report every missing required prerequisite, optional-component availability,
+  detected file versions, host architecture support, and actionable paths
+- export `Get-PhoenixDeploymentPrerequisite` as a read-only public command
+
+### Validated
+- verify missing, complete-fixture, and unsupported-architecture readiness paths
+- preserve the boundary that workspace creation, ISO construction, image
+  servicing, removable-media writes, and deployment execution remain absent
+- pass Phoenix class generation and module import validation
+- analyze 197 PowerShell files with PSScriptAnalyzer 1.25.0 and report zero
+  errors and zero blocking findings
+- pass all 421 integration, regression, and unit tests
+
 ## [0.2.9] - 2026-09-02
 
 ### Added
