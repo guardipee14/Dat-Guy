@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.7`
+**Current release:** `v0.2.8`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.7](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.7)
+**Latest release:** [Phoenix v0.2.8](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.8)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -50,6 +50,8 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Export installed third-party driver packages into the content-addressed store and catalog normalized hardware identities, provider, class, version, architecture, date, and signing state.
 - Rank compatible offline driver packages deterministically against target hardware without installing them.
 - Verify bundle hashes, provenance, redistributable-license approval, and trusted-publisher records through explicit fail-closed policies.
+- Build, inspect, incrementally update, export, and ownership-safely remove Phoenix offline bundles while reusing unchanged content.
+- Capture source provenance, Authenticode status, and publisher identity for eligible bundle payloads.
 
 ### Control Center and background work
 
@@ -69,20 +71,23 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build versioned release archives with file manifests and SHA-256 verification.
 - Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.
 
-> Phoenix v0.2.7 adds bundle integrity, provenance, licensing, and trusted-publisher verification. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).
+> Phoenix v0.2.8 adds the offline-bundle build, inspect, update, export, verification, and safe-removal command surface. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Available commands
 
 | Command | Status | Purpose |
 |---|---|---|
 | `Backup-Phoenix` | Available | Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata. |
+| `Export-PhoenixOfflineBundle` | Available | Copy a verified Phoenix offline bundle to a new destination. |
 | `Get-PhoenixContext` | Available | Return the active Phoenix runtime context and optionally require a ready lifecycle. |
+| `Get-PhoenixOfflineBundle` | Available | Inspect a Phoenix-owned offline bundle and its integrity summary. |
 | `Get-PhoenixRestoreCheckpoint` | Available | Exported Phoenix command. |
 | `Get-PhoenixPackages` | Available | Enumerate installed packages reported by active providers. |
 | `Get-PhoenixProviders` | Available | List active Phoenix package providers. |
 | `Install-PhoenixPackage` | Available | Install a package through WinGet or Chocolatey with elevation and install-mode handling. |
 | `Import-PhoenixRestorePlan` | Available | Exported Phoenix command. |
 | `Invoke-PhoenixRestorePlan` | Available | Exported Phoenix command. |
+| `New-PhoenixOfflineBundle` | Available | Build a Phoenix-owned content-addressed offline bundle from selected files. |
 | `New-PhoenixRestorePlan` | Available | Exported Phoenix command. |
 | `New-PhoenixRestoreCheckpoint` | Available | Exported Phoenix command. |
 | `Repair-PhoenixPackage` | Available | Repair a supported package using silent or interactive provider behavior. |
@@ -98,7 +103,9 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 | `Test-PhoenixOfflineBundle` | Available | Verify bundle integrity and optionally enforce provenance, redistribution, and publisher-trust policy. |
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
+| `Remove-PhoenixOfflineBundle` | Available | Remove only a verified Phoenix-owned offline-bundle root. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |
+| `Update-PhoenixOfflineBundle` | Available | Incrementally add selected content while reusing unchanged objects. |
 | `Open-Phoenix` | Available | Exported Phoenix command. |
 | `Get-PhoenixTheme` | Available | Exported Phoenix command. |
 | `Install-PhoenixTheme` | Available | Exported Phoenix command. |

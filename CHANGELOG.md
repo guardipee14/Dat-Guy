@@ -12,6 +12,29 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.8] - 2026-09-02
+
+### Added
+- add Phoenix-owned offline-bundle roots with identity-bound ownership markers
+  and reparse-point rejection
+- export commands to build, inspect, incrementally update, verify, copy, and
+  safely remove offline bundles
+- capture per-object source provenance, Authenticode signature status, and
+  publisher identity when available
+- reuse content-addressed objects during incremental updates and verify source
+  and destination bundles before export completes
+- protect bundle creation, updates, copies, and removals with `ShouldProcess`
+  and reject cleanup of unowned directories
+- add focused end-to-end command tests for preview, build, update, inspect,
+  export, verification, and ownership-safe cleanup
+
+### Validated
+- pass Phoenix class generation and module import validation
+- analyze 194 PowerShell files with PSScriptAnalyzer 1.25.0 and report zero
+  errors and zero blocking findings
+- pass all 4 focused offline-bundle command tests
+- pass all 414 integration, regression, and unit tests
+
 ## [0.2.7] - 2026-09-02
 
 ### Added
