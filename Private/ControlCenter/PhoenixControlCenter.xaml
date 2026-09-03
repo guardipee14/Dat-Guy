@@ -364,6 +364,10 @@
                             Style="{StaticResource NavigationButton}"
                             Content="Restore Plan" />
                         <Button
+                            x:Name="RecoveryBundleNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Recovery Bundle" />
+                        <Button
                             x:Name="ActivityNavButton"
                             Style="{StaticResource NavigationButton}"
                             Content="Activity" />
@@ -1070,6 +1074,79 @@
                                     IsEnabled="False" />
                             </Grid>
                         </Border>
+                    </Grid>
+
+                    <Grid x:Name="RecoveryBundlePage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Recovery Bundle" />
+                            <TextBlock
+                                Style="{StaticResource SectionSubtitle}"
+                                Text="Build, resume, inspect, verify, export, and safely clean up Phoenix offline content." />
+                        </StackPanel>
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="2*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="Name" Margin="4" VerticalAlignment="Center" />
+                                <TextBox Grid.Column="1" x:Name="RecoveryBundleNameText" Text="Phoenix Recovery" />
+                                <TextBlock Grid.Column="2" Text="Bundle path" Margin="12,4,4,4" VerticalAlignment="Center" />
+                                <TextBox Grid.Column="3" x:Name="RecoveryBundlePathText" ToolTip="Destination or existing Phoenix bundle folder" />
+                            </Grid>
+                        </Border>
+                        <Border Grid.Row="2" Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Input files" FontWeight="SemiBold" />
+                                <TextBlock
+                                    Margin="0,3,0,7"
+                                    Foreground="{DynamicResource PhoenixMutedBrush}"
+                                    Text="Enter one full file path per line. Existing content is deduplicated when a build resumes." />
+                                <TextBox
+                                    x:Name="RecoveryBundleInputText"
+                                    MinHeight="92"
+                                    AcceptsReturn="True"
+                                    TextWrapping="NoWrap"
+                                    VerticalScrollBarVisibility="Auto"
+                                    HorizontalScrollBarVisibility="Auto" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="3" Style="{StaticResource CardBorder}">
+                            <TextBox
+                                x:Name="RecoveryBundleSummaryText"
+                                IsReadOnly="True"
+                                FontFamily="Consolas"
+                                TextWrapping="Wrap"
+                                VerticalScrollBarVisibility="Auto"
+                                Text="Choose a bundle path to build or inspect." />
+                        </Border>
+                        <WrapPanel Grid.Row="4" Margin="0,10,0,0">
+                            <Button
+                                x:Name="BuildRecoveryBundleButton"
+                                Style="{StaticResource ModernButton}"
+                                Content="Build / resume" />
+                            <Button
+                                x:Name="InspectRecoveryBundleButton"
+                                Style="{StaticResource SecondaryButton}"
+                                Content="Inspect" />
+                            <Button
+                                x:Name="VerifyRecoveryBundleButton"
+                                Style="{StaticResource SecondaryButton}"
+                                Content="Verify" />
+                            <Button
+                                x:Name="RemoveRecoveryBundleButton"
+                                Style="{StaticResource DangerButton}"
+                                Content="Clean up bundle" />
+                        </WrapPanel>
                     </Grid>
 
                     <Grid x:Name="ActivityPage" Visibility="Collapsed">

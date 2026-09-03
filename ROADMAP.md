@@ -66,7 +66,7 @@ release gates before the next milestone begins.
 - [x] `v0.2.6` - Offline driver export, cataloging, and hardware matching
 - [x] `v0.2.7` - Bundle integrity, provenance, licensing, and trust verification
 - [x] `v0.2.8` - Offline-bundle build, update, inspect, and verify commands
-- [ ] `v0.2.9` - Offline-bundle Control Center workflow with resume and cleanup
+- [x] `v0.2.9` - Offline-bundle Control Center workflow with resume and cleanup
 - [ ] `v0.2.10` - Windows ADK and WinPE prerequisite discovery and diagnostics
 - [ ] `v0.2.11` - Transactional WinPE workspace and image construction
 - [ ] `v0.2.12` - Bootable ISO creation and guarded removable-media staging
@@ -133,8 +133,8 @@ release gates before the next milestone begins.
 - [x] Record publisher signatures when available and make trust policy visible.
 - [ ] Generate a software bill of materials and third-party license inventory.
 - [x] Support incremental bundle refresh without rebuilding unchanged content.
-- [ ] Support cancellation, retry, checkpoint resume, and safe partial cleanup.
-- [ ] Add PowerShell commands and a Control Center workflow to build, inspect,
+- [x] Support cancellation, retry, checkpoint resume, and safe partial cleanup.
+- [x] Add PowerShell commands and a Control Center workflow to build, inspect,
       update, verify, export, and remove Phoenix-owned bundles.
 
 ## 4. Windows ADK, WinPE, and bootable media

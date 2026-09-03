@@ -389,6 +389,81 @@ try {
             $verification
         }
 
+        'OfflineBundleBuild' {
+            Write-PhoenixWorkerProgress `
+                -Percent 10 `
+                -Message 'Preparing the Phoenix recovery bundle...'
+
+            [string]$bundlePath =
+                [string]$request.Parameters.Path
+
+            if (Test-Path -LiteralPath $bundlePath -PathType Container) {
+                Write-PhoenixWorkerProgress `
+                    -Percent 35 `
+                    -Message 'Resuming the content-addressed bundle build...'
+
+                Update-PhoenixOfflineBundle `
+                    -Path $bundlePath `
+                    -InputFile @($request.Parameters.InputFile) `
+                    -Confirm:$false |
+                    Out-Null
+            }
+            else {
+                Write-PhoenixWorkerProgress `
+                    -Percent 35 `
+                    -Message 'Building the content-addressed bundle...'
+
+                New-PhoenixOfflineBundle `
+                    -Path $bundlePath `
+                    -Name ([string]$request.Parameters.Name) `
+                    -Description ([string]$request.Parameters.Description) `
+                    -InputFile @($request.Parameters.InputFile) `
+                    -Confirm:$false |
+                    Out-Null
+            }
+
+            Write-PhoenixWorkerProgress `
+                -Percent 85 `
+                -Message 'Verifying every bundle object...'
+
+            Get-PhoenixOfflineBundle `
+                -Path $bundlePath
+        }
+
+        'OfflineBundleInspect' {
+            Write-PhoenixWorkerProgress `
+                -Percent 40 `
+                -Message 'Inspecting the Phoenix recovery bundle...'
+
+            Get-PhoenixOfflineBundle `
+                -Path ([string]$request.Parameters.Path)
+        }
+
+        'OfflineBundleVerify' {
+            Write-PhoenixWorkerProgress `
+                -Percent 25 `
+                -Message 'Hash-verifying the Phoenix recovery bundle...'
+
+            Test-PhoenixOfflineBundle `
+                -Path ([string]$request.Parameters.Path) `
+                -Policy ([string]$request.Parameters.Policy)
+        }
+
+        'OfflineBundleRemove' {
+            Write-PhoenixWorkerProgress `
+                -Percent 30 `
+                -Message 'Validating Phoenix bundle ownership before cleanup...'
+
+            Remove-PhoenixOfflineBundle `
+                -Path ([string]$request.Parameters.Path) `
+                -Confirm:$false
+
+            [pscustomobject]@{
+                Removed = $true
+                Path = [string]$request.Parameters.Path
+            }
+        }
+
         default {
             throw (
                 "Unsupported Control Center worker action '$($request.Action)'."

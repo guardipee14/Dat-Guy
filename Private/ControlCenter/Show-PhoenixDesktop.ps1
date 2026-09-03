@@ -53,6 +53,7 @@ function Show-PhoenixDesktop {
             'ApplicationsNavButton'
             'DriversNavButton'
             'RestorePlanNavButton'
+            'RecoveryBundleNavButton'
             'ActivityNavButton'
             'CustomizeNavButton'
             'HeaderSubtitle'
@@ -61,6 +62,7 @@ function Show-PhoenixDesktop {
             'ApplicationsPage'
             'DriversPage'
             'RestorePlanPage'
+            'RecoveryBundlePage'
             'ActivityPage'
             'CustomizePage'
             'EditLayoutButton'
@@ -135,6 +137,14 @@ function Show-PhoenixDesktop {
             'ExecuteRestorePlanButton'
             'ResumeRestoreButton'
             'VerifyRestoreButton'
+            'RecoveryBundleNameText'
+            'RecoveryBundlePathText'
+            'RecoveryBundleInputText'
+            'RecoveryBundleSummaryText'
+            'BuildRecoveryBundleButton'
+            'InspectRecoveryBundleButton'
+            'VerifyRecoveryBundleButton'
+            'RemoveRecoveryBundleButton'
             'ActivityGrid'
             'ActivityCancelButton'
             'ActivityRetryButton'
@@ -259,6 +269,7 @@ function Show-PhoenixDesktop {
         RestorePlan   = $null
         RestorePlanPath = ''
         RestoreSessionId = ''
+        RecoveryBundlePath = ''
         UiConfiguration = $uiConfiguration
         EditMode       = $false
         Themes         = @()
@@ -441,6 +452,10 @@ function Show-PhoenixDesktop {
         RestorePlan = [pscustomobject]@{
             Page   = $controls.RestorePlanPage
             Button = $controls.RestorePlanNavButton
+        }
+        RecoveryBundle = [pscustomobject]@{
+            Page   = $controls.RecoveryBundlePage
+            Button = $controls.RecoveryBundleNavButton
         }
         Activity = [pscustomobject]@{
             Page   = $controls.ActivityPage
@@ -3154,6 +3169,151 @@ function Show-PhoenixDesktop {
             & $showPage $resolvedPageName
         }.GetNewClosure())
     }
+
+    $formatRecoveryBundleSummary = {
+        param(
+            [Parameter()]
+            [AllowNull()]
+            [object]$Bundle
+        )
+
+        if ($null -eq $Bundle) {
+            return 'No recovery-bundle result was returned.'
+        }
+
+        if ($null -ne $Bundle.PSObject.Properties['Success']) {
+            return @(
+                "Bundle ID       : $($Bundle.BundleId)"
+                "Success         : $($Bundle.Success)"
+                "Policy          : $($Bundle.Policy)"
+                "Manifest valid  : $($Bundle.ManifestValid)"
+                "Integrity valid : $($Bundle.IntegrityValid)"
+                "Provenance valid: $($Bundle.ProvenanceValid)"
+                "License valid   : $($Bundle.LicenseValid)"
+                "Trust valid     : $($Bundle.TrustValid)"
+                "Objects checked : $($Bundle.CheckedObjectCount)"
+                "Warnings        : $(@($Bundle.Warnings) -join '; ')"
+                "Errors          : $(@($Bundle.Errors) -join '; ')"
+            ) -join [Environment]::NewLine
+        }
+
+        return @(
+            "Bundle ID      : $($Bundle.BundleId)"
+            "Name           : $($Bundle.Name)"
+            "Path           : $($Bundle.Path)"
+            "Objects        : $($Bundle.ObjectCount)"
+            "Bytes          : $($Bundle.TotalBytes)"
+            "Integrity valid: $($Bundle.IntegrityValid)"
+            "Updated UTC    : $($Bundle.UpdatedAtUtc)"
+            "Warnings       : $(@($Bundle.Warnings) -join '; ')"
+        ) -join [Environment]::NewLine
+    }.GetNewClosure()
+
+    $controls.BuildRecoveryBundleButton.Add_Click({
+        [string]$bundlePath = $controls.RecoveryBundlePathText.Text.Trim()
+        [string]$bundleName = $controls.RecoveryBundleNameText.Text.Trim()
+
+        if ([string]::IsNullOrWhiteSpace($bundlePath) -or [string]::IsNullOrWhiteSpace($bundleName)) {
+            & $setStatus 'A recovery-bundle name and full destination path are required.'
+            return
+        }
+
+        [string[]]$inputFiles = @(
+            $controls.RecoveryBundleInputText.Text -split '[\r\n]+' |
+                ForEach-Object { $_.Trim() } |
+                Where-Object { -not [string]::IsNullOrWhiteSpace($_) }
+        )
+
+        $bundleControls = $controls
+        $bundleState = $state
+        $bundleFormatter = $formatRecoveryBundleSummary
+
+        & $startOperation `
+            -Action 'OfflineBundleBuild' `
+            -Parameters @{
+                Path = $bundlePath
+                Name = $bundleName
+                Description = 'Phoenix Control Center recovery bundle'
+                InputFile = $inputFiles
+            } `
+            -Description "Build or resume recovery bundle '$bundleName'..." `
+            -ConcurrencyKey 'OfflineBundle' `
+            -TimeoutSeconds 3600 `
+            -Completed {
+                param($result)
+                $bundleState.RecoveryBundlePath = [string]$result.Path
+                $bundleControls.RecoveryBundleSummaryText.Text = & $bundleFormatter $result
+            }.GetNewClosure()
+    }.GetNewClosure())
+
+    $controls.InspectRecoveryBundleButton.Add_Click({
+        [string]$bundlePath = $controls.RecoveryBundlePathText.Text.Trim()
+
+        if ([string]::IsNullOrWhiteSpace($bundlePath)) {
+            & $setStatus 'A Phoenix recovery-bundle path is required.'
+            return
+        }
+
+        $bundleControls = $controls
+        $bundleFormatter = $formatRecoveryBundleSummary
+
+        & $startOperation `
+            -Action 'OfflineBundleInspect' `
+            -Parameters @{ Path = $bundlePath } `
+            -Description 'Inspecting recovery bundle...' `
+            -ConcurrencyKey 'OfflineBundle' `
+            -Completed {
+                param($result)
+                $bundleControls.RecoveryBundleSummaryText.Text = & $bundleFormatter $result
+            }.GetNewClosure()
+    }.GetNewClosure())
+
+    $controls.VerifyRecoveryBundleButton.Add_Click({
+        [string]$bundlePath = $controls.RecoveryBundlePathText.Text.Trim()
+
+        if ([string]::IsNullOrWhiteSpace($bundlePath)) {
+            & $setStatus 'A Phoenix recovery-bundle path is required.'
+            return
+        }
+
+        $bundleControls = $controls
+        $bundleFormatter = $formatRecoveryBundleSummary
+
+        & $startOperation `
+            -Action 'OfflineBundleVerify' `
+            -Parameters @{ Path = $bundlePath; Policy = 'IntegrityOnly' } `
+            -Description 'Verifying recovery bundle...' `
+            -ConcurrencyKey 'OfflineBundle' `
+            -Completed {
+                param($result)
+                $bundleControls.RecoveryBundleSummaryText.Text = & $bundleFormatter $result
+            }.GetNewClosure()
+    }.GetNewClosure())
+
+    $controls.RemoveRecoveryBundleButton.Add_Click({
+        [string]$bundlePath = $controls.RecoveryBundlePathText.Text.Trim()
+
+        if ([string]::IsNullOrWhiteSpace($bundlePath)) {
+            & $setStatus 'A Phoenix recovery-bundle path is required.'
+            return
+        }
+
+        if (-not (& $confirmAction "Permanently remove the Phoenix-owned recovery bundle at '$bundlePath'?")) {
+            return
+        }
+
+        $bundleControls = $controls
+
+        & $startOperation `
+            -Action 'OfflineBundleRemove' `
+            -Parameters @{ Path = $bundlePath } `
+            -Description 'Cleaning up recovery bundle...' `
+            -ConcurrencyKey 'OfflineBundle' `
+            -Completed {
+                param($result)
+                $bundleControls.RecoveryBundleSummaryText.Text = "Removed Phoenix recovery bundle:`n$($result.Path)"
+            }.GetNewClosure()
+    }.GetNewClosure())
 
     $controls.OpenAppsFromDashboardButton.Add_Click({
         & $showPage 'Applications'
