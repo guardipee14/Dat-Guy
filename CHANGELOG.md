@@ -12,6 +12,28 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.9] - 2026-09-02
+
+### Added
+- add a dedicated Recovery Bundle page to the Control Center for bundle name,
+  path, selected input files, verification summaries, and cleanup status
+- route build/resume, inspect, integrity verification, and removal through the
+  isolated Control Center worker
+- serialize recovery-bundle mutations with the `OfflineBundle` concurrency key
+  and apply a bounded timeout to long build work
+- resume existing content-addressed bundle roots through incremental update
+  rather than rebuilding unchanged content
+- require an explicit UI confirmation before ownership-safe bundle cleanup
+- add focused regression coverage for control binding, worker routing,
+  resumable execution, and separation from later deployment UI
+
+### Validated
+- pass Phoenix class generation, XAML parsing, and module import validation
+- analyze 195 PowerShell files with PSScriptAnalyzer 1.25.0 and report zero
+  errors and zero blocking findings
+- pass all 4 focused Control Center recovery-bundle regression tests
+- pass all 418 integration, regression, and unit tests
+
 ## [0.2.8] - 2026-09-02
 
 ### Added

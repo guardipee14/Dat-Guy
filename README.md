@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.8`
+**Current release:** `v0.2.9`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.8](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.8)
+**Latest release:** [Phoenix v0.2.9](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.9)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -55,6 +55,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 
 ### Control Center and background work
 
+- Build or resume, inspect, verify, and safely clean up recovery bundles from a dedicated Control Center page.
 - Keep the desktop responsive by running provider checks, inventory, searches, restore work, and application or driver operations in isolated workers.
 - Queue operations through a bounded FIFO scheduler instead of allowing conflicting work to run at the same time.
 - Monitor queued, running, completed, cancelled, and failed operations from the Activity view.
@@ -71,7 +72,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build versioned release archives with file manifests and SHA-256 verification.
 - Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.
 
-> Phoenix v0.2.8 adds the offline-bundle build, inspect, update, export, verification, and safe-removal command surface. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).
+> Phoenix v0.2.9 completes the offline recovery-bundle line with an isolated, resumable Control Center workflow and ownership-safe cleanup. WinPE and deployment work continues in [ROADMAP.md](ROADMAP.md).
 
 ## Available commands
 
