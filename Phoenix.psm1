@@ -61,6 +61,7 @@ Export-ModuleMember -Function @(
     'Start-PhoenixRestoreJob'
     'Stop-PhoenixJob'
     'Test-PhoenixRestoreVerification'
+    'Test-PhoenixOfflineBundle'
     'Update-Phoenix'
     'Remove-PhoenixPackage'
     'Update-PhoenixPackage'

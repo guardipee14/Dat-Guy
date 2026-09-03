@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.6`
+**Current release:** `v0.2.7`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.6](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.6)
+**Latest release:** [Phoenix v0.2.7](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.7)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -49,6 +49,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Report unavailable, unsupported, failed, reused, acquired, and user-supplied-media requirements explicitly instead of silently skipping content.
 - Export installed third-party driver packages into the content-addressed store and catalog normalized hardware identities, provider, class, version, architecture, date, and signing state.
 - Rank compatible offline driver packages deterministically against target hardware without installing them.
+- Verify bundle hashes, provenance, redistributable-license approval, and trusted-publisher records through explicit fail-closed policies.
 
 ### Control Center and background work
 
@@ -68,7 +69,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build versioned release archives with file manifests and SHA-256 verification.
 - Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.
 
-> Phoenix v0.2.6 adds offline driver export, cataloging, and hardware matching. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).
+> Phoenix v0.2.7 adds bundle integrity, provenance, licensing, and trusted-publisher verification. Additional offline-recovery work is tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Available commands
 
@@ -94,6 +95,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 | `Start-PhoenixRestoreJob` | Available | Exported Phoenix command. |
 | `Stop-PhoenixJob` | Available | Exported Phoenix command. |
 | `Test-PhoenixRestoreVerification` | Available | Exported Phoenix command. |
+| `Test-PhoenixOfflineBundle` | Available | Verify bundle integrity and optionally enforce provenance, redistribution, and publisher-trust policy. |
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |

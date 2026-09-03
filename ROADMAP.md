@@ -64,7 +64,7 @@ release gates before the next milestone begins.
 - [x] `v0.2.4` - Versioned offline-bundle schema and content-addressed store
 - [x] `v0.2.5` - Offline application acquisition and provider export adapters
 - [x] `v0.2.6` - Offline driver export, cataloging, and hardware matching
-- [ ] `v0.2.7` - Bundle integrity, provenance, licensing, and trust verification
+- [x] `v0.2.7` - Bundle integrity, provenance, licensing, and trust verification
 - [ ] `v0.2.8` - Offline-bundle build, update, inspect, and verify commands
 - [ ] `v0.2.9` - Offline-bundle Control Center workflow with resume and cleanup
 - [ ] `v0.2.10` - Windows ADK and WinPE prerequisite discovery and diagnostics
@@ -128,7 +128,7 @@ release gates before the next milestone begins.
 - [x] Export third-party drivers with INF, catalog, binary, provider, class,
       version, architecture, hardware IDs, and signature details.
 - [x] Match exported drivers to target hardware without installing them.
-- [ ] Verify every payload length and hash before sealing a bundle and again
+- [x] Verify every payload length and hash before sealing a bundle and again
       before consuming it.
 - [ ] Record publisher signatures when available and make trust policy visible.
 - [ ] Generate a software bill of materials and third-party license inventory.
