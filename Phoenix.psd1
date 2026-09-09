@@ -12,7 +12,7 @@
 RootModule = 'Phoenix.psm1'
 
 # Version number of this module.
-    ModuleVersion = '0.2.10'
+    ModuleVersion = '0.2.11'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -83,6 +83,7 @@ FunctionsToExport = @(
     'Invoke-PhoenixRestorePlan'
     'New-PhoenixOfflineBundle'
     'New-PhoenixRestorePlan'
+    'New-PhoenixWinPEWorkspace'
     'New-PhoenixRestoreCheckpoint'
     'Repair-PhoenixPackage'
     'Receive-PhoenixJob'
@@ -98,6 +99,7 @@ FunctionsToExport = @(
     'Update-Phoenix'
     'Remove-PhoenixPackage'
     'Remove-PhoenixOfflineBundle'
+    'Remove-PhoenixWinPEWorkspace'
     'Update-PhoenixPackage'
     'Update-PhoenixOfflineBundle'
     'Open-Phoenix'

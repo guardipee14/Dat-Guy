@@ -12,6 +12,31 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.11] - 2026-09-09
+
+### Added
+- add a typed, versioned WinPE workspace contract with source-WIM identity,
+  source-media location, owned paths, lifecycle state, and timestamps
+- create transactional Phoenix-owned WinPE workspaces from explicit media and
+  WIM inputs or the v0.2.10 prerequisite result
+- preserve source inputs while staging private media and a private `boot.wim`
+  copy for later servicing
+- publish ownership and workspace metadata atomically and remove partial
+  destinations when staging fails
+- reject source reparse points, existing destinations, unowned roots, identity
+  mismatches, mounted workspaces, and reparse points introduced before cleanup
+- export guarded create, preview, and ownership-safe removal commands
+
+### Validated
+- verify preview, source preservation, successful creation, failure rollback,
+  ownership mismatch refusal, unowned-root refusal, and exact cleanup
+- preserve the boundary that ISO creation, removable-media staging, Windows
+  image servicing, and deployment execution remain absent
+- pass Phoenix class generation and module import validation
+- analyze 201 PowerShell files with PSScriptAnalyzer 1.25.0 and report zero
+  errors and zero blocking findings
+- pass all 427 integration, regression, and unit tests
+
 ## [0.2.10] - 2026-09-09
 
 ### Added
