@@ -12,6 +12,26 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.12] - 2026-09-09
+
+### Added
+- build a bootable ISO using the discovered ADK Oscdimg and its boot-sector files
+- inspect source payload hashes, preserve source media, reject existing outputs,
+  and remove a failed ISO output
+- require disk number, unique identity, serial, size, bus, administrator privileges,
+  and typed confirmation before removable-media staging
+- recheck identity before erasure; block system/source disks, read-only/offline
+  targets, insufficient capacity, and FAT32-incompatible payloads
+- verify written file lengths and SHA-256 hashes and constrain workspace metadata
+  to exact owned paths
+
+### Validation
+- 14 focused tests cover previews, refusal paths, changed identities, and failures
+- actual ADK build on DONAVEN produced a 395,714,560-byte ISO; read-only mounting
+  verified all 191 staged files and an unchanged source WIM
+- physical USB writing and booting this new ISO were not performed in this gate;
+  removable-storage mutation is covered by mocked refusal tests
+
 ## [0.2.11] - 2026-09-09
 
 ### Added

@@ -43,6 +43,8 @@ foreach ($Folder in $Folders) {
 
 Export-ModuleMember -Function @(
     'Backup-Phoenix'
+    'Copy-PhoenixBootableMedia'
+    'New-PhoenixBootableIso'
     'Export-PhoenixOfflineBundle'
     'Get-PhoenixContext'
     'Get-PhoenixDeploymentPrerequisite'

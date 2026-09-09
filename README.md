@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.11`
+**Current release:** `v0.2.12`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.11](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.11)
+**Latest release:** [Phoenix v0.2.12](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.12)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -80,13 +80,15 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build versioned release archives with file manifests and SHA-256 verification.
 - Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.
 
-> Phoenix v0.2.11 adds transactional WinPE workspace construction and ownership-safe cleanup. Boot-media creation, image servicing, and deployment remain tracked in [ROADMAP.md](ROADMAP.md).
+> Phoenix v0.2.12 adds ADK bootable ISO creation and guarded removable-media staging. The ISO was built and its payload verified on DONAVEN. Physical USB writing has not been certified; see [boot-media guidance](Docs/Boot-Media.md).
 
 ## Available commands
 
 | Command | Status | Purpose |
 |---|---|---|
 | `Backup-Phoenix` | Available | Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata. |
+| `New-PhoenixBootableIso` | Available | Build a bootable ISO from a Ready workspace using ADK Oscdimg. |
+| `Copy-PhoenixBootableMedia` | Lab validation | Preview and stage verified media to an explicitly identified removable disk. |
 | `Export-PhoenixOfflineBundle` | Available | Copy a verified Phoenix offline bundle to a new destination. |
 | `Get-PhoenixContext` | Available | Return the active Phoenix runtime context and optionally require a ready lifecycle. |
 | `Get-PhoenixDeploymentPrerequisite` | Available | Discover supported x64 Windows ADK and WinPE prerequisites without changing the host. |
@@ -183,7 +185,7 @@ New-PhoenixWinPEWorkspace -Path '.\Work\WinPE' -Prerequisite $readiness -WhatIf
 - Phoenix is currently Windows-only and is under active development.
 - Offline recovery and deployment capabilities are being delivered incrementally; see [ROADMAP.md](ROADMAP.md) for the current milestone status.
 - Restore does not currently include user profiles, application data, or complete Windows settings migration.
-- Boot-media writing, Windows-image servicing, disk, and deployment workflows remain unavailable until their roadmap safety and VM-validation gates are complete.
+- Windows-image servicing and deployment workflows remain on the roadmap. Physical removable-media writing remains subject to the documented lab-validation boundary.
 
 ## Project layout
 
