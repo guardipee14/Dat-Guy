@@ -15,6 +15,7 @@ function Get-PhoenixWinPEWorkspaceOwnedInfo {
         throw "WinPE workspace root must be a regular directory: $Path"
     }
 
+    Test-PhoenixRegularDirectoryTree -Path $root.FullName
     [string]$markerPath = Join-Path $root.FullName '.phoenix-winpe-workspace'
     [string]$metadataPath = Join-Path $root.FullName 'workspace.json'
 
@@ -32,6 +33,7 @@ function Get-PhoenixWinPEWorkspaceOwnedInfo {
 
     if (
         [string]$marker.Schema -cne 'PhoenixWinPEWorkspaceOwnership' -or
+        [string]$marker.SchemaVersion -cne '1.0' -or
         [string]$marker.WorkspaceId -cne [string]$rawWorkspace.WorkspaceId
     ) {
         throw 'WinPE workspace ownership and metadata identities do not match.'
@@ -52,6 +54,12 @@ function Get-PhoenixWinPEWorkspaceOwnedInfo {
 
     if (-not [string]::Equals($workspace.RootPath, $root.FullName, [StringComparison]::OrdinalIgnoreCase)) {
         throw 'Phoenix WinPE workspace metadata does not identify its current root.'
+    }
+
+    foreach ($entry in @{ MediaPath='media'; MountPath='mount' }.GetEnumerator()) {
+        if (-not [string]::Equals($workspace.($entry.Key), (Join-Path $root.FullName $entry.Value), [StringComparison]::OrdinalIgnoreCase)) {
+            throw 'WinPE workspace paths must identify their exact owned directories.'
+        }
     }
 
     return [pscustomobject]@{
@@ -95,6 +103,7 @@ function Test-PhoenixRegularDirectoryTree {
         [string]$Path
     )
 
+    Test-PhoenixPathAncestors -Path $Path
     [IO.DirectoryInfo]$root = Get-Item -LiteralPath $Path -Force -ErrorAction Stop
 
     if (
