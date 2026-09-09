@@ -67,7 +67,7 @@ release gates before the next milestone begins.
 - [x] `v0.2.7` - Bundle integrity, provenance, licensing, and trust verification
 - [x] `v0.2.8` - Offline-bundle build, update, inspect, and verify commands
 - [x] `v0.2.9` - Offline-bundle Control Center workflow with resume and cleanup
-- [ ] `v0.2.10` - Windows ADK and WinPE prerequisite discovery and diagnostics
+- [x] `v0.2.10` - Windows ADK and WinPE prerequisite discovery and diagnostics
 - [ ] `v0.2.11` - Transactional WinPE workspace and image construction
 - [ ] `v0.2.12` - Bootable ISO creation and guarded removable-media staging
 - [ ] `v0.2.13` - Transactional offline Windows-image mount and servicing engine

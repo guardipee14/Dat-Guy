@@ -44,6 +44,7 @@ Export-ModuleMember -Function @(
     'Backup-Phoenix'
     'Export-PhoenixOfflineBundle'
     'Get-PhoenixContext'
+    'Get-PhoenixDeploymentPrerequisite'
     'Get-PhoenixOfflineBundle'
     'Get-PhoenixRestoreCheckpoint'
     'Get-PhoenixPackages'

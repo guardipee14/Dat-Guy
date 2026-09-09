@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.9`
+**Current release:** `v0.2.10`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.9](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.9)
+**Latest release:** [Phoenix v0.2.10](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.10)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -53,6 +53,12 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build, inspect, incrementally update, export, and ownership-safely remove Phoenix offline bundles while reusing unchanged content.
 - Capture source provenance, Authenticode status, and publisher identity for eligible bundle payloads.
 
+### WinPE prerequisite diagnostics
+
+- Discover the Windows Kits root and supported x64 Windows ADK and WinPE locations without changing the host.
+- Report ADK DISM, Oscdimg, the WinPE base WIM, media tree, and optional-component availability with exact paths.
+- Return typed readiness results containing host architecture support, missing requirements, warnings, versions, and check time.
+
 ### Control Center and background work
 
 - Build or resume, inspect, verify, and safely clean up recovery bundles from a dedicated Control Center page.
@@ -72,7 +78,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build versioned release archives with file manifests and SHA-256 verification.
 - Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.
 
-> Phoenix v0.2.9 completes the offline recovery-bundle line with an isolated, resumable Control Center workflow and ownership-safe cleanup. WinPE and deployment work continues in [ROADMAP.md](ROADMAP.md).
+> Phoenix v0.2.10 begins the WinPE release line with read-only ADK and WinPE prerequisite discovery. Workspace construction, boot-media creation, image servicing, and deployment remain tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Available commands
 
@@ -81,6 +87,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 | `Backup-Phoenix` | Available | Create a versioned JSON restore manifest containing inventory, installed drivers, packages, and provider metadata. |
 | `Export-PhoenixOfflineBundle` | Available | Copy a verified Phoenix offline bundle to a new destination. |
 | `Get-PhoenixContext` | Available | Return the active Phoenix runtime context and optionally require a ready lifecycle. |
+| `Get-PhoenixDeploymentPrerequisite` | Available | Discover supported x64 Windows ADK and WinPE prerequisites without changing the host. |
 | `Get-PhoenixOfflineBundle` | Available | Inspect a Phoenix-owned offline bundle and its integrity summary. |
 | `Get-PhoenixRestoreCheckpoint` | Available | Exported Phoenix command. |
 | `Get-PhoenixPackages` | Available | Enumerate installed packages reported by active providers. |
@@ -149,6 +156,9 @@ Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -WhatIf
 
 # Restore drivers first and reinstall missing packages
 Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended -Confirm:$false
+
+# Discover Windows ADK and WinPE readiness without changing the host
+Get-PhoenixDeploymentPrerequisite
 ```
 
 ## Application and package sources
@@ -166,7 +176,7 @@ Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended
 - Phoenix is currently Windows-only and is under active development.
 - Offline recovery and deployment capabilities are being delivered incrementally; see [ROADMAP.md](ROADMAP.md) for the current milestone status.
 - Restore does not currently include user profiles, application data, or complete Windows settings migration.
-- Destructive deployment, disk, WinPE, and boot-media workflows remain unavailable until their roadmap safety and VM-validation gates are complete.
+- WinPE workspace construction, boot-media writing, image servicing, disk, and deployment workflows remain unavailable until their roadmap safety and VM-validation gates are complete.
 
 ## Project layout
 
