@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.10`
+**Current release:** `v0.2.11`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.10](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.10)
+**Latest release:** [Phoenix v0.2.11](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.11)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -53,11 +53,13 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build, inspect, incrementally update, export, and ownership-safely remove Phoenix offline bundles while reusing unchanged content.
 - Capture source provenance, Authenticode status, and publisher identity for eligible bundle payloads.
 
-### WinPE prerequisite diagnostics
+### WinPE prerequisites and workspaces
 
 - Discover the Windows Kits root and supported x64 Windows ADK and WinPE locations without changing the host.
 - Report ADK DISM, Oscdimg, the WinPE base WIM, media tree, and optional-component availability with exact paths.
 - Return typed readiness results containing host architecture support, missing requirements, warnings, versions, and check time.
+- Create versioned Phoenix-owned WinPE workspaces without modifying source media or the base WIM.
+- Preview creation, roll back partial staging failures, and remove only exact, unmounted, ownership-verified workspaces.
 
 ### Control Center and background work
 
@@ -78,7 +80,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Build versioned release archives with file manifests and SHA-256 verification.
 - Independently verify published archives, checksums, installation, upgrades, uninstall behavior, and complete removal.
 
-> Phoenix v0.2.10 begins the WinPE release line with read-only ADK and WinPE prerequisite discovery. Workspace construction, boot-media creation, image servicing, and deployment remain tracked in [ROADMAP.md](ROADMAP.md).
+> Phoenix v0.2.11 adds transactional WinPE workspace construction and ownership-safe cleanup. Boot-media creation, image servicing, and deployment remain tracked in [ROADMAP.md](ROADMAP.md).
 
 ## Available commands
 
@@ -97,6 +99,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 | `Invoke-PhoenixRestorePlan` | Available | Exported Phoenix command. |
 | `New-PhoenixOfflineBundle` | Available | Build a Phoenix-owned content-addressed offline bundle from selected files. |
 | `New-PhoenixRestorePlan` | Available | Exported Phoenix command. |
+| `New-PhoenixWinPEWorkspace` | Available | Create a transactional Phoenix-owned WinPE workspace from preserved source inputs. |
 | `New-PhoenixRestoreCheckpoint` | Available | Exported Phoenix command. |
 | `Repair-PhoenixPackage` | Available | Repair a supported package using silent or interactive provider behavior. |
 | `Receive-PhoenixJob` | Available | Exported Phoenix command. |
@@ -112,6 +115,7 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 | `Update-Phoenix` | Available | Install applicable Windows Update drivers first, then update packages, and return structured results. |
 | `Remove-PhoenixPackage` | Available | Uninstall a package through WinGet or Chocolatey with elevation support. |
 | `Remove-PhoenixOfflineBundle` | Available | Remove only a verified Phoenix-owned offline-bundle root. |
+| `Remove-PhoenixWinPEWorkspace` | Available | Remove only an exact, unmounted, ownership-verified WinPE workspace. |
 | `Update-PhoenixPackage` | Available | Update one package and safely classify installer-technology migrations. |
 | `Update-PhoenixOfflineBundle` | Available | Incrementally add selected content while reusing unchanged objects. |
 | `Open-Phoenix` | Available | Exported Phoenix command. |
@@ -158,7 +162,10 @@ Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -WhatIf
 Restore-Phoenix -ManifestPath '.\PhoenixManifest\PhoenixBackup.json' -Unattended -Confirm:$false
 
 # Discover Windows ADK and WinPE readiness without changing the host
-Get-PhoenixDeploymentPrerequisite
+$readiness = Get-PhoenixDeploymentPrerequisite
+
+# Preview a transactional WinPE workspace without writing it
+New-PhoenixWinPEWorkspace -Path '.\Work\WinPE' -Prerequisite $readiness -WhatIf
 ```
 
 ## Application and package sources
@@ -176,7 +183,7 @@ Get-PhoenixDeploymentPrerequisite
 - Phoenix is currently Windows-only and is under active development.
 - Offline recovery and deployment capabilities are being delivered incrementally; see [ROADMAP.md](ROADMAP.md) for the current milestone status.
 - Restore does not currently include user profiles, application data, or complete Windows settings migration.
-- WinPE workspace construction, boot-media writing, image servicing, disk, and deployment workflows remain unavailable until their roadmap safety and VM-validation gates are complete.
+- Boot-media writing, Windows-image servicing, disk, and deployment workflows remain unavailable until their roadmap safety and VM-validation gates are complete.
 
 ## Project layout
 

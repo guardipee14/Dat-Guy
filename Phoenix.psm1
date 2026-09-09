@@ -17,6 +17,7 @@ $Folders = @(
     'Private\Inventory'
     'Private\Packages'
     'Private\OfflineBundle'
+    'Private\Deployment'
     'Public'
 )
 
@@ -54,6 +55,7 @@ Export-ModuleMember -Function @(
     'Invoke-PhoenixRestorePlan'
     'New-PhoenixOfflineBundle'
     'New-PhoenixRestorePlan'
+    'New-PhoenixWinPEWorkspace'
     'New-PhoenixRestoreCheckpoint'
     'Repair-PhoenixPackage'
     'Receive-PhoenixJob'
@@ -69,6 +71,7 @@ Export-ModuleMember -Function @(
     'Update-Phoenix'
     'Remove-PhoenixPackage'
     'Remove-PhoenixOfflineBundle'
+    'Remove-PhoenixWinPEWorkspace'
     'Update-PhoenixPackage'
     'Update-PhoenixOfflineBundle'
     'Open-Phoenix'
