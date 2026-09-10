@@ -72,7 +72,7 @@ release gates before the next milestone begins.
 - [x] `v0.2.12` - Bootable ISO creation and guarded removable-media staging
 - [x] `v0.2.13` - Transactional offline Windows-image mount and servicing engine
 - [x] `v0.2.14` - Offline driver, package, capability, and update injection
-- [ ] `v0.2.15` - Typed unattended answer-file generation and secret policy
+- [x] `v0.2.15` - Typed unattended answer-file generation and secret policy
 - [ ] `v0.2.16` - Disk-layout planning, validation, preview, and target identity
 - [ ] `v0.2.17` - Guarded deployment execution in disposable Windows VMs
 - [ ] `v0.2.18` - Deployment checkpoints, reboot resume, rollback, and diagnostics

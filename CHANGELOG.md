@@ -12,6 +12,18 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.15] - 2026-09-10
+
+### Added
+- typed x64 unattended configuration and XML generation with component identities and namespaced account actions
+- an Unattended Setup Control Center page that sends no credentials to background workers
+- atomically restricted current-user/SYSTEM file permissions and no-overwrite output creation
+- explicit deployment-only SecureString inclusion, safe failure messages, and deferred accounts in secret-free files
+
+### Validation boundary
+- generated XML has structural and secret-policy validation; image-specific Windows SIM/catalog validation and Windows Setup first-boot testing remain required
+- no account creation, Windows Setup execution, deployment invocation, or physical-disk changes occur during generation
+
 ## [0.2.14] - 2026-09-10
 
 ### Added

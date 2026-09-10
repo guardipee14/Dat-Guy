@@ -389,6 +389,12 @@ try {
             $verification
         }
 
+        'UnattendGenerate' {
+            Write-PhoenixWorkerProgress -Percent 30 -Message 'Generating a secret-free unattended setup file...'
+            $configuration = New-PhoenixUnattendConfiguration -ComputerName ([string]$request.Parameters.ComputerName) -Locale ([string]$request.Parameters.Locale) -TimeZone ([string]$request.Parameters.TimeZone) -LocalAccountName ([string]$request.Parameters.LocalAccountName)
+            New-PhoenixUnattendFile -Configuration $configuration -Path ([string]$request.Parameters.Path) -Confirm:$false
+        }
+
         'WindowsImageContent' {
             Write-PhoenixWorkerProgress -Percent 10 -Message 'Validating offline content before servicing...'
             Add-PhoenixWindowsImageContent -WorkspacePath ([string]$request.Parameters.Path) -Type ([string]$request.Parameters.Type) -Value @($request.Parameters.Value) -SourcePath ([string]$request.Parameters.SourcePath) -WhatIf:([bool]$request.Parameters.Preview) -Confirm:$false

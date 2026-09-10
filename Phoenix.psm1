@@ -43,6 +43,8 @@ foreach ($Folder in $Folders) {
 
 Export-ModuleMember -Function @(
     'Backup-Phoenix'
+    'New-PhoenixUnattendConfiguration'
+    'New-PhoenixUnattendFile'
     'Add-PhoenixWindowsImageContent'
     'Get-PhoenixWindowsImageWorkspace'
     'New-PhoenixWindowsImageWorkspace'
