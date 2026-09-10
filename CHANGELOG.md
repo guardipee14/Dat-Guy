@@ -12,6 +12,19 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.14] - 2026-09-10
+
+### Added
+- preview and add signed x64 INF drivers, applicable CAB packages/updates, and offline-source capabilities through Add-PhoenixWindowsImageContent
+- source hashing, isolated input staging, live mount revalidation, operation records, post-verification, duplicate skips, and restart-required safe stops
+- Windows Image Control Center inputs and serialized background preview/add actions
+
+### Safety and validation boundary
+- no ForceUnsigned, IgnoreCheck, automatic reboot, or online capability fallback
+- CAB update inputs only; MSU containers require separate inspection and extraction
+- real WinPE WMI/language and signed network-driver injection, commit persistence, duplicate handling, and source preservation verified on DONAVEN
+- capability behavior tested with mocks; no serviced-image boot certification or physical-disk writes claimed
+
 ## [0.2.13] - 2026-09-09
 
 ### Added

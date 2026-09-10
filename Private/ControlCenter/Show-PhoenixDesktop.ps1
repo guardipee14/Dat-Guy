@@ -67,6 +67,11 @@ function Show-PhoenixDesktop {
             'ImageCommitButton'
             'ImageDiscardButton'
             'ImageRemoveButton'
+            'ImageContentTypeCombo'
+            'ImageContentValuesText'
+            'ImageContentSourceText'
+            'ImageContentPreviewButton'
+            'ImageContentAddButton'
             'ActivityNavButton'
             'CustomizeNavButton'
             'HeaderSubtitle'
@@ -3209,6 +3214,27 @@ function Show-PhoenixDesktop {
             & $startOperation -Action 'WindowsImage' -Parameters @{
                 Operation = $selectedImageAction; Path = $workspacePath; SourceImagePath = $sourcePath; ImageIndex = $imageIndex
             } -Description "$selectedImageAction Windows image workspace..." -ConcurrencyKey 'WindowsImageServicing' -TimeoutSeconds 3600 -Completed {
+                param($result)
+                $imageControls.WindowsImageSummaryText.Text = $result | ConvertTo-Json -Depth 8
+            }.GetNewClosure()
+        }.GetNewClosure())
+    }
+
+    foreach ($contentMode in @('Preview', 'Add')) {
+        $previewContent = $contentMode -eq 'Preview'
+        $controls["ImageContent${contentMode}Button"].Add_Click({
+            $workspacePath = $controls.WindowsImagePathText.Text.Trim()
+            $contentValues = @($controls.ImageContentValuesText.Text -split '[\r\n]+' | ForEach-Object { $_.Trim() } | Where-Object { $_ })
+            if (-not [IO.Path]::IsPathFullyQualified($workspacePath) -or -not $contentValues.Count) {
+                & $setStatus 'Choose a full image workspace path and explicit servicing inputs.'
+                return
+            }
+            if (-not $previewContent -and -not (& $confirmAction "Add the selected content to the private mounted image at '$workspacePath'? Review Preview content first. Commit is a separate action.")) { return }
+            $imageControls = $controls
+            & $startOperation -Action 'WindowsImageContent' -Parameters @{
+                Path = $workspacePath; Type = [string]$controls.ImageContentTypeCombo.SelectedItem.Content
+                Value = $contentValues; SourcePath = $controls.ImageContentSourceText.Text.Trim(); Preview = $previewContent
+            } -Description 'Validating Windows image content...' -ConcurrencyKey 'WindowsImageServicing' -TimeoutSeconds 3600 -Completed {
                 param($result)
                 $imageControls.WindowsImageSummaryText.Text = $result | ConvertTo-Json -Depth 8
             }.GetNewClosure()

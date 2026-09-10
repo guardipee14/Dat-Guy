@@ -1172,6 +1172,15 @@
                                 <TextBox x:Name="WindowsImageIndexText" />
                                 <TextBlock Text="Phoenix image workspace (full path)" />
                                 <TextBox x:Name="WindowsImagePathText" />
+                                <TextBlock Text="Content type / explicit inputs (one INF, CAB, or capability name per line)" />
+                                <ComboBox x:Name="ImageContentTypeCombo" SelectedIndex="0">
+                                    <ComboBoxItem Content="Driver" />
+                                    <ComboBoxItem Content="Package" />
+                                    <ComboBoxItem Content="Capability" />
+                                </ComboBox>
+                                <TextBox x:Name="ImageContentValuesText" AcceptsReturn="True" Height="60" VerticalScrollBarVisibility="Auto" />
+                                <TextBlock Text="Offline capability source directory (required for capabilities)" />
+                                <TextBox x:Name="ImageContentSourceText" />
                                 <TextBlock TextWrapping="Wrap" Text="Mount, commit, and discard require an administrator token and ADK DISM. Failed transactions remain available for inspection; never delete a live mount." />
                             </StackPanel>
                         </Border>
@@ -1186,6 +1195,8 @@
                             <Button x:Name="ImageCommitButton" Style="{StaticResource DangerButton}" Content="Commit copy" />
                             <Button x:Name="ImageDiscardButton" Style="{StaticResource DangerButton}" Content="Discard changes" />
                             <Button x:Name="ImageRemoveButton" Style="{StaticResource DangerButton}" Content="Remove workspace" />
+                            <Button x:Name="ImageContentPreviewButton" Style="{StaticResource SecondaryButton}" Content="Preview content" />
+                            <Button x:Name="ImageContentAddButton" Style="{StaticResource DangerButton}" Content="Add content" />
                         </WrapPanel>
                     </Grid>
 

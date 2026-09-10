@@ -389,6 +389,11 @@ try {
             $verification
         }
 
+        'WindowsImageContent' {
+            Write-PhoenixWorkerProgress -Percent 10 -Message 'Validating offline content before servicing...'
+            Add-PhoenixWindowsImageContent -WorkspacePath ([string]$request.Parameters.Path) -Type ([string]$request.Parameters.Type) -Value @($request.Parameters.Value) -SourcePath ([string]$request.Parameters.SourcePath) -WhatIf:([bool]$request.Parameters.Preview) -Confirm:$false
+        }
+
         'WindowsImage' {
             $workspacePath = [string]$request.Parameters.Path
             Write-PhoenixWorkerProgress -Percent 10 -Message 'Validating image workspace and Windows servicing state...'

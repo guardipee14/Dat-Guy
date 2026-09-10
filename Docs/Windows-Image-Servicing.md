@@ -20,8 +20,8 @@ Select a local WIM/ESD file; direct ISO selection is not part of this command.
 
 Mount without `-ReadOnly` to allow edits to the isolated copy. Commit saves changes
 only to `images\working.wim`; discard abandons uncommitted changes. Phoenix does
-not modify the original image. Package and driver servicing commands are a later
-milestone. Commands support `-WhatIf`; mounting and dismounting require elevation.
+not modify the original image. v0.2.14 adds the content-injection workflow below.
+Commands support `-WhatIf`; mounting and dismounting require elevation.
 The Control Center does not silently elevate or install the ADK.
 
 Before each transaction Phoenix validates ownership, regular non-reparse paths,
@@ -55,3 +55,48 @@ preservation, and owned cleanup also passed. No VMs were changed in these tests.
 
 The commands follow Microsoft's documented
 [DISM image-management operations](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-image-management-command-line-options-s14).
+
+## Offline content injection (v0.2.14)
+
+Mount a working copy writable, then preview explicit selections:
+
+```powershell
+Add-PhoenixWindowsImageContent -WorkspacePath C:\PhoenixWork\Image -Type Driver -Value C:\Drivers\Network\device.inf -WhatIf
+Add-PhoenixWindowsImageContent -WorkspacePath C:\PhoenixWork\Image -Type Package -Value C:\Packages\update.cab -WhatIf
+Add-PhoenixWindowsImageContent -WorkspacePath C:\PhoenixWork\Image -Type Capability -Value 'OpenSSH.Client~~~~0.0.1.0' -SourcePath C:\Media\FeaturesOnDemand -WhatIf
+```
+
+Choose media compatible with your image. Remove `-WhatIf` to request injection;
+commit remains a separate explicit action. The Windows Image page exposes the
+same preview and add commands. Driver selections must be explicit INF files
+with DISM reporting signed x64 metadata. Driver installers and directory-wide
+automatic selection are not accepted. A package selection must be an applicable
+CAB; updates distributed as MSU containers require separate inspection and
+extraction. This release does not resolve arbitrary MSU dependency chains.
+
+Supply dependencies in their required order and confirm each is applicable to
+the current image. Phoenix will not ignore applicability errors or force an
+unsigned driver. Capabilities always require an offline source and LimitAccess;
+there is no automatic Windows Update fallback. Capability support depends on
+the image and its servicing stack; WinPE is not a full-Windows capability test.
+
+Inputs are hashed before staging, copied into a unique workspace subdirectory,
+rehashed, and re-inspected before DISM. The driver package's parent directory is
+staged with its catalog and binaries. Inputs inside the image workspace are
+rejected. Keep enough free disk space for staging and servicing scratch data.
+No input file or host driver installation is changed by injection.
+
+The servicing directory retains operation JSON and DISM logs. A successful
+operation must pass installed-package/capability state or installed-driver INF
+hash verification. Already-installed items are reported as skipped. A restart
+result stops the batch and reports later inputs as not run; no reboot occurs.
+InstallPending means first-boot verification is still needed, not that final
+validation is complete. Failed mutations keep workspace state Failed, preventing
+an unreviewed commit; inspect the records and explicitly discard the owned mount.
+
+Real-image validation added WinPE-WMI and its en-US package, plus signed
+VBoxNetAdp6.inf, to a private WinPE copy on DONAVEN. All persisted after commit
+and read-only remount, the duplicate package was skipped, original inputs were
+preserved, and no mounts remained. Capability injection and failure policies
+have automated mock coverage; this release does not claim live full-Windows
+capability or serviced-image boot certification.
