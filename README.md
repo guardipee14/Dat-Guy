@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.14`
+**Current release:** `v0.2.15`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.14](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.14)
+**Latest release:** [Phoenix v0.2.15](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.15)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -62,6 +62,10 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Preview creation, roll back partial staging failures, and remove only exact, unmounted, ownership-verified workspaces.
 
 ### Control Center and background work
+
+- Generate restricted, secret-free Windows answer files from the Unattended Setup page.
+- Use explicit SecureString inputs through PowerShell for one deployment-specific local account or product key; reusable files never create blank-password accounts.
+- See [Unattended setup](Docs/Unattended-Setup.md) for secret handling and the required image-specific Windows SIM validation.
 
 - Create and inspect source-preserving x64 image workspaces on the Windows Image page.
 - Mount private WIM copies read-only or writable, then explicitly commit or discard with live mount-identity checks.

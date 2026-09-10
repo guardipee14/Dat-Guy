@@ -55,6 +55,15 @@ function Show-PhoenixDesktop {
             'RestorePlanNavButton'
             'RecoveryBundleNavButton'
             'WindowsImageNavButton'
+            'UnattendedSetupNavButton'
+            'UnattendedSetupPage'
+            'UnattendComputerNameText'
+            'UnattendLocaleText'
+            'UnattendTimeZoneText'
+            'UnattendLocalAccountText'
+            'UnattendOutputPathText'
+            'GenerateUnattendButton'
+            'UnattendStatusText'
             'WindowsImagePage'
             'WindowsImageSourceText'
             'WindowsImageIndexText'
@@ -478,6 +487,10 @@ function Show-PhoenixDesktop {
         WindowsImage = [pscustomobject]@{
             Page = $controls.WindowsImagePage
             Button = $controls.WindowsImageNavButton
+        }
+        UnattendedSetup = [pscustomobject]@{
+            Page = $controls.UnattendedSetupPage
+            Button = $controls.UnattendedSetupNavButton
         }
         Activity = [pscustomobject]@{
             Page   = $controls.ActivityPage
@@ -3240,6 +3253,25 @@ function Show-PhoenixDesktop {
             }.GetNewClosure()
         }.GetNewClosure())
     }
+
+    $controls.GenerateUnattendButton.Add_Click({
+        $outputPath = $controls.UnattendOutputPathText.Text.Trim()
+        if (-not [IO.Path]::IsPathFullyQualified($outputPath)) {
+            & $setStatus 'A full new XML output path is required.'
+            return
+        }
+        $unattendControls = $controls
+        & $startOperation -Action 'UnattendGenerate' -Parameters @{
+            ComputerName = $controls.UnattendComputerNameText.Text.Trim()
+            Locale = $controls.UnattendLocaleText.Text.Trim()
+            TimeZone = $controls.UnattendTimeZoneText.Text.Trim()
+            LocalAccountName = $controls.UnattendLocalAccountText.Text.Trim()
+            Path = $outputPath
+        } -Description 'Generating secret-free unattended setup XML...' -ConcurrencyKey 'AnswerFile' -Completed {
+            param($result)
+            $unattendControls.UnattendStatusText.Text = $result | ConvertTo-Json -Depth 5
+        }.GetNewClosure()
+    }.GetNewClosure())
 
     $formatRecoveryBundleSummary = {
         param(

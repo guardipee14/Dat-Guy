@@ -372,6 +372,10 @@
                             Style="{StaticResource NavigationButton}"
                             Content="Windows Image" />
                         <Button
+                            x:Name="UnattendedSetupNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Unattended Setup" />
+                        <Button
                             x:Name="ActivityNavButton"
                             Style="{StaticResource NavigationButton}"
                             Content="Activity" />
@@ -1198,6 +1202,32 @@
                             <Button x:Name="ImageContentPreviewButton" Style="{StaticResource SecondaryButton}" Content="Preview content" />
                             <Button x:Name="ImageContentAddButton" Style="{StaticResource DangerButton}" Content="Add content" />
                         </WrapPanel>
+                    </Grid>
+
+                    <Grid x:Name="UnattendedSetupPage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Unattended Setup" />
+                            <TextBlock Style="{StaticResource SectionSubtitle}" Text="Generate a secret-free answer file. Passwords and product keys are never sent to background jobs." />
+                        </StackPanel>
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Computer name" /><TextBox x:Name="UnattendComputerNameText" Text="*" />
+                                <TextBlock Text="Locale" /><TextBox x:Name="UnattendLocaleText" Text="en-US" />
+                                <TextBlock Text="Windows time zone" /><TextBox x:Name="UnattendTimeZoneText" Text="Mountain Standard Time" />
+                                <TextBlock Text="Optional account name (deferred; not created in a secret-free file)" /><TextBox x:Name="UnattendLocalAccountText" />
+                                <TextBlock Text="New output XML path" /><TextBox x:Name="UnattendOutputPathText" />
+                                <TextBlock TextWrapping="Wrap" Margin="0,8" Text="Account creation requires an explicit SecureString password through PowerShell at deployment time. Validate the file against your exact image in Windows SIM before use. Existing files are never overwritten." />
+                                <Button x:Name="GenerateUnattendButton" Style="{StaticResource ModernButton}" Content="Generate secret-free answer file" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="2" Style="{StaticResource CardBorder}">
+                            <TextBox x:Name="UnattendStatusText" IsReadOnly="True" TextWrapping="Wrap" FontFamily="Consolas" VerticalScrollBarVisibility="Auto" Text="Generation does not run Windows Setup or modify disks." />
+                        </Border>
                     </Grid>
 
                     <Grid x:Name="ActivityPage" Visibility="Collapsed">
