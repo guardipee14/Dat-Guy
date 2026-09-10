@@ -368,6 +368,10 @@
                             Style="{StaticResource NavigationButton}"
                             Content="Recovery Bundle" />
                         <Button
+                            x:Name="WindowsImageNavButton"
+                            Style="{StaticResource NavigationButton}"
+                            Content="Windows Image" />
+                        <Button
                             x:Name="ActivityNavButton"
                             Style="{StaticResource NavigationButton}"
                             Content="Activity" />
@@ -1146,6 +1150,42 @@
                                 x:Name="RemoveRecoveryBundleButton"
                                 Style="{StaticResource DangerButton}"
                                 Content="Clean up bundle" />
+                        </WrapPanel>
+                    </Grid>
+
+                    <Grid x:Name="WindowsImagePage" Visibility="Collapsed">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+                            <TextBlock Style="{StaticResource SectionTitle}" Text="Windows Image" />
+                            <TextBlock Style="{StaticResource SectionSubtitle}" Text="Work on a private WIM copy. Original source images are never serviced." />
+                        </StackPanel>
+                        <Border Grid.Row="1" Style="{StaticResource CardBorder}" Margin="0,0,0,10">
+                            <StackPanel>
+                                <TextBlock Text="Source WIM / ESD (full path; required to create)" />
+                                <TextBox x:Name="WindowsImageSourceText" />
+                                <TextBlock Text="Explicit source image index (x64 only)" />
+                                <TextBox x:Name="WindowsImageIndexText" />
+                                <TextBlock Text="Phoenix image workspace (full path)" />
+                                <TextBox x:Name="WindowsImagePathText" />
+                                <TextBlock TextWrapping="Wrap" Text="Mount, commit, and discard require an administrator token and ADK DISM. Failed transactions remain available for inspection; never delete a live mount." />
+                            </StackPanel>
+                        </Border>
+                        <Border Grid.Row="2" Style="{StaticResource CardBorder}">
+                            <TextBox x:Name="WindowsImageSummaryText" IsReadOnly="True" FontFamily="Consolas" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" Text="Choose a workspace to inspect or create." />
+                        </Border>
+                        <WrapPanel Grid.Row="3" Margin="0,10,0,0">
+                            <Button x:Name="ImageCreateButton" Style="{StaticResource ModernButton}" Content="Create workspace" />
+                            <Button x:Name="ImageInspectButton" Style="{StaticResource SecondaryButton}" Content="Inspect" />
+                            <Button x:Name="ImageMountReadOnlyButton" Style="{StaticResource SecondaryButton}" Content="Mount read-only" />
+                            <Button x:Name="ImageMountButton" Style="{StaticResource SecondaryButton}" Content="Mount writable" />
+                            <Button x:Name="ImageCommitButton" Style="{StaticResource DangerButton}" Content="Commit copy" />
+                            <Button x:Name="ImageDiscardButton" Style="{StaticResource DangerButton}" Content="Discard changes" />
+                            <Button x:Name="ImageRemoveButton" Style="{StaticResource DangerButton}" Content="Remove workspace" />
                         </WrapPanel>
                     </Grid>
 

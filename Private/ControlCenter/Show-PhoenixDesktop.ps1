@@ -54,6 +54,19 @@ function Show-PhoenixDesktop {
             'DriversNavButton'
             'RestorePlanNavButton'
             'RecoveryBundleNavButton'
+            'WindowsImageNavButton'
+            'WindowsImagePage'
+            'WindowsImageSourceText'
+            'WindowsImageIndexText'
+            'WindowsImagePathText'
+            'WindowsImageSummaryText'
+            'ImageCreateButton'
+            'ImageInspectButton'
+            'ImageMountReadOnlyButton'
+            'ImageMountButton'
+            'ImageCommitButton'
+            'ImageDiscardButton'
+            'ImageRemoveButton'
             'ActivityNavButton'
             'CustomizeNavButton'
             'HeaderSubtitle'
@@ -456,6 +469,10 @@ function Show-PhoenixDesktop {
         RecoveryBundle = [pscustomobject]@{
             Page   = $controls.RecoveryBundlePage
             Button = $controls.RecoveryBundleNavButton
+        }
+        WindowsImage = [pscustomobject]@{
+            Page = $controls.WindowsImagePage
+            Button = $controls.WindowsImageNavButton
         }
         Activity = [pscustomobject]@{
             Page   = $controls.ActivityPage
@@ -3167,6 +3184,34 @@ function Show-PhoenixDesktop {
 
         $pageMap[$pageName].Button.Add_Click({
             & $showPage $resolvedPageName
+        }.GetNewClosure())
+    }
+
+    foreach ($imageAction in @('Create', 'Inspect', 'MountReadOnly', 'Mount', 'Commit', 'Discard', 'Remove')) {
+        $selectedImageAction = $imageAction
+        $controls["Image${imageAction}Button"].Add_Click({
+            $workspacePath = $controls.WindowsImagePathText.Text.Trim()
+            $sourcePath = $controls.WindowsImageSourceText.Text.Trim()
+            [int]$imageIndex = 0
+            if (-not [IO.Path]::IsPathFullyQualified($workspacePath)) {
+                & $setStatus 'Enter a full Phoenix image workspace path.'
+                return
+            }
+            if ($selectedImageAction -eq 'Create' -and
+                (-not [IO.Path]::IsPathFullyQualified($sourcePath) -or
+                 -not [int]::TryParse($controls.WindowsImageIndexText.Text.Trim(), [ref]$imageIndex) -or $imageIndex -lt 1)) {
+                & $setStatus 'Choose a full WIM/ESD source path and an explicit positive image index.'
+                return
+            }
+            if ($selectedImageAction -ne 'Inspect' -and
+                -not (& $confirmAction "$selectedImageAction image workspace '$workspacePath'? Commit changes only the working copy; discard loses uncommitted changes; remove deletes the workspace.")) { return }
+            $imageControls = $controls
+            & $startOperation -Action 'WindowsImage' -Parameters @{
+                Operation = $selectedImageAction; Path = $workspacePath; SourceImagePath = $sourcePath; ImageIndex = $imageIndex
+            } -Description "$selectedImageAction Windows image workspace..." -ConcurrencyKey 'WindowsImageServicing' -TimeoutSeconds 3600 -Completed {
+                param($result)
+                $imageControls.WindowsImageSummaryText.Text = $result | ConvertTo-Json -Depth 8
+            }.GetNewClosure()
         }.GetNewClosure())
     }
 

@@ -12,6 +12,20 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.13] - 2026-09-09
+
+### Added
+- source-preserving x64 WIM workspaces and explicit ESD-index export to working WIM
+- locked image mount, inspection, commit, discard, and ownership-safe cleanup commands
+- live DISM path, image, index, mode, and health checks before dismount or cleanup
+- working-image hashes and durable intent records that retain failed transactions
+- a background Windows Image Control Center page with explicit mutation confirmations
+
+### Validation boundary
+- private image-copy validation; no deployment, physical-disk writes, or boot certification
+- failed or mismatched mounts stop safely; no automatic foreign-mount cleanup
+- driver, package, capability, and update injection follows in v0.2.14
+
 ## [0.2.12] - 2026-09-09
 
 ### Added

@@ -43,6 +43,11 @@ foreach ($Folder in $Folders) {
 
 Export-ModuleMember -Function @(
     'Backup-Phoenix'
+    'Get-PhoenixWindowsImageWorkspace'
+    'New-PhoenixWindowsImageWorkspace'
+    'Mount-PhoenixWindowsImage'
+    'Dismount-PhoenixWindowsImage'
+    'Remove-PhoenixWindowsImageWorkspace'
     'Copy-PhoenixBootableMedia'
     'New-PhoenixBootableIso'
     'Export-PhoenixOfflineBundle'

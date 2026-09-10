@@ -70,7 +70,7 @@ release gates before the next milestone begins.
 - [x] `v0.2.10` - Windows ADK and WinPE prerequisite discovery and diagnostics
 - [x] `v0.2.11` - Transactional WinPE workspace and image construction
 - [x] `v0.2.12` - Bootable ISO creation and guarded removable-media staging
-- [ ] `v0.2.13` - Transactional offline Windows-image mount and servicing engine
+- [x] `v0.2.13` - Transactional offline Windows-image mount and servicing engine
 - [ ] `v0.2.14` - Offline driver, package, capability, and update injection
 - [ ] `v0.2.15` - Typed unattended answer-file generation and secret policy
 - [ ] `v0.2.16` - Disk-layout planning, validation, preview, and target identity
