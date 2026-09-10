@@ -235,6 +235,7 @@ $pageNames = @(
     'RecoveryBundlePage',
     'WindowsImagePage',
     'UnattendedSetupPage',
+    'DiskPlanPage',
     'ActivityPage',
     'CustomizePage'
 )

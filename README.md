@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.15`
+**Current release:** `v0.2.16`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.15](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.15)
+**Latest release:** [Phoenix v0.2.16](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.16)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -62,6 +62,10 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Preview creation, roll back partial staging failures, and remove only exact, unmounted, ownership-verified workspaces.
 
 ### Control Center and background work
+
+- Preview deterministic UEFI/GPT layouts for one explicitly selected, non-system disk on the Disk Preview page.
+- Review exact identity, partitions, capacity, GPT tail space, and short-lived content-bound previews; deployment is not available in this milestone.
+- See [Disk planning](Docs/Disk-Planning.md) for safety checks and preview limits.
 
 - Generate restricted, secret-free Windows answer files from the Unattended Setup page.
 - Use explicit SecureString inputs through PowerShell for one deployment-specific local account or product key; reusable files never create blank-password accounts.

@@ -434,6 +434,7 @@ $modelFiles = @(
     '30-Models\PhoenixWinPEWorkspace.ps1'
     '30-Models\PhoenixWindowsImageWorkspace.ps1'
     '30-Models\PhoenixUnattendConfiguration.ps1'
+    '30-Models\PhoenixDiskPlan.ps1'
     '30-Models\PhoenixPackageAcquisitionRequest.ps1'
     '30-Models\PhoenixPackageAcquisitionResult.ps1'
     '30-Models\PhoenixPackageAcquisitionAdapter.ps1'

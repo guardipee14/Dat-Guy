@@ -389,6 +389,12 @@ try {
             $verification
         }
 
+        'DiskPlanPreview' {
+            Write-PhoenixWorkerProgress -Percent 30 -Message 'Reading the selected disk identity; no disk writes...'
+            $diskPlan = New-PhoenixDiskPlan -DiskNumber ([int]$request.Parameters.DiskNumber)
+            Show-PhoenixDiskPlan -Plan $diskPlan
+        }
+
         'UnattendGenerate' {
             Write-PhoenixWorkerProgress -Percent 30 -Message 'Generating a secret-free unattended setup file...'
             $configuration = New-PhoenixUnattendConfiguration -ComputerName ([string]$request.Parameters.ComputerName) -Locale ([string]$request.Parameters.Locale) -TimeZone ([string]$request.Parameters.TimeZone) -LocalAccountName ([string]$request.Parameters.LocalAccountName)
