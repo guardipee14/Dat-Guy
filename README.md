@@ -3,11 +3,11 @@
 
 PowerShell deployment and recovery framework for Windows applications, drivers, updates, restore workflows, offline recovery, and a desktop Control Center.
 
-**Current release:** `v0.2.12`
+**Current release:** `v0.2.13`
 
 **Repository:** [https://github.com/guardipee14/Dat-Guy](https://github.com/guardipee14/Dat-Guy)
 
-**Latest release:** [Phoenix v0.2.12](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.12)
+**Latest release:** [Phoenix v0.2.13](https://github.com/guardipee14/Dat-Guy/releases/tag/v0.2.13)
 
 **Development history:** [Phoenix v0.2.0](Docs/Phoenix-v0.2.0-Development-History.md)
 
@@ -62,6 +62,11 @@ PowerShell deployment and recovery framework for Windows applications, drivers, 
 - Preview creation, roll back partial staging failures, and remove only exact, unmounted, ownership-verified workspaces.
 
 ### Control Center and background work
+
+- Create and inspect source-preserving x64 image workspaces on the Windows Image page.
+- Mount private WIM copies read-only or writable, then explicitly commit or discard with live mount-identity checks.
+- Export an explicitly selected ESD index into a working WIM and retain source and working-image hashes.
+- See [Windows image servicing](Docs/Windows-Image-Servicing.md) for commands, prerequisites, and failed-transaction handling.
 
 - Build or resume, inspect, verify, and safely clean up recovery bundles from a dedicated Control Center page.
 - Keep the desktop responsive by running provider checks, inventory, searches, restore work, and application or driver operations in isolated workers.

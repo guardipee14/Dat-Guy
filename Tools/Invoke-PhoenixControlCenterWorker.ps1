@@ -389,6 +389,24 @@ try {
             $verification
         }
 
+        'WindowsImage' {
+            $workspacePath = [string]$request.Parameters.Path
+            Write-PhoenixWorkerProgress -Percent 10 -Message 'Validating image workspace and Windows servicing state...'
+            switch ([string]$request.Parameters.Operation) {
+                'Create' { New-PhoenixWindowsImageWorkspace -SourceImagePath ([string]$request.Parameters.SourceImagePath) -ImageIndex ([int]$request.Parameters.ImageIndex) -Path $workspacePath -Confirm:$false }
+                'Inspect' { Get-PhoenixWindowsImageWorkspace -Path $workspacePath }
+                'MountReadOnly' { Mount-PhoenixWindowsImage -WorkspacePath $workspacePath -ReadOnly -Confirm:$false }
+                'Mount' { Mount-PhoenixWindowsImage -WorkspacePath $workspacePath -Confirm:$false }
+                'Commit' { Dismount-PhoenixWindowsImage -WorkspacePath $workspacePath -Mode Commit -Confirm:$false }
+                'Discard' { Dismount-PhoenixWindowsImage -WorkspacePath $workspacePath -Mode Discard -Confirm:$false }
+                'Remove' {
+                    Remove-PhoenixWindowsImageWorkspace -Path $workspacePath -Confirm:$false
+                    [pscustomobject]@{ Removed = $true; Path = $workspacePath }
+                }
+                default { throw 'Unsupported Windows image operation.' }
+            }
+        }
+
         'OfflineBundleBuild' {
             Write-PhoenixWorkerProgress `
                 -Percent 10 `
