@@ -19,4 +19,13 @@ Describe 'Windows Image Control Center integration' -Tag @('Regression', 'Window
             $worker.Contains($name) | Should-BeTrue
         }
     }
+    It 'binds content preview and injection to the same serialized worker' {
+        foreach ($name in @('ImageContentTypeCombo','ImageContentValuesText','ImageContentSourceText','ImageContentPreviewButton','ImageContentAddButton')) {
+            $xaml.Contains(('x:Name="{0}"' -f $name)) | Should-BeTrue
+            $desktop.Contains("'$name'") | Should-BeTrue
+        }
+        $desktop.Contains("-Action 'WindowsImageContent'") | Should-BeTrue
+        $worker.Contains('Add-PhoenixWindowsImageContent') | Should-BeTrue
+        $worker.Contains('-WhatIf:([bool]$request.Parameters.Preview)') | Should-BeTrue
+    }
 }
