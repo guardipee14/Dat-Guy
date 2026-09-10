@@ -12,6 +12,17 @@ All notable changes to Phoenix are documented in this file.
   - Keep offline recovery wording future-proof and roadmap-driven.
   - Synchronize the module, README, and GitHub repository description.
 
+## [0.2.16] - 2026-09-10
+
+### Added
+- read-only UEFI/GPT plans with exact identity, deterministic alignment, capacity checks, and a reserved GPT tail
+- content-bound short-lived previews and a background Disk Preview Control Center page with no execution action
+- strict safety-flag, serial, bus, filesystem, partition-role, and overflow checks
+
+### Fixed
+- disk identity validation no longer changes a mismatched fingerprint
+- changed target or layout content invalidates an existing preview
+
 ## [0.2.15] - 2026-09-10
 
 ### Added

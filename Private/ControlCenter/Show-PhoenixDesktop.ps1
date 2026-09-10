@@ -64,6 +64,11 @@ function Show-PhoenixDesktop {
             'UnattendOutputPathText'
             'GenerateUnattendButton'
             'UnattendStatusText'
+            'DiskPlanNavButton'
+            'DiskPlanPage'
+            'DiskPlanNumberText'
+            'PreviewDiskPlanButton'
+            'DiskPlanSummaryText'
             'WindowsImagePage'
             'WindowsImageSourceText'
             'WindowsImageIndexText'
@@ -491,6 +496,10 @@ function Show-PhoenixDesktop {
         UnattendedSetup = [pscustomobject]@{
             Page = $controls.UnattendedSetupPage
             Button = $controls.UnattendedSetupNavButton
+        }
+        DiskPlan = [pscustomobject]@{
+            Page = $controls.DiskPlanPage
+            Button = $controls.DiskPlanNavButton
         }
         Activity = [pscustomobject]@{
             Page   = $controls.ActivityPage
@@ -3253,6 +3262,20 @@ function Show-PhoenixDesktop {
             }.GetNewClosure()
         }.GetNewClosure())
     }
+
+    $controls.PreviewDiskPlanButton.Add_Click({
+        [int]$selectedDisk = -1
+        if (-not [int]::TryParse($controls.DiskPlanNumberText.Text.Trim(), [ref]$selectedDisk) -or $selectedDisk -lt 0 -or $selectedDisk -gt 65535) {
+            & $setStatus 'Enter an exact disk number between 0 and 65535.'
+            return
+        }
+        $diskControls = $controls
+        $controls.DiskPlanSummaryText.Text = 'Reading the explicitly selected disk; no previous preview remains displayed.'
+        & $startOperation -Action 'DiskPlanPreview' -Parameters @{ DiskNumber = $selectedDisk } -Description 'Reading disk identity and calculating a read-only layout...' -ConcurrencyKey 'DiskPreview' -Completed {
+            param($result)
+            $diskControls.DiskPlanSummaryText.Text = $result | ConvertTo-Json -Depth 8
+        }.GetNewClosure()
+    }.GetNewClosure())
 
     $controls.GenerateUnattendButton.Add_Click({
         $outputPath = $controls.UnattendOutputPathText.Text.Trim()
